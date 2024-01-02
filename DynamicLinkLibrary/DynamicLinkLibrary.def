@@ -1,0 +1,6 @@
+LIBRARY	"DynamicLinkLibrary"
+
+
+EXPORTS
+    ; Explicit exports can go here
+    Sum @ 1
