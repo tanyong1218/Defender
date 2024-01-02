@@ -694,6 +694,20 @@ void CWLUDisk::DealDeviceChangeMsg()
 
 	BuildDeviceRelation();
 
+	//同步设备状态。完成子到父，父到子 的过程  - 递归。 （PS:小米无线鼠标）
+	//EG:设备树的深度为3的情况下
+	/*     E为忽略状态需要同步到ABCDEFG
+					   A
+					/  |  \
+					B  C   D
+					/  \   |
+					E   F  G
+	*/
+	std::vector<boost::shared_ptr<DeviceInfoFull>>::iterator it;
+	for (it = g_vecDevice.begin(); it != g_vecDevice.end(); ++it)
+	{
+		RsynUSBParentAndChlidignoreState(*(it->get()));
+	}
 }
 
 CWLUDisk::CWLUDisk()
@@ -874,12 +888,87 @@ void CWLUDisk::BuildDeviceRelation()
 	}
 }
 
+
+void CWLUDisk::RsynUSBParentAndChlidignoreState(DeviceInfoFull& childDevInfo)
+{
+	if (!childDevInfo.vectChild.empty())
+	{
+		RsynUSBChildignoreState(childDevInfo);
+	}
+	if (childDevInfo.parent.get() == NULL)
+	{
+		return;
+	}
+	DeviceInfoFull& USBDeviceInfo = *(childDevInfo.parent.get());
+	//子设备反向同步给USB设备。
+	if (childDevInfo.bIgnore == TRUE && !USBDeviceInfo.bIgnore)
+	{
+		USBDeviceInfo.bIgnore = TRUE;
+		if (USBDeviceInfo.iAction != DEVICE_KEEP)
+		{
+			USBDeviceInfo.iAction = DEVICE_KEEP;//此判断调试要用。以后给出打印信息。
+		}
+		RsynUSBParentAndChlidignoreState(USBDeviceInfo);
+	}
+}
+/*
+
+USB->hidclass->mouse. 三级对象。
+			|->printer
+			|->双因子KEY。
+
+其中hidclass也不应该是ignore.
+
+*/
+/*
+* @fn           RsynUSBChildignoreState
+* @brief		同步ignore状态。 .其中有USB的CDROM，USB的手机，USB的wifi等等。
+* @param[in]
+* @param[in]
+*
+* @author       dan.liu
+* @date         2023-11-8
+*/
+void CWLUDisk::RsynUSBChildignoreState(DeviceInfoFull& USBDeviceInfo)
+{
+	//DevStatus 0 表示禁用状态  1表示启用状态
+
+	//ParseUsbVendorProductIdFromUsbParentId(USBDeviceInfo.SelfDeviceInstanceId,UsbVid,UsbPid);
+
+	std::vector<boost::shared_ptr<DeviceInfoFull>>::iterator it;
+	for (it = USBDeviceInfo.vectChild.begin(); it != USBDeviceInfo.vectChild.end(); ++it)
+	{
+		DeviceInfoFull& childDevInfo = *(it->get());
+		DWORD dwdefailInfoPid = 0;
+		DWORD dwdefailInfoVid = 0;
+
+		//ParseUsbVendorProductIdFromUsbParentId(devInfo.ParentDevInstanceId,dwdefailInfoVid,dwdefailInfoPid);
+
+
+		//step 1 同步"bIgnore"信息。父向子同步。
+		if (USBDeviceInfo.bIgnore && !childDevInfo.bIgnore)
+		{
+			childDevInfo.bIgnore = TRUE;
+			if (childDevInfo.iAction != DEVICE_KEEP)
+			{
+				childDevInfo.iAction = DEVICE_KEEP;//此判断调试要用。以后给出打印信息。
+			}
+			continue;
+		}
+
+		//设备树的深度 > 2 深度遍历
+		if (!childDevInfo.vectChild.empty())
+		{
+			RsynUSBChildignoreState(childDevInfo);
+		}
+	}
+}
+
 extern "C" __declspec(dllexport) int TestFuction()
 {
 	//my_logger->flush_on(spdlog::level::info);
 	CWLUDisk* instance = CWLUDisk::GetInstance();
 
-	auto x = new CWLUDisk();
 	spdlog::info(("Welcome to spdlog!"));
 	instance->DealDeviceChangeMsg();
 	

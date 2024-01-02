@@ -269,7 +269,12 @@ typedef struct _VENDOR_ID {
 	string  szVendor;
 } VENDOR_ID, * PVENDOR_ID;
 
-
+enum DeviceAction_st
+{
+	DEVICE_KEEP = 0,
+	DEVICE_DISABLE = 1,
+	DEVICE_ENABLE = 2,
+};
 
 
 vector<boost::shared_ptr<DeviceInfoFull>> g_vecDevice;
@@ -308,6 +313,8 @@ public:
 	void ParseUsbVendorProductIdFromUsbParentId(wstring UsbDeviceId, ULONG& ulVendorId, ULONG& ulProductId);
 	int DevicePathToGUID(wstring& SymbolicName, GUID& outGuid);
 	void BuildDeviceRelation();
+	void RsynUSBParentAndChlidignoreState(DeviceInfoFull& childDevInfo);
+	void RsynUSBChildignoreState(DeviceInfoFull& USBDeviceInfo);
 private:
 
 	CWLUDisk();
