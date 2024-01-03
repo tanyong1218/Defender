@@ -5,8 +5,6 @@ VisualStudioVersion = 17.8.34330.188
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DynamicLinkLibrary", "DynamicLinkLibrary\DynamicLinkLibrary.vcxproj", "{F5EFC1DA-A9C4-4FD4-B584-791EFEFE5557}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "common", "common", "{157A893C-C3DF-441C-AAB7-6262D29C162D}"
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SampleTest", "SampleTest\SampleTest.vcxproj", "{99D99259-4EF7-4AC5-906F-2657A74192D7}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "USBDeview", "USBDeview\USBDeview.vcxproj", "{E9F879FA-0F2C-4A8D-BF49-BF2207893643}"

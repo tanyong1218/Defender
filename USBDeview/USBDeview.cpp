@@ -105,6 +105,7 @@ DWORD GetProcessIdFromName(const std::wstring& processName)
 
 int main(int argc, char const* argv[])
 {
+	SetConsoleOutputCP(65001); // 设置为UTF-8
 	std::wstring processName = L"WLClient.exe";
 	DWORD processId = GetProcessIdFromName(processName);
 

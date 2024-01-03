@@ -22,7 +22,7 @@ vector<wstring> CWLUDisk::m_stcDevInfo =
 	_T("net")  ,
 	_T("bluetooth"),
 	_T("ports"),
-	_T("ports"),
+	_T("diskdrive"),
 	_T("floppydisk"),
 	_T("wpd"),
 	_T("usb")
@@ -82,6 +82,18 @@ wstring CWLUDisk::getVendorNameByVid(unsigned short VendorID)
 	return wsVendorInfo;
 }
 
+
+/*
+* @function		getUsbDevProductInfo
+* @brief		获取USB设备的父节点的信息，包括端口号，Hub号，设备名。
+* @param[in]    vectHubDevBaseInfo: USBHub的信息，包括devpath，devinst
+* @param[in]    USBDeviceInfo: USB设备的信息，包括devpath，devinst
+* @param[out]   wstrProductInfo: USB设备的设备名
+* @return
+* @date         2023-10-10	
+* @note
+* @warning
+*/
 void CWLUDisk::getUsbDevProductInfo(vector<DevPathAndDevInst>& vectHubDevBaseInfo, DeviceInfoFull& USBDeviceInfo, wstring& wstrProductInfo)
 {
 	int			PortId = 0;
@@ -111,6 +123,9 @@ void CWLUDisk::getUsbDevProductInfo(vector<DevPathAndDevInst>& vectHubDevBaseInf
 	extractPortAndHub(strPostionInfo, PortId, hubId);
 	//wstring wstrDeviceName;
 	GetUsbDeviceDeviceName(USBHubDevicePath, PortId, wstrProductInfo, strError);
+
+	USBDeviceInfo.ParentDevPort = PortId;
+	USBDeviceInfo.ParentDevHub = hubId;
 }
 
 
@@ -467,9 +482,9 @@ BOOL CWLUDisk::GetDeviceFullInfo(
 		NULL);
 
 
-	wstring strClassName = wszClassName;
-	transform(strClassName.begin(), strClassName.end(), strClassName.begin(), ::tolower);
-	DeviceInfo.SelfClassName = strClassName;
+	wstring wstrClassName = wszClassName;
+	transform(wstrClassName.begin(), wstrClassName.end(), wstrClassName.begin(), ::tolower);
+	DeviceInfo.SelfClassName = wstrClassName;
 	//DeviceInfo.hDevInfo = hDevInfo;
 	DeviceInfo.DeviceInfoData = *pDeviceInfoData;
 
@@ -493,11 +508,6 @@ BOOL CWLUDisk::GetDeviceFullInfo(
 			TypeisFound = TRUE;
 			break;
 		}
-	}
-
-	if (!TypeisFound)
-	{
-		return FALSE;
 	}
 
 	//获取父节点的信息
@@ -551,7 +561,11 @@ BOOL CWLUDisk::GetDeviceFullInfo(
 		DeviceInfo.ParentDevHub = HubId;
 		DeviceInfo.ParentDevPort = PortId;	
 	}
-	VectAllDevice.push_back(pDeviceInfo);
+
+	if (TypeisFound || DeviceInfo.isParentUSB)
+	{
+		VectAllDevice.push_back(pDeviceInfo);
+	}
 	return TRUE;
 }
 
@@ -707,6 +721,20 @@ void CWLUDisk::DealDeviceChangeMsg()
 	for (it = g_vecDevice.begin(); it != g_vecDevice.end(); ++it)
 	{
 		RsynUSBParentAndChlidignoreState(*(it->get()));
+	}
+
+	//遍历打印出g_vecDevice的信息
+	for (it = g_vecDevice.begin(); it != g_vecDevice.end(); ++it)
+	{
+		DeviceInfoFull& DeviceInfo = *(it->get());
+		if (DeviceInfo.isParentUSB)
+		{
+			spdlog::info(("VID: {} PID: {}  ProductInfo: {}  VendorInfo: {}"),
+								DeviceInfo.UsbVid,
+								DeviceInfo.UsbPid,
+								CStrUtil::UnicodeToUTF8(DeviceInfo.wsProductInfo),
+								CStrUtil::UnicodeToUTF8(DeviceInfo.wsVendorInfo));
+		}
 	}
 }
 
@@ -971,7 +999,5 @@ extern "C" __declspec(dllexport) int TestFuction()
 
 	spdlog::info(("Welcome to spdlog!"));
 	instance->DealDeviceChangeMsg();
-	
-
 	return 0;
 }

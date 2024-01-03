@@ -72,11 +72,13 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <TargetName>DynamicLinkLibrary</TargetName>
-    <IncludePath>D:\Boost\x64\include\boost-1_80;$(IncludePath)</IncludePath>
-    <LibraryPath>D:\Boost\x64\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>../include/Boost/x64/include/boost-1_80;$(IncludePath)</IncludePath>
+    <LibraryPath>../include/Boost/x64/lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <TargetName>DynamicLinkLibrary</TargetName>
+    <ExecutablePath>D:\Boost\x86\include\boost-1_80;$(ExecutablePath)</ExecutablePath>
+    <LibraryPath>D:\Boost\x86\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <TargetName>DynamicLinkLibrary</TargetName>
@@ -120,7 +122,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;DYNAMICLINKLIBRARY_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\Users\DELL\Desktop\spdlog-1.12.0\spdlog-1.12.0\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../include/spdlog-1.12.0/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/bigobj %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
@@ -128,7 +130,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
       <AdditionalDependencies>spdlog.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>C:\Users\DELL\Desktop\spdlog-1.12.0\spdlog-1.12.0\build\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>../include/spdlog-1.12.0/build/Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">

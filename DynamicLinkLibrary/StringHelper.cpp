@@ -43,10 +43,23 @@ std::wstring CStrUtil::UTF8ToUnicode(std::string szAnsi)
 {
 	int nLen = MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, szAnsi.c_str(), -1, NULL, 0);
 	WCHAR* wszAnsi = new WCHAR[nLen + 1];
-	memset(wszAnsi, 0, sizeof(WCHAR) * (nLen + 1));
+	memset(wszAnsi, 0, sizeof(WCHAR) * (static_cast<unsigned long long>(nLen) + 1));
 	nLen = MultiByteToWideChar(CP_UTF8, 0, szAnsi.c_str(), -1, wszAnsi, nLen + 1);
 	std::wstring strRet;
 	strRet = wszAnsi;
 	delete[]wszAnsi;
 	return strRet;
+}
+
+
+std::string CStrUtil::UnicodeToUTF8(std::wstring str)
+{
+	int nLen = WideCharToMultiByte(CP_UTF8, 0, str.c_str(), -1, NULL, 0, NULL, NULL);
+	CHAR* szUtf8 = new CHAR[nLen + 1];
+	memset(szUtf8, 0, static_cast<size_t>(nLen) + 1);
+	nLen = WideCharToMultiByte(CP_UTF8, 0, str.c_str(), -1, szUtf8, nLen + 1, NULL, NULL);
+	std::string strUtf8 = szUtf8;
+	delete[]szUtf8;
+
+	return strUtf8;
 }
