@@ -14,8 +14,6 @@
 // 这是导出变量的一个示例
 DYNAMICLINKLIBRARY_API int nDynamicLinkLibrary=0;
 CWLUDisk* CWLUDisk::m_instance = nullptr;
-
-
 vector<wstring> CWLUDisk::m_stcDevInfo = 
 {
 	_T("cdrom") ,
@@ -997,6 +995,7 @@ extern "C" __declspec(dllexport) int TestFuction()
 	//my_logger->flush_on(spdlog::level::info);
 	CWLUDisk* instance = CWLUDisk::GetInstance();
 
+	WriteInfo("Welcome to spdlog!");
 	spdlog::info(("Welcome to spdlog!"));
 	instance->DealDeviceChangeMsg();
 	return 0;

@@ -26,7 +26,7 @@
 #include "VndrList.h"
 #include "WindowsHelper.h"
 #include "StringHelper.h"
-
+#include <LogHelper.h>
 using namespace std;
 
 /////////////////////以下自己 COPY usbioctl.h中内容 /////////////
@@ -322,7 +322,6 @@ private:
 	static CWLUDisk* m_instance;
 	void Destroy();
 };
-
 
 extern "C" __declspec(dllexport) int TestFuction();
 
