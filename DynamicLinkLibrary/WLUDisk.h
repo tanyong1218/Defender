@@ -27,6 +27,7 @@
 #include "WindowsHelper.h"
 #include "StringHelper.h"
 #include <LogHelper.h>
+#include <TimerHelper.h>
 using namespace std;
 
 /////////////////////以下自己 COPY usbioctl.h中内容 /////////////
@@ -315,6 +316,8 @@ public:
 	void BuildDeviceRelation();
 	void RsynUSBParentAndChlidignoreState(DeviceInfoFull& childDevInfo);
 	void RsynUSBChildignoreState(DeviceInfoFull& USBDeviceInfo);
+
+	std::unique_ptr<Timer> timer;
 private:
 
 	CWLUDisk();

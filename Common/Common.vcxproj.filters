@@ -24,6 +24,12 @@
     <ClInclude Include="LogHelper.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="TimerHelper.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="WindowsHelper.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Common.cpp">
@@ -33,6 +39,12 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="LogHelper.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="TimerHelper.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="WindowsHelper.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

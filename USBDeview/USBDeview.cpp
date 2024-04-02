@@ -8,59 +8,12 @@
 #include <tchar.h>
 #include <vector>
 #include <userenv.h>
+#include <LogHelper.h>
+#include <WindowsHelper.h>
 using namespace std;
 
-const TCHAR WLMINIDEVCTRL[] = _T("DynamicLinkLibrary.dll");
+const TCHAR DEVICECONTROL[] = _T("DeviceControl.dll");
 typedef int(_cdecl* TESTDLL)();
-
-/*
-* @fn            EnablePrivilege
-* @brief         提权函数
-* @param[in]	 LPCTSTR lpszPrivilege
-* @param[in]	 BOOL	 bEnablePrivilege
-* @return        BOOL TRUE：FALSE
-* @author
-* @modify：		2023. create it.
-*/
-BOOL EnablePrivilege(LPCTSTR lpszPrivilege, BOOL bEnablePrivilege)
-{
-	TOKEN_PRIVILEGES tp;
-	HANDLE hToken;
-	LUID luid;
-
-	if (!OpenProcessToken(GetCurrentProcess(), TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY, &hToken))
-	{
-		return FALSE;
-	}
-
-	if (!LookupPrivilegeValue(NULL, lpszPrivilege, &luid))
-	{
-		CloseHandle(hToken);
-		return FALSE;
-	}
-
-	tp.PrivilegeCount = 1;
-	tp.Privileges[0].Luid = luid;
-
-	if (bEnablePrivilege)
-	{
-		tp.Privileges[0].Attributes = SE_PRIVILEGE_ENABLED;
-	}
-	else
-	{
-		tp.Privileges[0].Attributes = 0;
-	}
-
-	if (!AdjustTokenPrivileges(hToken, FALSE, &tp, sizeof(TOKEN_PRIVILEGES), NULL, NULL))
-	{
-		CloseHandle(hToken);
-		return FALSE;
-	}
-
-	CloseHandle(hToken);
-	return TRUE;
-}
-
 
 
 HWND GetMainWindowHandle(DWORD processId)
@@ -79,37 +32,16 @@ HWND GetMainWindowHandle(DWORD processId)
 	return NULL;
 }
 
-
-//为下面的GetProcessIdFromName写一个函数头
-DWORD GetProcessIdFromName(const std::wstring& processName)
-{
-	PROCESSENTRY32 entry;
-	entry.dwSize = sizeof(PROCESSENTRY32);
-
-	HANDLE snapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
-	if (Process32First(snapshot, &entry))
-	{
-		do
-		{
-			if (_wcsicmp(entry.szExeFile, processName.c_str()) == 0)
-			{
-				CloseHandle(snapshot);
-				return entry.th32ProcessID;
-			}
-		} while (Process32Next(snapshot, &entry));
-	}
-	CloseHandle(snapshot);
-	return 0;
-}
-
-
 int main(int argc, char const* argv[])
 {
 	SetConsoleOutputCP(65001); // 设置为UTF-8
-	std::wstring processName = L"WLClient.exe";
-	DWORD processId = GetProcessIdFromName(processName);
+	CWindowsHelper::EnablePrivilege(SE_DEBUG_NAME,FALSE);
 
-	HMODULE hMoudle = ::LoadLibrary(WLMINIDEVCTRL);
+	std::wstring processName = L"WLClient.exe";
+	DWORD processId = 0;
+	CWindowsHelper::GetProcessIdFromName(processName, processId);
+
+	HMODULE hMoudle = ::LoadLibrary(DEVICECONTROL);
 	//搜索**.dll中函数名为TestFuction的对外接口
 	if (hMoudle)
 	{
@@ -121,9 +53,6 @@ int main(int argc, char const* argv[])
 	{
 		printf("LoadLibrary failed\n");
 	}
-
-
-	
 	return 0;
 }
 

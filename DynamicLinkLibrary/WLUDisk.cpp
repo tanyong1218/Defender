@@ -14,6 +14,9 @@
 // 这是导出变量的一个示例
 DYNAMICLINKLIBRARY_API int nDynamicLinkLibrary=0;
 CWLUDisk* CWLUDisk::m_instance = nullptr;
+
+using TaskFunc = std::function<void()>;
+
 vector<wstring> CWLUDisk::m_stcDevInfo = 
 {
 	_T("cdrom") ,
@@ -698,9 +701,20 @@ BOOL CWLUDisk::EnumAllDeviceFullInfo(vector<boost::shared_ptr<DeviceInfoFull>>& 
 
 	return TRUE;
 }
-
+void TestFFFF()
+{
+	spdlog::info("TestFFFF");
+}
+void TestCCCC()
+{
+	spdlog::info("TestCCCC");
+}
 void CWLUDisk::DealDeviceChangeMsg()
 {
+	timer = std::make_unique<Timer>(); // 构造函数被调用std::make_unique<Timer>();
+
+	timer->add(1, true, TestFFFF);
+	timer->add(1, true, TestCCCC);
     vector<boost::shared_ptr<DeviceInfoFull>> vecDeviceLastSnap;
 	EnumAllDeviceFullInfo(vecDeviceLastSnap);
 
@@ -996,7 +1010,8 @@ extern "C" __declspec(dllexport) int TestFuction()
 	CWLUDisk* instance = CWLUDisk::GetInstance();
 
 	WriteInfo("Welcome to spdlog!");
-	spdlog::info(("Welcome to spdlog!"));
 	instance->DealDeviceChangeMsg();
+	
+	//timer.reset(); // 析构函数被调用
 	return 0;
 }

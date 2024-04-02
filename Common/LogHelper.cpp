@@ -1,4 +1,3 @@
-#include "pch.h"
 #include "LogHelper.h"
 
 
@@ -15,6 +14,7 @@ LogHelper::LogHelper()
 	basicSink->set_pattern("[%Y-%m-%d %H:%M:%S.%e] [%^%5l%$]  %v");
 	sinkList.push_back(basicSink);
 	m_logger = std::make_shared<spdlog::logger>("both", begin(sinkList), end(sinkList));
+
 	//register it if you need to access it globally
 	spdlog::register_logger(m_logger);
 	m_logger->set_level(spdlog::level::err);

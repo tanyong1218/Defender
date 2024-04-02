@@ -7,6 +7,20 @@
 #include <boost/log/common.hpp>
 #include <mutex>
 
+#ifdef _WIN32
+#define __FILENAME__ (strrchr(__FILE__, '\\') ? (strrchr(__FILE__, '\\') + 1):__FILE__)
+#else
+#define __FILENAME__ (strrchr(__FILE__, '/') ? (strrchr(__FILE__, '/') + 1):__FILE__)
+#endif
+
+//定义一个在日志后添加 文件名 函数名 行号 的宏定义
+#ifndef suffix
+#define suffix(msg)  std::string(msg).append("  <")\
+        .append(__FILENAME__).append("> <").append(__func__)\
+        .append("> <").append(std::to_string(__LINE__))\
+        .append(">").c_str()
+#endif
+
 class LogHelper
 {
 public:
@@ -28,7 +42,7 @@ private:
 #define WriteDebug(...) LogHelper::GetInstance().GetLogger()->debug(__VA_ARGS__)
 #define WriteInfo(...) LogHelper::GetInstance().GetLogger()->info(__VA_ARGS__)
 #define WriteWarn(...) LogHelper::GetInstance().GetLogger()->warn(__VA_ARGS__)
-#define WriteError(...) LogHelper::GetInstance().GetLogger()->error(__VA_ARGS__)
+#define WriteError(msg,...) LogHelper::GetInstance().GetLogger()->error(suffix(msg),__VA_ARGS__)
 #define WriteCritical(...) LogHelper::GetInstance().GetLogger()->critical(__VA_ARGS__)
 
 #define criticalif(b, ...)                        \
