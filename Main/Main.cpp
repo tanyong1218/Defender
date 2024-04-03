@@ -19,12 +19,6 @@ int main(int argc, char const* argv[])
 	SetConsoleOutputCP(65001); // 设置为UTF-8
 	CWindowsHelper::EnablePrivilege(SE_DEBUG_NAME, FALSE);
 
-	Timer<int, int>  timer;
-	timer.add(1000, true, [](int arg, int b) {
-		WriteInfo("timer");
-		});
-
-
 	Timer timer2;
 	timer2.add(1000, true, LogTime);
 
