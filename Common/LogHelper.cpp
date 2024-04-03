@@ -32,3 +32,4 @@ std::shared_ptr<spdlog::logger> LogHelper::GetLogger()
 {
 	return m_logger;
 }
+

@@ -41,9 +41,6 @@
     <ClCompile Include="LogHelper.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="TimerHelper.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="WindowsHelper.cpp">
       <Filter>源文件</Filter>
     </ClCompile>

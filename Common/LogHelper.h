@@ -5,7 +5,7 @@
 
 #include <boost/shared_array.hpp>
 #include <boost/log/common.hpp>
-#include <mutex>
+//#include <mutex>
 
 #ifdef _WIN32
 #define __FILENAME__ (strrchr(__FILE__, '\\') ? (strrchr(__FILE__, '\\') + 1):__FILE__)
@@ -15,39 +15,77 @@
 
 //定义一个在日志后添加 文件名 函数名 行号 的宏定义
 #ifndef suffix
-#define suffix(msg)  std::string(msg).append("  <")\
-        .append(__FILENAME__).append("> <").append(__func__)\
-        .append("> <").append(std::to_string(__LINE__))\
-        .append(">").c_str()
+#define suffix(msg)  std::string("[") \
+        .append(__FILENAME__).append("::").append(__func__) \
+        .append("::").append(std::to_string(__LINE__)) \
+        .append("]: ").append(msg)
 #endif
+
+template<typename... Args>
+using format_string_t = fmt::format_string<Args...>;
 
 class LogHelper
 {
 public:
-	~LogHelper();
-	static LogHelper& GetInstance();
-	std::shared_ptr<spdlog::logger> GetLogger();
+    LogHelper(const LogHelper&) = delete;
+    LogHelper& operator=(const LogHelper&) = delete;
+    ~LogHelper();
+    static LogHelper& GetInstance();
+    std::shared_ptr<spdlog::logger> GetLogger();
 
 public:
-	LogHelper(const LogHelper&) = delete;
-	LogHelper& operator=(const LogHelper&) = delete;
+    template<typename... Args>
+    inline void info(format_string_t<Args...> fmt, Args &&...args)
+    {
+        auto msg = fmt::format(fmt, std::forward<Args>(args)...);
+        spdlog::info(("{}"), msg);
+        GetLogger()->info(("{}"), msg);
+    }
+    template<typename... Args>
+    inline void error(format_string_t<Args...> fmt, Args &&...args)
+    {
+        auto msg = fmt::format(fmt, std::forward<Args>(args)...);
+        spdlog::error(("{}"), msg);
+        GetLogger()->error(("{}"), msg);
+    }
+    template<typename... Args>
+    inline void debug(format_string_t<Args...> fmt, Args &&...args)
+    {
+        auto msg = fmt::format(fmt, std::forward<Args>(args)...);
+        spdlog::debug(("{}"), (msg));
+        GetLogger()->debug(("{}"), (msg));
+    }
+    template<typename... Args>
+    inline void critical(format_string_t<Args...> fmt, Args &&...args)
+    {
+        auto msg = fmt::format(fmt, std::forward<Args>(args)...);
+        spdlog::critical(("{}"), (msg));
+        GetLogger()->critical(("{}"), (msg));
+    }
+    template<typename... Args>
+    inline void trace(format_string_t<Args...> fmt, Args &&...args)
+    {
+        auto msg = fmt::format(fmt, std::forward<Args>(args)...);
+        spdlog::trace(("{}"), (msg));
+        GetLogger()->trace(("{}"), (msg));
+    }
+    template<typename... Args>
+    inline void warn(format_string_t<Args...> fmt, Args &&...args)
+    {
+        auto msg = fmt::format(fmt, std::forward<Args>(args)...);
+        spdlog::warn(("{}"), (msg));
+        GetLogger()->warn(("{}"), (msg));
+    }
 
 private:
-	LogHelper();
-	std::shared_ptr<spdlog::logger> m_logger;
+    LogHelper();
+    std::shared_ptr<spdlog::logger> m_logger;
 };
 
 
-#define WriteTrace(msg,...) LogHelper::GetInstance().GetLogger()->trace(suffix(msg),__VA_ARGS__)
-#define WriteDebug(...) LogHelper::GetInstance().GetLogger()->debug(__VA_ARGS__)
-#define WriteInfo(...) LogHelper::GetInstance().GetLogger()->info(__VA_ARGS__)
-#define WriteWarn(...) LogHelper::GetInstance().GetLogger()->warn(__VA_ARGS__)
-#define WriteError(msg,...) LogHelper::GetInstance().GetLogger()->error(suffix(msg),__VA_ARGS__)
-#define WriteCritical(...) LogHelper::GetInstance().GetLogger()->critical(__VA_ARGS__)
-
-#define criticalif(b, ...)                        \
-    do {                                       \
-        if ((b)) {                             \
-           Logger::GetInstance().GetLogger()->critical(__VA_ARGS__); \
-        }                                      \
-    } while (0)
+#define WriteTrace(msg,...) LogHelper::GetInstance().trace(suffix(msg),__VA_ARGS__)
+#define WriteDebug(msg,...) LogHelper::GetInstance().debug(suffix(msg),__VA_ARGS__)
+#define WriteInfo(msg,...) LogHelper::GetInstance().info(suffix(msg),__VA_ARGS__)
+#define WriteWarn(msg,...) LogHelper::GetInstance().warn(suffix(msg),__VA_ARGS__)
+#define WriteError(msg,...) LogHelper::GetInstance().error(suffix(msg),__VA_ARGS__)
+#define WriteCritical(msg,...) LogHelper::GetInstance().critical(suffix(msg),__VA_ARGS__)

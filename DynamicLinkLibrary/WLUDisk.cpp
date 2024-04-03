@@ -5,19 +5,24 @@
 #include "WLUDisk.h"
 #include "WindowsHelper.h"
 #include <unordered_map>
+#include <Dbt.h>
 #include "spdlog/spdlog.h"
 #include "spdlog/sinks/basic_file_sink.h"
 #pragma comment(lib,"Setupapi.lib")
 #pragma comment(lib, "Iphlpapi.lib")
 #pragma comment(lib,"shlwapi.lib")
 
+
+static HANDLE g_DeviceNotifyHandle = NULL;
+static HWND g_SrvWnd = NULL;
+
 // 这是导出变量的一个示例
-DYNAMICLINKLIBRARY_API int nDynamicLinkLibrary=0;
+DYNAMICLINKLIBRARY_API int nDynamicLinkLibrary = 0;
 CWLUDisk* CWLUDisk::m_instance = nullptr;
 
 using TaskFunc = std::function<void()>;
 
-vector<wstring> CWLUDisk::m_stcDevInfo = 
+vector<wstring> CWLUDisk::m_stcDevInfo =
 {
 	_T("cdrom") ,
 	_T("net")  ,
@@ -32,7 +37,7 @@ vector<wstring> CWLUDisk::m_stcDevInfo =
 // 这是导出函数的一个示例。
 DYNAMICLINKLIBRARY_API int fnDynamicLinkLibrary(void)
 {
-    return 0;
+	return 0;
 }
 
 void CWLUDisk::GetSymbolicName(DEVINST devInst, wstring& strSymbolicName)
@@ -41,7 +46,7 @@ void CWLUDisk::GetSymbolicName(DEVINST devInst, wstring& strSymbolicName)
 	WCHAR deviceID[MAX_DEVICE_ID_LEN];
 	cr = CM_Get_Device_ID(devInst, deviceID, MAX_DEVICE_ID_LEN, 0);
 	if (cr != CR_SUCCESS) {
-		spdlog::error(("Failed to get device ID. Error: {}"), cr);
+		WriteError(("Failed to get device ID. Error: {}"), cr);
 		return;
 	}
 	HKEY hKey;
@@ -50,7 +55,7 @@ void CWLUDisk::GetSymbolicName(DEVINST devInst, wstring& strSymbolicName)
 
 	LONG result = RegOpenKeyEx(HKEY_LOCAL_MACHINE, regPath, 0, KEY_READ, &hKey);
 	if (result != ERROR_SUCCESS) {
-		spdlog::error(("Failed to open device registry key. Error: {}"), result);
+		WriteError(("Failed to open device registry key. Error: {}"), result);
 		return;
 	}
 
@@ -61,7 +66,7 @@ void CWLUDisk::GetSymbolicName(DEVINST devInst, wstring& strSymbolicName)
 	result = RegQueryValueEx(hKey, L"SymbolicName", NULL, &valueType, (LPBYTE)SymbolicName, &dataSize);
 	if (result != ERROR_SUCCESS)
 	{
-		spdlog::error(("Failed to retrieve device interface GUID. Error: {}"), result);
+		WriteError(("Failed to retrieve device interface GUID. Error: {}"), result);
 		RegCloseKey(hKey);
 		return;
 	}
@@ -76,7 +81,7 @@ wstring CWLUDisk::getVendorNameByVid(unsigned short VendorID)
 	//遍历USBVendorIDs找到vid对应的公司信息
 	wstring wsVendorInfo = _T("N/A");
 	auto it = USBVendorIDs.find(VendorID);
-	if (it != USBVendorIDs.end()) 
+	if (it != USBVendorIDs.end())
 	{
 		wsVendorInfo = CStrUtil::UTF8ToUnicode(it->second);
 	}
@@ -91,7 +96,7 @@ wstring CWLUDisk::getVendorNameByVid(unsigned short VendorID)
 * @param[in]    USBDeviceInfo: USB设备的信息，包括devpath，devinst
 * @param[out]   wstrProductInfo: USB设备的设备名
 * @return
-* @date         2023-10-10	
+* @date         2023-10-10
 * @note
 * @warning
 */
@@ -174,7 +179,7 @@ BOOL CWLUDisk::GetUsbDeviceDeviceName(const WCHAR* pszUSBHubDevicePath,
 	{
 		dwError = GetLastError();
 		strTemp = _T("hDevice is INVALID_HANDLE_VALUE");
-		spdlog::error("hDevice is INVALID_HANDLE_VALUE, error= {}", dwError);
+		WriteError("hDevice is INVALID_HANDLE_VALUE, error= {}", dwError);
 		goto END;
 	}
 
@@ -287,19 +292,19 @@ BOOL CWLUDisk::GetStringDescriptor(
 
 	if (!success)
 	{
-		spdlog::error(("DeviceIoControl failed, GetLastError={}. "), GetLastError());
+		WriteError(("DeviceIoControl failed, GetLastError={}. "), GetLastError());
 		goto END;
 	}
 
 	if (nBytesReturned < 2)
 	{
-		spdlog::error(("nBytesReturned < 2, GetLastError={}. "), GetLastError());
+		WriteError(("nBytesReturned < 2, GetLastError={}. "), GetLastError());
 		goto END;
 	}
 
 	if (stringDesc->bDescriptorType != USB_STRING_DESCRIPTOR_TYPE)
 	{
-		spdlog::error(("stringDesc->bDescriptorType != USB_STRING_DESCRIPTOR_TYPE, GetLastError={} "), GetLastError());
+		WriteError(("stringDesc->bDescriptorType != USB_STRING_DESCRIPTOR_TYPE, GetLastError={} "), GetLastError());
 		goto END;
 	}
 
@@ -311,7 +316,7 @@ BOOL CWLUDisk::GetStringDescriptor(
 
 	if (stringDesc->bLength % 2 != 0)
 	{
-		spdlog::error(("stringDesc->bLength % 2 != 0, GetLastError={}. "), GetLastError());
+		WriteError(("stringDesc->bLength % 2 != 0, GetLastError={}. "), GetLastError());
 		goto END;
 	}
 
@@ -370,7 +375,7 @@ BOOL CWLUDisk::HubGetNodeConnectionInformation(HANDLE							hHubDevice,
 	if (!success)
 	{
 		strTemp = (_T("DeviceIoControl IOCTL_USB_GET_NODE_CONNECTION_INFORMATION failed! "));
-		spdlog::error("{} DeviceIoControl IOCTL_USB_GET_NODE_CONNECTION_INFORMATION failed! ErrorCode= {}", __LINE__, GetLastError());
+		WriteError("{} DeviceIoControl IOCTL_USB_GET_NODE_CONNECTION_INFORMATION failed! ErrorCode= {}", __LINE__, GetLastError());
 		goto END;
 
 	}
@@ -426,7 +431,7 @@ void CWLUDisk::GetCMPropertybyDevinst(const DEVINST& devInst, DWORD cm_drp_flag,
 	cr = CM_Get_DevNode_Registry_PropertyW(devInst, cm_drp_flag, &regDataType, NULL, &dataSize, 0);
 	if (cr != CR_BUFFER_SMALL)
 	{
-		spdlog::error("CM_Get_DevNode_Registry_PropertyW (1st call) failed. Error:  {}", cr);
+		WriteError("CM_Get_DevNode_Registry_PropertyW (1st call) failed. Error:  {}", cr);
 		return;
 	}
 
@@ -434,7 +439,7 @@ void CWLUDisk::GetCMPropertybyDevinst(const DEVINST& devInst, DWORD cm_drp_flag,
 	WCHAR* PropertyInfo = new WCHAR[dataSize / sizeof(WCHAR)];
 	if (!PropertyInfo)
 	{
-		spdlog::error("Memory allocation failed.");
+		WriteError("Memory allocation failed.");
 		return;
 	}
 
@@ -443,7 +448,7 @@ void CWLUDisk::GetCMPropertybyDevinst(const DEVINST& devInst, DWORD cm_drp_flag,
 	if (cr != CR_SUCCESS)
 	{
 		delete[] PropertyInfo;
-		spdlog::error("CM_Get_DevNode_Registry_PropertyW (2nd call) failed. Error:  {}", cr);
+		WriteError("CM_Get_DevNode_Registry_PropertyW (2nd call) failed. Error:  {}", cr);
 		return;
 	}
 	WstRet = PropertyInfo;
@@ -452,7 +457,7 @@ void CWLUDisk::GetCMPropertybyDevinst(const DEVINST& devInst, DWORD cm_drp_flag,
 
 
 BOOL CWLUDisk::GetDeviceFullInfo(
-	HDEVINFO hDevInfo, 
+	HDEVINFO hDevInfo,
 	PSP_DEVINFO_DATA pDeviceInfoData,
 	vector<boost::shared_ptr<DeviceInfoFull>>& VectAllDevice,
 	vector<DevPathAndDevInst>& vectHubPathAndDevinst)
@@ -501,7 +506,7 @@ BOOL CWLUDisk::GetDeviceFullInfo(
 
 	//只获取我们关注的类型软盘、蓝牙、USB......
 	BOOL TypeisFound = FALSE;
-	for (int i = 0; i < DEV_OTHER_MAX ; i++)
+	for (int i = 0; i < DEV_OTHER_MAX; i++)
 	{
 		if (m_stcDevInfo[i].compare(DeviceInfo.SelfClassName) == 0)
 		{
@@ -560,7 +565,7 @@ BOOL CWLUDisk::GetDeviceFullInfo(
 		GetCMPropertybyDevinst(DeviceInfo.ParentDevInst, CM_DRP_LOCATION_INFORMATION, wstrDeviceName);
 		extractPortAndHub(wstrDeviceName, PortId, HubId);
 		DeviceInfo.ParentDevHub = HubId;
-		DeviceInfo.ParentDevPort = PortId;	
+		DeviceInfo.ParentDevPort = PortId;
 	}
 
 	if (TypeisFound || DeviceInfo.isParentUSB)
@@ -701,21 +706,10 @@ BOOL CWLUDisk::EnumAllDeviceFullInfo(vector<boost::shared_ptr<DeviceInfoFull>>& 
 
 	return TRUE;
 }
-void TestFFFF()
-{
-	spdlog::info("TestFFFF");
-}
-void TestCCCC()
-{
-	spdlog::info("TestCCCC");
-}
+
 void CWLUDisk::DealDeviceChangeMsg()
 {
-	timer = std::make_unique<Timer>(); // 构造函数被调用std::make_unique<Timer>();
-
-	timer->add(1, true, TestFFFF);
-	timer->add(1, true, TestCCCC);
-    vector<boost::shared_ptr<DeviceInfoFull>> vecDeviceLastSnap;
+	vector<boost::shared_ptr<DeviceInfoFull>> vecDeviceLastSnap;
 	EnumAllDeviceFullInfo(vecDeviceLastSnap);
 
 	BuildDeviceRelation();
@@ -741,11 +735,11 @@ void CWLUDisk::DealDeviceChangeMsg()
 		DeviceInfoFull& DeviceInfo = *(it->get());
 		if (DeviceInfo.isParentUSB)
 		{
-			spdlog::info(("VID: {} PID: {}  ProductInfo: {}  VendorInfo: {}"),
-								DeviceInfo.UsbVid,
-								DeviceInfo.UsbPid,
-								CStrUtil::UnicodeToUTF8(DeviceInfo.wsProductInfo),
-								CStrUtil::UnicodeToUTF8(DeviceInfo.wsVendorInfo));
+			WriteInfo(("VID: {} PID: {}  ProductInfo: {}  VendorInfo: {}"),
+				DeviceInfo.UsbVid,
+				DeviceInfo.UsbPid,
+				CStrUtil::UnicodeToUTF8(DeviceInfo.wsProductInfo),
+				CStrUtil::UnicodeToUTF8(DeviceInfo.wsVendorInfo));
 		}
 	}
 }
@@ -839,7 +833,7 @@ void CWLUDisk::ParseUsbVendorProductIdFromUsbParentId(wstring UsbDeviceId, ULONG
 * @param[in]    SymbolicName	 \??\USB#Vid_0e0f&Pid_0003#6&63561a1&0&1#{a5dcbf10-6530-11d2-901f-00c04fb951ed}
 * @param[out]   outGuid			{A5DCBF10-6530-11D2-901F-00C04FB951ED}
 * @return
-* @date         
+* @date
 */
 int CWLUDisk::DevicePathToGUID(wstring& SymbolicName, GUID& outGuid)
 {
@@ -852,7 +846,7 @@ int CWLUDisk::DevicePathToGUID(wstring& SymbolicName, GUID& outGuid)
 	const wchar_t* startPos = wcsstr(wstrDevicePath, startMarker);
 	if (startPos == NULL)
 	{
-		spdlog::error(("Start marker not found in the given string."));
+		WriteError(("Start marker not found in the given string."));
 		return 1;
 	}
 
@@ -860,7 +854,7 @@ int CWLUDisk::DevicePathToGUID(wstring& SymbolicName, GUID& outGuid)
 	const wchar_t* endPos = wcsstr(startPos, endMarker);
 	if (endPos == NULL)
 	{
-		spdlog::error(("End marker not found in the given string."));
+		WriteError(("End marker not found in the given string."));
 		return 1;
 	}
 
@@ -869,7 +863,7 @@ int CWLUDisk::DevicePathToGUID(wstring& SymbolicName, GUID& outGuid)
 
 	if (guidLength >= sizeof(extractedGuid) / sizeof(extractedGuid[0]))
 	{
-		spdlog::error(("GUID length exceeds the buffer size."));
+		WriteError(("GUID length exceeds the buffer size."));
 		return 1;
 	}
 
@@ -879,7 +873,7 @@ int CWLUDisk::DevicePathToGUID(wstring& SymbolicName, GUID& outGuid)
 	GUID guid;
 	if (CLSIDFromString(extractedGuid, &guid) != S_OK)
 	{
-		spdlog::error(("Failed to convert string GUID to GUID structure."));
+		WriteError(("Failed to convert string GUID to GUID structure."));
 		return 1;
 	}
 	outGuid = guid;
@@ -919,7 +913,7 @@ void CWLUDisk::BuildDeviceRelation()
 				//叶子的父节点应该唯一且不为空
 				if (ChildInfo.parent != NULL && ChildInfo.parent != *it)
 				{
-					spdlog::error(("ChildInfo.parent is NULL or ChildInfo.parent is not unique"));
+					WriteError(("ChildInfo.parent is NULL or ChildInfo.parent is not unique"));
 				}
 				ChildInfo.parent = *it;
 				continue;
@@ -1004,14 +998,111 @@ void CWLUDisk::RsynUSBChildignoreState(DeviceInfoFull& USBDeviceInfo)
 	}
 }
 
+
+
+LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+	if (uMsg == WM_DEVICECHANGE)
+	{
+		//设备插入和设备移除
+		if (DBT_DEVICEARRIVAL == wParam || DBT_DEVICEREMOVECOMPLETE == wParam)
+		{
+			PDEV_BROADCAST_HDR pHdr = (PDEV_BROADCAST_HDR)lParam;
+			//检测设备是否是磁盘卷
+			if (pHdr->dbch_devicetype == DBT_DEVTYP_VOLUME)
+			{
+				PDEV_BROADCAST_VOLUME pVolume = (PDEV_BROADCAST_VOLUME)lParam;
+				WriteInfo(("Volume changed,dbcv_size: {} dbcv_devicetype: {} dbcv_reserved: {}  dbcv_unitmask: {}  dbcv_flags: {}"),
+					pVolume->dbcv_size, pVolume->dbcv_devicetype, pVolume->dbcv_reserved, pVolume->dbcv_unitmask, pVolume->dbcv_flags);
+
+				//TODO:通知模块外设插入消息
+			}
+			else if (pHdr->dbch_devicetype == DBT_DEVTYP_DEVICEINTERFACE)
+			{
+				WriteInfo(("dbch_devicetype == DBT_DEVTYP_DEVICEINTERFACE"));
+			}
+		}
+		return 0;
+	}
+
+	return DefWindowProc(hwnd, uMsg, wParam, lParam);
+}
+
+
+unsigned int WINAPI CWLUDisk::MonitorThread(LPVOID lpParameter)
+{
+	CWLUDisk* pUDisk = (CWLUDisk*)lpParameter;
+
+	WNDCLASS wc;
+	memset(&wc, 0, sizeof(wc));
+	wc.lpfnWndProc = WindowProc;
+	wc.hInstance = GetModuleHandle(NULL);
+	wc.lpszClassName = TEXT("VolumeChangeWnd");
+	if (!RegisterClass(&wc))
+	{
+		WriteInfo(("RegisterClass faild"));
+		return 0;
+	}
+
+	// 创建窗口并注册接收设备变更消息
+	//g_SrvWnd = CreateWindow(wc.lpszClassName, NULL, 0, 0, 0, 0, 0, HWND_MESSAGE, NULL, NULL, NULL);
+
+	g_SrvWnd = CreateWindowEx(0, TEXT("VolumeChangeWnd"), _T(""), WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
+		NULL,       // Parent window    
+		NULL,       // Menu
+		GetModuleHandle(NULL),  // Instance handle
+		NULL        // Additional application data
+	);
+
+	if (g_SrvWnd == NULL)
+	{
+		WriteInfo(("CreateWindow faild"));
+		return 0;
+	}
+
+	for (int i = 0; i < sizeof(GUID_DEVINTERFACE_LIST) / sizeof(GUID); i++)
+	{
+		DEV_BROADCAST_DEVICEINTERFACE NotificationFilter;
+		ZeroMemory(&NotificationFilter, sizeof(NotificationFilter));
+		NotificationFilter.dbcc_size = sizeof(DEV_BROADCAST_DEVICEINTERFACE);
+		NotificationFilter.dbcc_devicetype = DBT_DEVTYP_DEVICEINTERFACE;
+		NotificationFilter.dbcc_classguid = GUID_DEVINTERFACE_LIST[i];
+		g_DeviceNotifyHandle = RegisterDeviceNotification(g_SrvWnd, &NotificationFilter, DEVICE_NOTIFY_WINDOW_HANDLE);
+
+		if (g_DeviceNotifyHandle == NULL)
+		{
+			WriteInfo(("RegisterDeviceNotification faild {}"), GetLastError());
+			return 0;
+		}
+	}
+
+	MSG msg;
+	while (GetMessage(&msg, NULL, 0, 0))
+	{
+		TranslateMessage(&msg);
+		DispatchMessage(&msg);
+		if (g_DeviceNotifyHandle == NULL)
+		{
+			break;
+		}
+	}
+
+	return 0;
+}
+void CWLUDisk::CreatMonitorThread()
+{
+	m_hMonitorThread = (HANDLE)_beginthreadex(NULL, 0, MonitorThread, this, 0, NULL);
+}
+
+
 extern "C" __declspec(dllexport) int TestFuction()
 {
 	//my_logger->flush_on(spdlog::level::info);
 	CWLUDisk* instance = CWLUDisk::GetInstance();
-
-	WriteInfo("Welcome to spdlog!");
+	instance->CreatMonitorThread();
+	//WriteInfo("Welcome to spdlog!");
 	instance->DealDeviceChangeMsg();
-	
+
 	//timer.reset(); // 析构函数被调用
 	return 0;
 }
