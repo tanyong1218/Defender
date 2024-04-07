@@ -3,11 +3,6 @@
 
 #include "framework.h"
 #include "WLUDisk.h"
-#include "WindowsHelper.h"
-#include <unordered_map>
-#include <Dbt.h>
-#include "spdlog/spdlog.h"
-#include "spdlog/sinks/basic_file_sink.h"
 #pragma comment(lib,"Setupapi.lib")
 #pragma comment(lib, "Iphlpapi.lib")
 #pragma comment(lib,"shlwapi.lib")
@@ -747,7 +742,7 @@ void CWLUDisk::DealDeviceChangeMsg()
 CWLUDisk::CWLUDisk()
 {
 	//获取当前的计算机系统版本,存储在m_nWinVersion中
-	CGetWindowsVersion::SeGetWindowsVersion(m_nWinVersion);
+	CWindowsHelper::SeGetWindowsVersion(m_nWinVersion);
 
 }
 

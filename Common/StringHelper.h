@@ -2,6 +2,9 @@
 #include <string>
 #include <vector>
 #include <tchar.h>
+#include <sstream>
+#include <time.h>
+#include <Windows.h>
 using std::string;
 using std::wstring;
 

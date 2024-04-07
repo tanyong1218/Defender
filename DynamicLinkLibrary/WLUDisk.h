@@ -11,23 +11,27 @@
 #endif
 
 #define FMT_HEADER_ONLY
+#include<boost/algorithm/string.hpp>
+#include<boost/format.hpp>
+#include <boost/program_options.hpp>
 #include<boost/smart_ptr.hpp>
 #include<boost/version.hpp>
-#include<boost/format.hpp>
-#include<boost/algorithm/string.hpp>
-#include <boost/program_options.hpp>
-#include <Setupapi.h>
-#include <Windows.h>
-#include <tchar.h>
-#include <vector>
 #include <cfgmgr32.h>
 #include <combaseapi.h>
+#include <LogHelper.h>
+#include <Setupapi.h>
+#include <StringHelper.h>
+#include <tchar.h>
+#include <TimerHelper.h>
+#include <vector>
+#include <Windows.h>
+#include <WindowsHelper.h>
+#include <unordered_map>
+#include <Dbt.h>
 #include <winioctl.h>
 #include "VndrList.h"
-#include "WindowsHelper.h"
-#include "StringHelper.h"
-#include <LogHelper.h>
-#include <TimerHelper.h>
+#include "spdlog/spdlog.h"
+#include "spdlog/sinks/basic_file_sink.h"
 using namespace std;
 
 /////////////////////以下自己 COPY usbioctl.h中内容 /////////////

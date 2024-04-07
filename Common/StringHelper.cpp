@@ -1,8 +1,4 @@
 #include "StringHelper.h"
-#include <sstream>
-#include <time.h>
-#include <Windows.h>
-
 CStrUtil::CStrUtil(void)
 {
 }

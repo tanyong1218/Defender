@@ -16,18 +16,12 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />
-    <None Include="WindowsHelper.h">
-      <Filter>头文件</Filter>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="WLUDisk.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="StringHelper.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="VndrList.h">
@@ -39,12 +33,6 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="dllmain.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="WindowsHelper.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="StringHelper.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

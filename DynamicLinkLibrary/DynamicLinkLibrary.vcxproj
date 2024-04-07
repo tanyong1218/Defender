@@ -154,19 +154,15 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <None Include="cpp.hint" />
-    <None Include="WindowsHelper.h" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="VndrList.h" />
     <ClInclude Include="WLUDisk.h" />
     <ClInclude Include="framework.h" />
-    <ClInclude Include="StringHelper.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="WLUDisk.cpp" />
-    <ClCompile Include="StringHelper.cpp" />
-    <ClCompile Include="WindowsHelper.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
