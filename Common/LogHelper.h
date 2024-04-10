@@ -38,42 +38,36 @@ public:
     inline void info(format_string_t<Args...> fmt, Args &&...args)
     {
         auto msg = fmt::format(fmt, std::forward<Args>(args)...);
-        spdlog::info(("{}"), msg);
         GetLogger()->info(("{}"), std::move(msg));
     }
     template<typename... Args>
     inline void error(format_string_t<Args...> fmt, Args &&...args)
     {
         auto msg = fmt::format(fmt, std::forward<Args>(args)...);
-        spdlog::error(("{}"), msg);
         GetLogger()->error(("{}"), std::move(msg));
     }
     template<typename... Args>
     inline void debug(format_string_t<Args...> fmt, Args &&...args)
     {
         auto msg = fmt::format(fmt, std::forward<Args>(args)...);
-        spdlog::debug(("{}"), (msg));
         GetLogger()->debug(("{}"), std::move(msg));
     }
     template<typename... Args>
     inline void critical(format_string_t<Args...> fmt, Args &&...args)
     {
         auto msg = fmt::format(fmt, std::forward<Args>(args)...);
-        spdlog::critical(("{}"), (msg));
         GetLogger()->critical(("{}"), std::move(msg));
     }
     template<typename... Args>
     inline void trace(format_string_t<Args...> fmt, Args &&...args)
     {
         auto msg = fmt::format(fmt, std::forward<Args>(args)...);
-        spdlog::trace(("{}"), (msg));
         GetLogger()->trace(("{}"), std::move(msg));
     }
     template<typename... Args>
     inline void warn(format_string_t<Args...> fmt, Args &&...args)
     {
         auto msg = fmt::format(fmt, std::forward<Args>(args)...);
-        spdlog::warn(("{}"), (msg));
         GetLogger()->warn(("{}"), std::move(msg));
     }
 

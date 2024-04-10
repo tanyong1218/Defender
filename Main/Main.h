@@ -8,6 +8,7 @@
 #include <userenv.h>
 #include <LogHelper.h>
 #include <WindowsHelper.h>
+#include <future>
 using namespace std;
 
 const TCHAR DEVICECONTROL[] = _T("DeviceControl.dll");

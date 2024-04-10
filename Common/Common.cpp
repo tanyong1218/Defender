@@ -4,7 +4,6 @@
 #include "pch.h"
 #include "framework.h"
 
-// TODO: 这是一个库函数示例
 void fnCommon()
 {
 }

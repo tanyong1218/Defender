@@ -315,7 +315,6 @@ public:
 
 public:
 
-	// TODO: 在此处添加方法。
 	void DealDeviceChangeMsg();
 	bool extractPortAndHub(const std::wstring& input, int& port, int& hub);
 	BOOL GetDevicePathAndDevInst(LPGUID lpGuid, vector<DevPathAndDevInst>& vectDevInfo, wstring& strError, DWORD flags);
@@ -355,7 +354,7 @@ private:
 	void Destroy();
 };
 
-extern "C" __declspec(dllexport) int TestFuction();
+extern "C" __declspec(dllexport) int EnableDeviceControl();
 
 extern DYNAMICLINKLIBRARY_API int nDynamicLinkLibrary;
 

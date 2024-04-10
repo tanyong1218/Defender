@@ -2,6 +2,7 @@
 #include "Main.h"
 #include <TimerHelper.h>
 #include <chrono>
+
 void LogTime()
 {
 	char buffer[26];
@@ -11,37 +12,47 @@ void LogTime()
 	WriteInfo(("Current time: {}"), buffer);
 }
 
+void TimeDemo()
+{
+	Timer timer2;
+	timer2.add(1000000, true, LogTime);
 
+	Timer time;
+	int iNumber = 100;
+	time.add(1000000, false, [iNumber]() {
+		WriteInfo("Current time: {}", iNumber);
+		});
+
+}
 
 int main(int argc, char const* argv[])
 {
 	WriteInfo("===================Begin=====================");
 	SetConsoleOutputCP(65001); // 设置为UTF-8
 	CWindowsHelper::EnablePrivilege(SE_DEBUG_NAME, FALSE);
-
-	Timer timer2;
-	timer2.add(1000, true, LogTime);
-
+	TimeDemo();
 
 	HMODULE hMoudle = ::LoadLibrary(DEVICECONTROL);
 	//搜索**.dll中函数名为TestFuction的对外接口
 	if (hMoudle)
 	{
-		TESTDLL lpproc = (TESTDLL)GetProcAddress(hMoudle, "TestFuction");
-		lpproc();
+		TESTDLL lpproc = (TESTDLL)GetProcAddress(hMoudle, "EnableDeviceControl");
+		if (lpproc)
+		{
+			lpproc();
+		}
+		
 	}
 	else
 	{
-		//WriteError("LoadLibrary failed");
+		WriteError("LoadLibrary failed");
 	}
 
-	WriteInfo("===================End=====================");
-	Sleep(10000);
-	timer2.remove(0);
 	for (;;)
 	{
 		Sleep(1000);
 	}
+	WriteInfo("===================End=====================");
 	return 0;
 }
 

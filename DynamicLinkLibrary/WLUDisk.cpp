@@ -1090,7 +1090,7 @@ void CWLUDisk::CreatMonitorThread()
 }
 
 
-extern "C" __declspec(dllexport) int TestFuction()
+extern "C" __declspec(dllexport) int EnableDeviceControl()
 {
 	//my_logger->flush_on(spdlog::level::info);
 	CWLUDisk* instance = CWLUDisk::GetInstance();

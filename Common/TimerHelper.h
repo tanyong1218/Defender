@@ -6,14 +6,17 @@
 #include <functional>
 using namespace std;
 
+//TODO:需要把参数也作为可变模板包传进来
+//实际处理的时候，不需要可变参数包，直接通过Lambada表达式捕获即可，所以这里的Args...没有实际作用
 template<typename... Args>
 struct Task
 {
-	uint64_t id;        // 删除任务时，需要根据此id找到被删的任务
-	uint64_t period;    // 执行的周期，添加任务时用来计算该任务的执行时刻
-	bool repeated;      // 是否为重复的任务
+	uint64_t id;						// 删除任务时，需要根据此id找到被删的任务
+	uint64_t period;					// 执行的周期，添加任务时用来计算该任务的执行时刻
+	bool repeated;						// 是否为重复的任务
 	std::function<void(Args...)> func;  // 任务具体实现
-	bool removed;       // 任务是否已被删除
+	bool removed;						// 任务是否已被删除
+	//Args && ...args;					// 任务的参数
 	Task(uint64_t id, uint64_t period, bool repeated, std::function<void(Args...)> func)
 		: id(id), period(period), repeated(repeated), func(func), removed(false)
 	{
@@ -21,12 +24,11 @@ struct Task
 	}
 };
 
-//定时器
+//定时器，可用于定时检测某一进程是否存在，定时执行某一函数等
 template<typename... Args>
 class Timer
 {
 private:
-	// var
 	std::thread m_worker;
 	std::atomic<bool> m_stop;
 
