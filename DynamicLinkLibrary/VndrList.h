@@ -1,7 +1,10 @@
 #pragma once
 #include <unordered_map>
 
-std::unordered_map<USHORT, std::string> USBVendorIDs = {
+std::shared_ptr<std::unordered_map<USHORT, std::string>> GetUSBVendorIDs()
+{
+    auto USBVendorIDs = std::make_shared<std::unordered_map<USHORT, std::string>>(std::unordered_map<USHORT, std::string>
+    {
     { 0x0079, "Shenzhen Longshengwei Technology, Co., Ltd."  },
     { 0x013A, "Aimgene Technology Co., Ltd"  },
     { 0x03CC, "GN OTOMETRICS"  },
@@ -10980,4 +10983,7 @@ std::unordered_map<USHORT, std::string> USBVendorIDs = {
     { 0xFF03, "MIPI Debug"  },
     { 0xFF04, "HDMI"  },
     { 0x0000, "N/A"  }
-};
+    });
+
+    return USBVendorIDs;
+}

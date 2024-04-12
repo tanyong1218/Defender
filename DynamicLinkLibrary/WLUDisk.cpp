@@ -75,8 +75,9 @@ wstring CWLUDisk::getVendorNameByVid(unsigned short VendorID)
 {
 	//遍历USBVendorIDs找到vid对应的公司信息
 	wstring wsVendorInfo = _T("N/A");
-	auto it = USBVendorIDs.find(VendorID);
-	if (it != USBVendorIDs.end())
+	auto USBVendorIDs = GetUSBVendorIDs();
+	auto it = USBVendorIDs->find(VendorID);
+	if (it != USBVendorIDs->end())
 	{
 		wsVendorInfo = CStrUtil::UTF8ToUnicode(it->second);
 	}

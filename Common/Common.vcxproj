@@ -150,6 +150,7 @@
     <ClInclude Include="LogHelper.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="StringHelper.h" />
+    <ClInclude Include="ThreadPoolHelper.h" />
     <ClInclude Include="TimerHelper.h" />
     <ClInclude Include="WindowsHelper.h" />
   </ItemGroup>

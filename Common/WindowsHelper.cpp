@@ -1,4 +1,5 @@
 #include "WindowsHelper.h"
+
 CWindowsHelper::CWindowsHelper(void)
 {
 }
@@ -213,6 +214,253 @@ BOOL CWindowsHelper::GetProcessIdFromName(const std::wstring& processName, DWORD
 		CloseHandle(hSnapshot);
 	}
 	return bFind;
+}
+
+/*
+* @fn            GetSIDByUserName_Wmic
+* @brief         通过Wmic的方式获取用户的SID
+* @param[in]	 LPCTSTR pszUserName
+* @param[out]	 wstring strUserSid
+* @return        BOOL TRUE：FALSE
+* @author
+* @modify：		2023. create it.
+*/
+BOOL CWindowsHelper::GetSIDByUserName_Wmic(std::wstring& strUserSid, LPCTSTR pszUserName)
+{
+	HRESULT hr;
+	IWbemLocator* pLoc = NULL;
+	IWbemServices* pSvc = NULL;
+	IEnumWbemClassObject* pEnumerator = NULL;
+	IWbemClassObject* pclsObj = NULL;
+
+	ULONG	uReturn = 0;
+	wchar_t buffer[MAX_PATH] = { 0 };
+	BOOL    bRes = FALSE;
+	size_t	bufferSize = 0;
+
+	if (NULL == pszUserName)
+	{
+		goto END;
+	}
+
+	if (_T('\0') == pszUserName[0])
+	{
+		goto END;
+	}
+
+	hr = CoInitializeEx(0, COINIT_MULTITHREADED);
+	if (FAILED(hr))
+	{
+		goto END;
+	}
+
+	hr = CoInitializeSecurity(NULL, -1, NULL, NULL, RPC_C_AUTHN_LEVEL_DEFAULT, RPC_C_IMP_LEVEL_IMPERSONATE, NULL, EOAC_NONE, NULL);
+
+
+	hr = CoCreateInstance(CLSID_WbemLocator, 0, CLSCTX_INPROC_SERVER, IID_IWbemLocator, (LPVOID*)&pLoc);
+	if (FAILED(hr))
+	{
+		goto END;
+	}
+
+	hr = pLoc->ConnectServer(_bstr_t(L"ROOT\\CIMV2"), NULL, NULL, 0, NULL, 0, 0, &pSvc);
+	if (FAILED(hr))
+	{
+		goto END;
+	}
+
+	hr = CoSetProxyBlanket(pSvc, RPC_C_AUTHN_WINNT, RPC_C_AUTHZ_NONE, NULL, RPC_C_AUTHN_LEVEL_CALL, RPC_C_IMP_LEVEL_IMPERSONATE, NULL, EOAC_NONE);
+	if (FAILED(hr))
+	{
+		goto END;
+	}
+	bufferSize = sizeof(buffer) / sizeof(TCHAR);
+	swprintf_s(buffer, bufferSize - 1, _T("SELECT * FROM Win32_UserAccount WHERE Name = \"%s\""), pszUserName);
+	hr = pSvc->ExecQuery(bstr_t("WQL"), bstr_t(buffer), WBEM_FLAG_FORWARD_ONLY | WBEM_FLAG_RETURN_IMMEDIATELY, NULL, &pEnumerator);
+	if (FAILED(hr))
+	{
+		goto END;
+	}
+
+	while (pEnumerator)
+	{
+
+		VARIANT vtSID;
+		VARIANT vtUserName;
+		VariantInit(&vtSID);
+		VariantInit(&vtUserName);
+
+		hr = pEnumerator->Next(WBEM_INFINITE, 1, &pclsObj, &uReturn);
+		if (FAILED(hr))
+		{
+			break;
+		}
+
+		if (uReturn == 0)
+		{
+			//hr = S_FALSE(0x00000001),情况下可能代表执行成功但是没获得值
+			//pclsObj->Release();
+			break;
+		}
+
+		hr = pclsObj->Get(L"SID", 0, &vtSID, 0, 0);
+		if (FAILED(hr))
+		{
+			pclsObj->Release();
+			break;
+		}
+
+		hr = pclsObj->Get(L"name", 0, &vtUserName, 0, 0);
+		if (FAILED(hr))
+		{
+			VariantClear(&vtSID);
+			pclsObj->Release();
+			break;
+		}
+
+		//vtSID有值的情况下去clear
+		if (vtSID.vt != VT_NULL && vtSID.vt != VT_EMPTY)
+		{
+			std::wstring userSid(vtSID.bstrVal);
+			strUserSid = userSid;
+			VariantClear(&vtSID);
+			VariantClear(&vtUserName);
+		}
+
+		pclsObj->Release();
+	}
+END:
+	CoUninitialize();
+	if (pEnumerator)
+	{
+		pEnumerator->Release();
+	}
+
+	if(pLoc)
+	{
+		pLoc->Release();
+	}
+
+	if(pSvc)
+	{
+		pSvc->Release();
+	}
+
+	if (strUserSid.empty())
+	{
+		return FALSE;
+	}
+	else
+	{
+		return TRUE;
+	}
+
+}
+
+/*
+* @fn            GetSIDByUserName_Lookup
+* @brief         通过Lookup的方式获取用户的SID
+* @param[in]	 LPCTSTR pszUserName
+* @param[out]	 wstring strUserSid
+* @return        BOOL TRUE：FALSE
+* @author
+* @modify：		2023. create it.
+*/
+BOOL CWindowsHelper::GetSIDByUserName_Lookup(std::wstring& strUserSid, LPCTSTR pszUserName)
+{
+	strUserSid.clear();
+
+	BOOL bRtn = FALSE;
+
+	unsigned char byUserSID[64] = { 0 };
+	WCHAR szUserDomain[64] = { 0 };
+	DWORD dwSIDSize = sizeof(byUserSID);
+	DWORD dwDomainSize = sizeof(szUserDomain) / sizeof(WCHAR);
+	SID_NAME_USE snu = SidTypeUser;
+	WCHAR* pwszUserSid = NULL;
+
+	if (NULL == pszUserName)
+	{
+		bRtn = FALSE;
+		goto END;
+	}
+
+	if (_T('\0') == pszUserName[0])
+	{
+		bRtn = TRUE;
+		goto END;
+	}
+
+	bRtn = LookupAccountName(NULL, (LPWSTR)pszUserName, (PSID)byUserSID, &dwSIDSize, (LPWSTR)szUserDomain, &dwDomainSize, &snu);
+	if (!bRtn)
+	{
+		bRtn = FALSE;
+		goto END;
+	}
+
+	bRtn = ConvertSidToStringSid((PSID)byUserSID, &pwszUserSid);
+	if (!bRtn || NULL == pwszUserSid)
+	{
+		bRtn = FALSE;
+		goto END;
+	}
+
+	strUserSid = pwszUserSid;
+	bRtn = TRUE;
+
+END:
+	if (pwszUserSid != NULL)
+	{
+		LocalFree(pwszUserSid);
+		pwszUserSid = NULL;
+	}
+
+	return bRtn;
+}
+
+/*
+* @fn            GetSIDByUserName
+* @brief         获取用户的SID
+* @param[in]	 LPCTSTR pszUserName
+* @param[out]	 wstring strUserSid
+* @return        BOOL TRUE：FALSE
+* @author
+* @modify：		2023. create it.
+*/
+BOOL CWindowsHelper::GetSIDByUserName(std::wstring& strUserSid, LPCTSTR pszUserName)
+{
+	wchar_t szComputerName[MAX_COMPUTERNAME_LENGTH + 1] = { 0 };
+	DWORD	dwSize	= MAX_COMPUTERNAME_LENGTH + 1;
+	BOOL	bRet	= TRUE;
+
+	if (wcscmp(pszUserName, L"SYSTEM") == 0)
+	{
+		strUserSid = L"S-1-5-18";
+	}
+	else if (wcscmp(pszUserName, L"LOCAL SERVICE") == 0)
+	{
+		strUserSid = L"S-1-5-19";
+	}
+	else if (wcscmp(pszUserName, L"NETWORK SERVICE") == 0)
+	{
+		strUserSid = L"S-1-5-20";
+	}
+
+	if (::GetComputerName(szComputerName, &dwSize) && strUserSid.empty())
+	{
+		wstring wstrUserName = pszUserName;
+		transform(wstrUserName.begin(), wstrUserName.end(), wstrUserName.begin(), ::towupper);
+		if (wcscmp(szComputerName, wstrUserName.c_str()) == 0)
+		{
+			bRet = GetSIDByUserName_Wmic(strUserSid, pszUserName);
+		}
+		else
+		{
+			bRet = GetSIDByUserName_Lookup(strUserSid, pszUserName);
+		}
+	}
+
+	return bRet;
 }
 /*
 * function : SeGetWindowsVersion

@@ -2,7 +2,7 @@
 #include "Main.h"
 #include <TimerHelper.h>
 #include <chrono>
-
+#include <ThreadPoolHelper.h>
 void LogTime()
 {
 	char buffer[26];
@@ -10,6 +10,10 @@ void LogTime()
 	std::time_t current_time_t = std::chrono::system_clock::to_time_t(currentTime);
 	ctime_s(buffer, sizeof(buffer), &current_time_t);
 	WriteInfo(("Current time: {}"), buffer);
+}
+void LogNumner(int iNumber)
+{
+	WriteInfo(("Current iNumber: {}"), iNumber);
 }
 
 void TimeDemo()
@@ -30,7 +34,21 @@ int main(int argc, char const* argv[])
 	WriteInfo("===================Begin=====================");
 	SetConsoleOutputCP(65001); // 设置为UTF-8
 	CWindowsHelper::EnablePrivilege(SE_DEBUG_NAME, FALSE);
+
+	//定时器
 	TimeDemo();
+
+	//线程池
+	const size_t numThreads = 8;
+	ThreadPool threadPool(numThreads);
+
+	threadPool.enqueue(LogTime);
+	threadPool.enqueue(LogNumner, 100);
+
+
+	//获取当前用户的SID
+	wstring wstrSID;
+	CWindowsHelper::GetSIDByUserName(wstrSID, _T("Administrator"));
 
 	HMODULE hMoudle = ::LoadLibrary(DEVICECONTROL);
 	//搜索**.dll中函数名为TestFuction的对外接口

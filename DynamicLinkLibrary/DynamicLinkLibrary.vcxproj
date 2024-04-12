@@ -133,6 +133,7 @@
       <EnableUAC>false</EnableUAC>
       <AdditionalDependencies>spdlog.lib;Common.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>../include/spdlog-1.12.0/build/Release;../x64/Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <HeapReserveSize>8,8</HeapReserveSize>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">

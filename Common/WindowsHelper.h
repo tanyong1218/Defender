@@ -2,6 +2,13 @@
 #include <Windows.h>
 #include <string>
 #include <TlHelp32.h>
+#include <algorithm>
+#include <tchar.h>
+#include <comdef.h>
+#include <sddl.h>
+#pragma comment(lib, "advapi32.lib")
+#include <Wbemidl.h>
+#pragma comment(lib, "wbemuuid.lib")
 using namespace std;
 enum {
 	WIN_2000 = int(1),
@@ -69,4 +76,7 @@ public:
 	static BOOL GetOnePIDBelongUserName(wstring wstrUserName, DWORD& dwPid, wstring& wstrErr);
 	static BOOL EnablePrivilege(LPCTSTR lpszPrivilege, BOOL bEnablePrivilege);
 	static BOOL GetProcessIdFromName(const std::wstring& processName, DWORD& dwPid);
+	static BOOL GetSIDByUserName_Wmic(std::wstring& strUserSid, LPCTSTR pszUserName);
+	static BOOL GetSIDByUserName_Lookup(std::wstring& strUserSid, LPCTSTR pszUserName);
+	static BOOL GetSIDByUserName(std::wstring& strUserSid, LPCTSTR pszUserName);
 };

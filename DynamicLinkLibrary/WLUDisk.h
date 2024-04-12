@@ -1,9 +1,4 @@
-﻿// 下列 ifdef 块是创建使从 DLL 导出更简单的
-// 宏的标准方法。此 DLL 中的所有文件都是用命令行上定义的 DYNAMICLINKLIBRARY_EXPORTS
-// 符号编译的。在使用此 DLL 的
-// 任何项目上不应定义此符号。这样，源文件中包含此文件的任何其他项目都会将
-// DYNAMICLINKLIBRARY_API 函数视为是从 DLL 导入的，而此 DLL 则将用此宏定义的
-// 符号视为是被导出的。
+﻿#pragma once
 #ifdef DYNAMICLINKLIBRARY_EXPORTS
 #define DYNAMICLINKLIBRARY_API __declspec(dllexport)
 #else
@@ -11,6 +6,7 @@
 #endif
 
 #define FMT_HEADER_ONLY
+#include <WindowsHelper.h>
 #include<boost/algorithm/string.hpp>
 #include<boost/format.hpp>
 #include <boost/program_options.hpp>
@@ -25,7 +21,6 @@
 #include <TimerHelper.h>
 #include <vector>
 #include <Windows.h>
-#include <WindowsHelper.h>
 #include <unordered_map>
 #include <Dbt.h>
 #include <winioctl.h>

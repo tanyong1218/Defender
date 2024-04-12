@@ -33,6 +33,9 @@
     <ClInclude Include="StringHelper.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="ThreadPoolHelper.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Common.cpp">
