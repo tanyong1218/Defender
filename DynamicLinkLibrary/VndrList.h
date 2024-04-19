@@ -1693,7 +1693,7 @@ std::shared_ptr<std::unordered_map<USHORT, std::string>> GetUSBVendorIDs()
     { 0x0AB2, "Sintefex Audio LDA"  },
     { 0x0AB3, "CANON FINETECH INC."  },
     { 0x0AB4, "esd electronic system design gmbh"  },
-    { 0x0AB5, "Beckman Coulter, Inc."  },
+    /*{0x0AB5, "Beckman Coulter, Inc."},
     { 0x0AB6, "Labsystems Oy"  },
     { 0x0AB7, "Cross electronics, inc."  },
     { 0x0AB8, "TelePhotogenics, Inc."  },
@@ -10981,7 +10981,7 @@ std::shared_ptr<std::unordered_map<USHORT, std::string>> GetUSBVendorIDs()
     { 0xFF01, "DisplayPort-VESA"  },
     { 0xFF02, "MHL, LLC"  },
     { 0xFF03, "MIPI Debug"  },
-    { 0xFF04, "HDMI"  },
+    { 0xFF04, "HDMI"  },*/
     { 0x0000, "N/A"  }
     });
 

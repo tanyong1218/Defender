@@ -25,8 +25,7 @@
 #include <Dbt.h>
 #include <winioctl.h>
 #include "VndrList.h"
-#include "spdlog/spdlog.h"
-#include "spdlog/sinks/basic_file_sink.h"
+#include "IComponent.h"
 using namespace std;
 
 /////////////////////以下自己 COPY usbioctl.h中内容 /////////////
@@ -301,15 +300,18 @@ static const GUID GUID_DEVINTERFACE_LIST[] =
 vector<boost::shared_ptr<DeviceInfoFull>> g_vecDevice;
 
 // 此类是从 dll 导出的
-class DYNAMICLINKLIBRARY_API CWLUDisk {
+class CWLUDisk : public IComponent {
 public:
 
 	~CWLUDisk();
 	static CWLUDisk* GetInstance();
 	static vector<wstring> m_stcDevInfo;
+	DWORD UnRegister();
+	IComponent* Register();
+	BOOL EnableFunction();
+	BOOL DisableFunction();
 
 public:
-
 	void DealDeviceChangeMsg();
 	bool extractPortAndHub(const std::wstring& input, int& port, int& hub);
 	BOOL GetDevicePathAndDevInst(LPGUID lpGuid, vector<DevPathAndDevInst>& vectDevInfo, wstring& strError, DWORD flags);
@@ -337,20 +339,18 @@ public:
 	void RsynUSBChildignoreState(DeviceInfoFull& USBDeviceInfo);
 
 	static unsigned int	WINAPI MonitorThread(LPVOID lpParameter);
-
 	void CreatMonitorThread();
+	void StopMonitorThread();
 
 private:
 
 	CWLUDisk();
 	int m_nWinVersion;
 	HANDLE m_hMonitorThread;
+	HANDLE m_hWorkThread;
 	static CWLUDisk* m_instance;
 	void Destroy();
 };
 
-extern "C" __declspec(dllexport) int EnableDeviceControl();
+extern "C" __declspec(dllexport) IComponent* GetComInstance();
 
-extern DYNAMICLINKLIBRARY_API int nDynamicLinkLibrary;
-
-DYNAMICLINKLIBRARY_API int fnDynamicLinkLibrary(void);

@@ -578,3 +578,24 @@ BOOL CWindowsHelper::RtlGetOSVersionInfo(PRTL_OSVERSIONINFOEXW lpOsVersionInfo)
 
 	return bRet;
 }
+
+
+//获取当前运行目录
+std::wstring CWindowsHelper::GetRunDir()
+{
+	fs::path currentDir = fs::current_path();
+	fs::path parentDir = currentDir.parent_path();
+	return parentDir.generic_wstring();
+}
+
+//获取系统目录
+std::wstring CWindowsHelper::GetSystemDir()
+{
+	TCHAR systemDir[MAX_PATH];
+	wstring wstrSystemDir;
+	if (GetSystemDirectory(systemDir, MAX_PATH) != 0)
+	{
+		wstrSystemDir = systemDir;
+	}
+	return wstrSystemDir;
+}

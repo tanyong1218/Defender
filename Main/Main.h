@@ -9,8 +9,21 @@
 #include <LogHelper.h>
 #include <WindowsHelper.h>
 #include <future>
+#include "IComponent.h"
 using namespace std;
 
-const TCHAR DEVICECONTROL[] = _T("DeviceControl.dll");
-typedef int(_cdecl* TESTDLL)();
+#define DEVICECONTROL _T("DeviceControl.dll")
+#define SYSTEMLOGCONTROL _T("SystemLogControl.dll")
+
+vector<wstring> g_LoadMoudleVector
+{
+	DEVICECONTROL,
+	SYSTEMLOGCONTROL
+};
+
+
+typedef IComponent* (_cdecl* TESTDLL)();
+
+std::vector<std::shared_ptr<IComponent*>> g_IComponentVector;
+
 

@@ -13,16 +13,16 @@ public:
     {
         for (size_t i = 0; i < numThreads; ++i) 
         {
-            workers.emplace_back([this] 
-            {
-                while (true) 
-                {
+            workers.emplace_back([this] {
+                while (true) {
                     std::function<void()> task;
                     {
                         std::unique_lock<std::mutex> lock(queueMutex);
                         condition.wait(lock, [this] { return m_stop || !tasks.empty(); });
-                        if (m_stop && tasks.empty())
+                        if (m_stop)
+                        {
                             return;
+                        }
                         task = std::move(tasks.front());
                         tasks.pop();
                     }
@@ -32,6 +32,7 @@ public:
         }
     }
 
+    //入队列
     template <class F, class... Args>
     void enqueue(F&& f, Args&&... args)
     {
@@ -48,6 +49,7 @@ public:
             std::unique_lock<std::mutex> lock(queueMutex);
             m_stop = true;
         }
+        //通知所有的condition继续执行
         condition.notify_all();
         for (std::thread& worker : workers)
         {

@@ -1,6 +1,9 @@
 #include "LogHelper.h"
 #include "spdlog/async.h"
 #include "spdlog/sinks/rotating_file_sink.h"
+
+std::mutex LogHelper::m_Mutex;
+
 LogHelper::~LogHelper()
 {
 	spdlog::drop_all();
@@ -8,20 +11,24 @@ LogHelper::~LogHelper()
 
 LogHelper::LogHelper()
 {
-	spdlog::init_thread_pool(10240, 2);
-	std::vector<spdlog::sink_ptr> sinkList;
-	auto basicSink = std::make_shared<spdlog::sinks::rotating_file_sink_mt>("../logs/Main.txt", 1024 * 1024, 5);
-	basicSink->set_level(spdlog::level::debug);
-	basicSink->set_pattern("[%Y-%m-%d %H:%M:%S.%e] [%^%5l%$]  %v");
+	//mpmc_blocking_queue 大小为1024，线程池线程数为4
+	spdlog::init_thread_pool(1024, 4);
 
-	// 创建彩色终端输出sink
+	std::vector<spdlog::sink_ptr> sinkList;
+
+	//创建滚动Sink，每个文件大小为10M，最多保留5个文件
+	auto basicSink = std::make_shared<spdlog::sinks::rotating_file_sink_mt>("../logs/Main.txt", 1024 * 1024 * 10, 5);
+	basicSink->set_level(spdlog::level::debug);
+	basicSink->set_pattern("[%Y-%m-%d %H:%M:%S.%e] [%^%5l%$] [Thread:%t] %v");
+
+	//创建彩色终端输出sink
 	auto consoleSink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
 	consoleSink->set_level(spdlog::level::debug);
-	consoleSink->set_pattern("[%Y-%m-%d %H:%M:%S.%e] [%^%5l%$]  %v");
+	consoleSink->set_pattern("[%Y-%m-%d %H:%M:%S.%e] [%^%5l%$] [Thread:%t] %v");
 
 	sinkList.push_back(std::move(basicSink));
 	sinkList.push_back(std::move(consoleSink));
-	// Consider using spdlog::async_logger for thread-safe logging
+
 	m_logger = std::make_shared<spdlog::async_logger>("log", begin(sinkList), end(sinkList), spdlog::thread_pool(), spdlog::async_overflow_policy::block);
 	spdlog::register_logger(m_logger);
 	m_logger->set_level(spdlog::level::debug);
@@ -31,8 +38,9 @@ LogHelper::LogHelper()
 
 LogHelper& LogHelper::GetInstance()
 {
-	static LogHelper m_instance;
-	return m_instance;
+	std::lock_guard<std::mutex> lock(m_Mutex);
+	static LogHelper instance;
+	return instance;
 }
 
 std::shared_ptr<spdlog::logger> LogHelper::GetLogger()

@@ -1,0 +1,2 @@
+#define SYSTEMLOGCONTROL_API __declspec(dllexport)
+#define SYSTEMLOGCONTROL_API __declspec(dllimport)

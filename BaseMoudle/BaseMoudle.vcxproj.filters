@@ -21,42 +21,21 @@
     <ClInclude Include="pch.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="LogHelper.h">
+    <ClInclude Include="CommonHeader.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="TimerHelper.h">
+    <ClInclude Include="IComponent.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="WindowsHelper.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="StringHelper.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="ThreadPoolHelper.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="FileOperationHelper.h">
+    <ClInclude Include="SingletonClass.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Common.cpp">
+    <ClCompile Include="BaseMoudle.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="pch.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="LogHelper.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="WindowsHelper.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="StringHelper.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="FileOperationHelper.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

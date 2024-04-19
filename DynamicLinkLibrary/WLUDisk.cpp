@@ -8,11 +8,11 @@
 #pragma comment(lib,"shlwapi.lib")
 
 
-static HANDLE g_DeviceNotifyHandle = NULL;
-static HWND g_SrvWnd = NULL;
+static HANDLE	g_DeviceNotifyHandle = NULL;
+static HWND		g_SrvWnd = NULL;
+static BOOL		g_StopMonitorThread = FALSE;
 
-// 这是导出变量的一个示例
-DYNAMICLINKLIBRARY_API int nDynamicLinkLibrary = 0;
+UINT WM_EXIT_APP = RegisterWindowMessage(L"WM_EXIT_APP");
 CWLUDisk* CWLUDisk::m_instance = nullptr;
 
 using TaskFunc = std::function<void()>;
@@ -765,6 +765,28 @@ CWLUDisk* CWLUDisk::GetInstance()
 	return m_instance;
 }
 
+DWORD CWLUDisk::UnRegister()
+{
+	return 0;
+}
+
+IComponent* CWLUDisk::Register()
+{
+	return (IComponent*)GetInstance();
+}
+
+BOOL CWLUDisk::EnableFunction()
+{
+	CreatMonitorThread();
+	return TRUE;
+}
+
+BOOL CWLUDisk::DisableFunction()
+{
+	StopMonitorThread();
+	return TRUE;
+}
+
 
 void CWLUDisk::Destroy()
 {
@@ -1010,8 +1032,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 				PDEV_BROADCAST_VOLUME pVolume = (PDEV_BROADCAST_VOLUME)lParam;
 				WriteInfo(("Volume changed,dbcv_size: {} dbcv_devicetype: {} dbcv_reserved: {}  dbcv_unitmask: {}  dbcv_flags: {}"),
 					pVolume->dbcv_size, pVolume->dbcv_devicetype, pVolume->dbcv_reserved, pVolume->dbcv_unitmask, pVolume->dbcv_flags);
-
-				//TODO:通知模块外设插入消息
+				CWLUDisk::GetInstance()->DealDeviceChangeMsg();
 			}
 			else if (pHdr->dbch_devicetype == DBT_DEVTYP_DEVICEINTERFACE)
 			{
@@ -1072,33 +1093,58 @@ unsigned int WINAPI CWLUDisk::MonitorThread(LPVOID lpParameter)
 		}
 	}
 
+	//TODO: GetMessage -> 通过PostQuitMessage(0);退出
 	MSG msg;
-	while (GetMessage(&msg, NULL, 0, 0))
+	while (!g_StopMonitorThread)
 	{
-		TranslateMessage(&msg);
-		DispatchMessage(&msg);
-		if (g_DeviceNotifyHandle == NULL)
+		if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
 		{
-			break;
+			TranslateMessage(&msg);
+			DispatchMessage(&msg);
+		}
+		else
+		{
+			Sleep(1000); // 休眠 100 毫秒
 		}
 	}
-
+	
+	PostQuitMessage(0);
+	_endthreadex(0);
 	return 0;
 }
+
 void CWLUDisk::CreatMonitorThread()
 {
 	m_hMonitorThread = (HANDLE)_beginthreadex(NULL, 0, MonitorThread, this, 0, NULL);
 }
 
-
-extern "C" __declspec(dllexport) int EnableDeviceControl()
+void CWLUDisk::StopMonitorThread()
 {
-	//my_logger->flush_on(spdlog::level::info);
-	CWLUDisk* instance = CWLUDisk::GetInstance();
-	instance->CreatMonitorThread();
-	//WriteInfo("Welcome to spdlog!");
-	instance->DealDeviceChangeMsg();
+	if (g_DeviceNotifyHandle != NULL)
+	{
+		UnregisterDeviceNotification(g_DeviceNotifyHandle);
+		g_DeviceNotifyHandle = NULL;
+	}
 
-	//timer.reset(); // 析构函数被调用
-	return 0;
+	if (g_SrvWnd != NULL)
+	{
+		DestroyWindow(g_SrvWnd);
+		g_SrvWnd = NULL;
+	}
+
+	if (m_hMonitorThread != NULL)
+	{
+		CloseHandle(m_hMonitorThread);
+		m_hMonitorThread = NULL;
+	}
+
+	//退出监控线程
+	g_StopMonitorThread = TRUE;
+}
+
+DYNAMICLINKLIBRARY_API IComponent* GetComInstance()
+{
+	WriteInfo("Welcome to DeviceControl!");
+	CWLUDisk* instance = CWLUDisk::GetInstance();
+	return instance;
 }

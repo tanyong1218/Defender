@@ -3,6 +3,13 @@
 #include <TimerHelper.h>
 #include <chrono>
 #include <ThreadPoolHelper.h>
+#include <FileOperationHelper.h>
+
+//TODO:命令行模式
+//#include "tclap/CmdLine.h"
+
+using namespace std;
+
 void LogTime()
 {
 	char buffer[26];
@@ -19,57 +26,67 @@ void LogNumner(int iNumber)
 void TimeDemo()
 {
 	Timer timer2;
-	timer2.add(1000000, true, LogTime);
+	timer2.add(10000, true, LogTime);
 
 	Timer time;
 	int iNumber = 100;
-	time.add(1000000, false, [iNumber]() {
+	time.add(10000, false, [iNumber]() {
 		WriteInfo("Current time: {}", iNumber);
 		});
-
 }
 
-int main(int argc, char const* argv[])
+int main(int argc, char** argv)
 {
 	WriteInfo("===================Begin=====================");
 	SetConsoleOutputCP(65001); // 设置为UTF-8
 	CWindowsHelper::EnablePrivilege(SE_DEBUG_NAME, FALSE);
+	IComponent* pIComponent = nullptr;
 
 	//定时器
 	TimeDemo();
-
 	//线程池
 	const size_t numThreads = 8;
 	ThreadPool threadPool(numThreads);
-
 	threadPool.enqueue(LogTime);
 	threadPool.enqueue(LogNumner, 100);
-
 
 	//获取当前用户的SID
 	wstring wstrSID;
 	CWindowsHelper::GetSIDByUserName(wstrSID, _T("Administrator"));
 
-	HMODULE hMoudle = ::LoadLibrary(DEVICECONTROL);
-	//搜索**.dll中函数名为TestFuction的对外接口
-	if (hMoudle)
+	for (auto& wstDLLName : g_LoadMoudleVector)
 	{
-		TESTDLL lpproc = (TESTDLL)GetProcAddress(hMoudle, "EnableDeviceControl");
+		HMODULE hMoudle = ::LoadLibrary(wstDLLName.c_str());
+		TESTDLL lpproc = (TESTDLL)GetProcAddress(hMoudle, "GetComInstance");
 		if (lpproc)
 		{
-			lpproc();
+			auto Instance = lpproc();
+			g_IComponentVector.push_back(std::make_shared<IComponent*>(Instance));
 		}
-		
+		else
+		{
+			WriteError("LoadLibrary failed");
+		}
 	}
-	else
+
+	for (const auto& ComponentPtr : g_IComponentVector)
 	{
-		WriteError("LoadLibrary failed");
+		IComponent* Component = *ComponentPtr;
+		Component->EnableFunction();
 	}
 
 	for (;;)
 	{
 		Sleep(1000);
 	}
+
+	for (const auto& ComponentPtr : g_IComponentVector)
+	{
+		IComponent* Component = *ComponentPtr;
+		Component->DisableFunction();
+	}
+
+
 	WriteInfo("===================End=====================");
 	return 0;
 }

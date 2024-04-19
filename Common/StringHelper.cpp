@@ -1,4 +1,5 @@
 #include "StringHelper.h"
+
 CStrUtil::CStrUtil(void)
 {
 }
@@ -9,29 +10,18 @@ CStrUtil::~CStrUtil(void)
 
 string CStrUtil::ConvertW2A(const wstring& wstr)
 {
-	setlocale(LC_ALL, ".936");
-	size_t nSize = wstr.length() * 2 + 1;
-	char* psz = new char[nSize];
-
-	memset(psz, 0, nSize);
-	size_t convertedChars = 0;
-	wcstombs_s(&convertedChars, psz, nSize, wstr.c_str(), nSize);
-	std::string str = psz;
-	delete[]psz;
-	return str;
+	int bufferSize = WideCharToMultiByte(CP_UTF8, 0, wstr.c_str(), -1, nullptr, 0, nullptr, nullptr);
+	std::string result(bufferSize, 0);
+	WideCharToMultiByte(CP_UTF8, 0, wstr.c_str(), -1, &result[0], bufferSize, nullptr, nullptr);
+	return result;
 }
 
 wstring CStrUtil::ConvertA2W(const string& str)
 {
-	setlocale(LC_ALL, ".936");
-	size_t nSize = str.length() + 1;
-	wchar_t* wpsz = new wchar_t[nSize];
-
-	memset(wpsz, 0, sizeof(wchar_t) * nSize);
-	mbstowcs_s(&nSize, nullptr, 0, str.c_str(), 0);
-	std::wstring wstr = wpsz;
-	delete[]wpsz;
-	return wstr;
+	int bufferSize = MultiByteToWideChar(CP_UTF8, 0, str.c_str(), -1, nullptr, 0);
+	std::wstring result(bufferSize, 0);
+	MultiByteToWideChar(CP_UTF8, 0, str.c_str(), -1, &result[0], bufferSize);
+	return result;
 }
 
 
