@@ -19,8 +19,8 @@ string CStrUtil::ConvertW2A(const wstring& wstr)
 wstring CStrUtil::ConvertA2W(const string& str)
 {
 	int bufferSize = MultiByteToWideChar(CP_UTF8, 0, str.c_str(), -1, nullptr, 0);
-	std::wstring result(bufferSize, 0);
-	MultiByteToWideChar(CP_UTF8, 0, str.c_str(), -1, &result[0], bufferSize);
+	std::wstring result(bufferSize - 1, L'\0');  // ¼õÈ¥ÖÕÖ¹·ûµÄ¿Õ¼ä
+	MultiByteToWideChar(CP_UTF8, 0, str.c_str(), -1, &result[0], bufferSize - 1);
 	return result;
 }
 

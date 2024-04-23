@@ -2,8 +2,6 @@
 #include "spdlog/async.h"
 #include "spdlog/sinks/rotating_file_sink.h"
 
-std::mutex LogHelper::m_Mutex;
-
 LogHelper::~LogHelper()
 {
 	spdlog::drop_all();
@@ -38,7 +36,6 @@ LogHelper::LogHelper()
 
 LogHelper& LogHelper::GetInstance()
 {
-	std::lock_guard<std::mutex> lock(m_Mutex);
 	static LogHelper instance;
 	return instance;
 }

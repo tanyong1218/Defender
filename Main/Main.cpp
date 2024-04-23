@@ -57,7 +57,7 @@ int main(int argc, char** argv)
 	for (auto& wstDLLName : g_LoadMoudleVector)
 	{
 		HMODULE hMoudle = ::LoadLibrary(wstDLLName.c_str());
-		TESTDLL lpproc = (TESTDLL)GetProcAddress(hMoudle, "GetComInstance");
+		ICOMFUNCTION lpproc = (ICOMFUNCTION)GetProcAddress(hMoudle, "GetComInstance");
 		if (lpproc)
 		{
 			auto Instance = lpproc();

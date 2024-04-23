@@ -5,7 +5,6 @@
 
 #include <boost/shared_array.hpp>
 #include <boost/log/common.hpp>
-//#include <mutex>
 
 #ifdef _WIN32
 #define __FILENAME__ (strrchr(__FILE__, '\\') ? (strrchr(__FILE__, '\\') + 1):__FILE__)
@@ -72,7 +71,6 @@ public:
     }
 
 private:
-    static std::mutex m_Mutex;
     LogHelper();
     std::shared_ptr<spdlog::logger> m_logger;
 

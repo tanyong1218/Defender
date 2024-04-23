@@ -22,7 +22,7 @@ vector<wstring> g_LoadMoudleVector
 };
 
 
-typedef IComponent* (_cdecl* TESTDLL)();
+typedef IComponent* (_cdecl* ICOMFUNCTION)();
 
 std::vector<std::shared_ptr<IComponent*>> g_IComponentVector;
 

@@ -427,6 +427,7 @@ END:
 * @author
 * @modify：		2023. create it.
 */
+//Win2000上Lookup无法获取LOCAL SERVICE的SID，在机器名和用户名相同的情况下无法正确获取SID，需要使用wmic的方式
 BOOL CWindowsHelper::GetSIDByUserName(std::wstring& strUserSid, LPCTSTR pszUserName)
 {
 	wchar_t szComputerName[MAX_COMPUTERNAME_LENGTH + 1] = { 0 };

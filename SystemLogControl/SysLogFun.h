@@ -4,9 +4,12 @@
 #include <MsXml2.h>
 #include <winevt.h>
 #include <msxml6.h>
+#include <map>
 #import"C:\Windows\System32\msxml6.dll"
 
 #define MAX_ITEMVALUE_SIZE (100)
+#define MAX_DESCRIPTION_SIZE 1024 * 6
+
 
 //WINXP以上系统，注册操作系统事件回调
 typedef HANDLE(WINAPI* PEVTSUBSCRIBE) (EVT_HANDLE, HANDLE, LPCWSTR, LPCWSTR, EVT_HANDLE, PVOID, EVT_SUBSCRIBE_CALLBACK, DWORD);
@@ -52,6 +55,7 @@ typedef struct  __HOST_AD_SYSLOG_STRUCT
 		memset(wsEventDescription, 0, sizeof(wsEventDescription));
 		memset(wsEventComputerName, 0, sizeof(wsEventComputerName));
 		dwEventRecordID = 0;
+		dwLogCount = 0;
 	};
 #if 0
 	__HOST_AD_SYSLOG_STRUCT(__HOST_AD_SYSLOG_STRUCT& t)
@@ -73,9 +77,11 @@ typedef struct  __HOST_AD_SYSLOG_STRUCT
 	DWORD dwEventID;		//事件ID
 	TCHAR wsEventTime[20];	//时间
 	TCHAR wsEventSourceName[128];	//来源
-	TCHAR wsEventDescription[1024];	//描述 -- 这个值非常大 1024太大了
+	TCHAR wsEventDescription[MAX_DESCRIPTION_SIZE];	//描述 -- 这个值非常大 1024太大了
 	TCHAR wsEventComputerName[64];	//计算机名称
 	DWORD dwEventRecordID;			//事件记录ID
+	DWORD dwLogCount;				//日志数量
+	DWORD dwEventTime;				//日志记录时间,内部使用，使用DWORD存储
 }HOST_AD_SYSLOG_STRUCT, * PHOST_AD_SYSLOG_STRUCT;
 
 class CSysLogFun : public Singleton<CSysLogFun> {
@@ -84,9 +90,11 @@ public:
 public:
 	~CSysLogFun();
 	void InitSysLogFun();
-	BOOL GetSysLogByPsloglist(wstring wsStartDateTime, wstring wsEndDateTime, wstring wsLogClass);
-	BOOL GetSysLogByEvtSubscribe();
+	BOOL GetSysLogByPsloglist(wstring wsStartDateTime, wstring wsEndDateTime, wstring wsLogClass);   //通过PslogList命令行获取
+	BOOL GetSysLogByEvtSubscribe();																	 //通过订阅的方式实时获取
+	BOOL GetSysLogByReadEventLog();																	 //通过读取事件日志的方式获取		
 	BOOL m_EvtSubscribeThreadExit;
+	BOOL m_ReadSystemEventThreadExit;
 public:
 	PEVTSUBSCRIBE m_pEvtSubScript;							//订阅系统日志事件
 	PEVTRENDER m_pEvtRender;								//用于从事件句柄中检索事件信息
@@ -111,7 +119,10 @@ public:
 	EVT_HANDLE RegisterEvtCallBack(IN PEVT_CALLBACK_CONTEXT pContext, IN EVT_SUBSCRIBE_CALLBACK pFuncCallBack);
 	void GetEventDescription(HOST_AD_SYSLOG_STRUCT* pOneSysLog, EVT_HANDLE hEvtHandle);
 	BOOL ThreadSysLogExportInternal();
-	static unsigned int	WINAPI ThreadSysLogExport(LPVOID lpParameter);
+	static unsigned int	WINAPI DoThreadSysLogExport(LPVOID lpParameter);
+	static unsigned int	WINAPI DoSystemEventThread(LPVOID lpParameter);
+
 private:
 	CSysLogFun();
 };
+

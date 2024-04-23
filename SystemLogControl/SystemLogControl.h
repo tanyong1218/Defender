@@ -24,7 +24,6 @@ public:
 	BOOL DisableFunction();
 private:
 	CSystemLogControl(void);
-	static std::mutex m_MutexInstance;
 };
 
 extern "C" __declspec(dllexport) IComponent* GetComInstance();

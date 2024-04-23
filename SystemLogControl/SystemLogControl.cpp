@@ -5,9 +5,6 @@
 #include "framework.h"
 #include "SystemLogControl.h"
 
-
-
-std::mutex CSystemLogControl::m_MutexInstance;
 CSystemLogControl::CSystemLogControl()
 {
     return;
@@ -19,7 +16,6 @@ CSystemLogControl::~CSystemLogControl()
 
 CSystemLogControl& CSystemLogControl::GetInstance()
 {
-    std::lock_guard<std::mutex> lock(m_MutexInstance);
     static CSystemLogControl instance;
     return instance;
 }
@@ -31,7 +27,7 @@ DWORD CSystemLogControl::UnRegister()
 
 IComponent* CSystemLogControl::Register()
 {
-    return nullptr;
+    return &GetInstance();
 }
 
 BOOL CSystemLogControl::EnableFunction()
@@ -41,12 +37,14 @@ BOOL CSystemLogControl::EnableFunction()
     //CSysLogFun::GetInstance().GetSysLogByPsloglist(_T("02/28/2015"), _T("04/01/2024"), _T("Application"));
     //CSysLogFun::GetInstance().GetSysLogByPsloglist(_T("02/28/2015"), _T("04/01/2024"), _T("Setup"));
     CSysLogFun::GetInstance().GetSysLogByEvtSubscribe();
+    CSysLogFun::GetInstance().GetSysLogByReadEventLog();
 
     return 0;
 }
 
 BOOL CSystemLogControl::DisableFunction()
 {
+    CSysLogFun::GetInstance().RecycleSysLogResource();
     return 0;
 }
 
