@@ -28,8 +28,7 @@ vector<wstring> g_LoadMoudleVector
 	SYSTEMLOGCONTROL
 };
 
-
-class CMessageHelper : public Singleton<CMessageHelper> 
+class CMessageHelper : public Singleton<CMessageHelper>
 {
 public:
 	friend Singleton;
@@ -45,8 +44,6 @@ private:
 	CWLMetaDataQueue* m_pCWLMetaDataQueue;
 	CMessageHelper();
 };
-
-
 
 typedef IComponent* (_cdecl* ICOMFUNCTION)();
 

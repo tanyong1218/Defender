@@ -1,5 +1,4 @@
-﻿
-#include "Main.h"
+﻿#include "Main.h"
 
 //TODO:命令行模式
 //#include "tclap/CmdLine.h"
@@ -33,14 +32,9 @@ int main(int argc, char** argv)
 
 	for (;;)
 	{
-		
 		Sleep(1000);
 	}
 
 	WriteInfo("===================Main End=====================");
 	return 0;
 }
-
-
-
-

@@ -11,14 +11,13 @@ using std::wstring;
 class CStrUtil
 {
 public:
-    CStrUtil(void);
-    ~CStrUtil(void);
+	CStrUtil(void);
+	~CStrUtil(void);
 
-
-    static string ConvertW2A(const wstring& wstr);
-    static wstring ConvertA2W(const string& str);
-    static std::wstring UTF8ToUnicode(std::string szAnsi);
-    static std::string UnicodeToUTF8(std::wstring str);
+	static string ConvertW2A(const wstring& wstr);
+	static wstring ConvertA2W(const string& str);
+	static std::wstring UTF8ToUnicode(std::string szAnsi);
+	static std::string UnicodeToUTF8(std::wstring str);
 };
 
 #ifndef ArraySize

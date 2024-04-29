@@ -1,6 +1,5 @@
 #include "Service.h"
 
-
 CMessageHelper::CMessageHelper()
 {
 	m_pCWLMetaDataQueue = new CWLMetaDataQueue();
@@ -37,7 +36,7 @@ unsigned int WINAPI CMessageHelper::GetMessageThread(LPVOID lpParameter)
 		DWORD dwSize = 0;
 
 		if (ERROR_SUCCESS == pIPCContainer->ReadData(dwSize, pMsgData))
-		try
+			try
 		{
 			DWORD dwSizeDone = 0;
 			while (dwSizeDone + IPC_MSG_DATA_HEADNER_LEN <= dwSize)
@@ -77,7 +76,6 @@ unsigned int WINAPI CMessageHelper::DispatchMessageThread(LPVOID lpParameter)
 
 	_endthreadex(0);
 	return 0;
-
 }
 
 //消息分发模块
@@ -99,10 +97,11 @@ BOOL CMessageHelper::DispatchMessageFun(IPC_MSG_DATA* MessageData)
 	}
 	return 0;
 }
+
 int main(int argc, char** argv)
 {
 	WriteInfo("===================Service Begin=====================");
-	
+
 	IComponent* pIComponent = nullptr;
 	for (auto& wstDLLName : g_LoadMoudleVector)
 	{

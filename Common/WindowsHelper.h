@@ -84,7 +84,6 @@ public:
 	static BOOL GetSIDByUserName_Lookup(std::wstring& strUserSid, LPCTSTR pszUserName);
 	static BOOL GetSIDByUserName(std::wstring& strUserSid, LPCTSTR pszUserName);
 
-
 	static wstring GetRunDir();
 	static wstring GetSystemDir();
 

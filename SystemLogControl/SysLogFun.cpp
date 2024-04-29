@@ -1,6 +1,5 @@
 #include "SysLogFun.h"
 
-
 std::map<std::string, HMODULE> g_MapDllHModule;
 
 CSysLogFun::~CSysLogFun()
@@ -29,9 +28,7 @@ void CSysLogFun::InitSysLogFun()
 
 	m_EvtSubscribeThreadExit = FALSE;
 	m_ReadSystemEventThreadExit = FALSE;
-
 }
-
 
 //---------------------GetSysLogByPsloglist-----------------------------
 BOOL CSysLogFun::GetSysLogByPsloglist(wstring wsStartDateTime, wstring wsEndDateTime, wstring wsLogClass)
@@ -42,7 +39,7 @@ BOOL CSysLogFun::GetSysLogByPsloglist(wstring wsStartDateTime, wstring wsEndDate
 	wstring wsFilePath = CWindowsHelper::GetRunDir();
 
 	wchar_t FileName[MAX_PATH] = { 0 };
-	swprintf_s(FileName, _T("%s/%s.txt"), wsFilePath.c_str(),wsLogClass.c_str());
+	swprintf_s(FileName, _T("%s/%s.txt"), wsFilePath.c_str(), wsLogClass.c_str());
 	wsFilePath = FileName;	// 文件路径   ../wsLogClass.txt
 
 	wstring wsCmdLine = CWindowsHelper::GetSystemDir() + _T("\\psloglist.exe ");
@@ -109,7 +106,6 @@ BOOL CSysLogFun::GetSysLogByPsloglist(wstring wsStartDateTime, wstring wsEndDate
 		WriteInfo(("syslog-Audit, CreateProcess Failed, wsCmdLine = {}  begin"), CStrUtil::UnicodeToUTF8(wsCmdLine));
 		return FALSE;
 	}
-
 }
 
 //---------------------GetSysLogByEvtSubscribe-----------------------------
@@ -164,7 +160,6 @@ void CSysLogFun::RecycleSysLogResource()
 {
 	m_EvtSubscribeThreadExit = TRUE;
 	m_ReadSystemEventThreadExit = TRUE;
-
 }
 EVT_HANDLE CSysLogFun::RegisterEvtCallBack(IN PEVT_CALLBACK_CONTEXT pContext, IN EVT_SUBSCRIBE_CALLBACK pFuncCallBack)
 {
@@ -192,7 +187,7 @@ EVT_HANDLE CSysLogFun::RegisterEvtCallBack(IN PEVT_CALLBACK_CONTEXT pContext, IN
 
 	return hEvtHandle;
 }
-void GetEvtXmlDataNodes(IXMLDOMNodeListPtr pNodeList, std::vector<IXMLDOMNodePtr> &veXmlNodes)
+void GetEvtXmlDataNodes(IXMLDOMNodeListPtr pNodeList, std::vector<IXMLDOMNodePtr>& veXmlNodes)
 {
 	long llength = 0;
 	pNodeList->get_length(&llength);
@@ -225,7 +220,6 @@ BOOL AnalyEvtXmlData(PWCHAR pEvtXmlData, PEVT_CALLBACK_CONTEXT pEvtCBKContext, H
 	IXMLDOMNodeListPtr pNodeList = NULL;
 	std::vector<IXMLDOMNodePtr> vecNode;
 	int Index = 0;
-
 
 	if (NULL == pEvtXmlData || NULL == pEvtCBKContext)
 	{
@@ -262,9 +256,9 @@ BOOL AnalyEvtXmlData(PWCHAR pEvtXmlData, PEVT_CALLBACK_CONTEXT pEvtCBKContext, H
 		//获取 节点名 和 text 值
 		vecNode[n]->get_nodeName(&pNodeName);
 		vecNode[n]->get_text(&pNodeValue);
-		if (wcslen(pNodeName) > 0 && wcslen(pNodeValue) > 0 
-			&& wcslen(pNodeValue) < MAX_ITEMVALUE_SIZE 
-			&& 0 != wcscmp(pNodeName, _T("Data")) 
+		if (wcslen(pNodeName) > 0 && wcslen(pNodeValue) > 0
+			&& wcslen(pNodeValue) < MAX_ITEMVALUE_SIZE
+			&& 0 != wcscmp(pNodeName, _T("Data"))
 			&& 0 != wcscmp(pNodeName, _T("#text"))
 			&& 0 != wcscmp(pNodeName, _T("xmlns"))
 			&& 0 != wcscmp(pNodeValue, _T("-")))
@@ -315,7 +309,6 @@ BOOL AnalyEvtXmlData(PWCHAR pEvtXmlData, PEVT_CALLBACK_CONTEXT pEvtCBKContext, H
 			goto Continue;
 		}
 
-
 		hResult = pAttrMap->get_length(&lCount);
 		if (!SUCCEEDED(hResult) || NULL == pAttrMap)
 		{
@@ -359,7 +352,7 @@ BOOL AnalyEvtXmlData(PWCHAR pEvtXmlData, PEVT_CALLBACK_CONTEXT pEvtCBKContext, H
 				::SysFreeString(pItemValue);
 			}
 		}
-Continue:
+	Continue:
 		if (pNodeName != NULL)
 		{
 			::SysFreeString(pNodeName);
@@ -479,8 +472,8 @@ DWORD WINAPI EvtCallbackFunction(EVT_SUBSCRIBE_NOTIFY_ACTION EvtAction, PVOID pC
 		wstring wsEventTime = oneSyslog.wsEventTime;
 		wstring wsEventComputerName = oneSyslog.wsEventComputerName;
 		wstring wsEventSourceName = oneSyslog.wsEventSourceName;
-		WriteInfo(("SysLog EventID = {} EventComputerName = {} EventTime = {} EventSourceName = {}"), 
-			oneSyslog.dwEventID,CStrUtil::ConvertW2A(wsEventComputerName),CStrUtil::ConvertW2A(wsEventTime),CStrUtil::ConvertW2A(wsEventSourceName));
+		WriteInfo(("SysLog EventID = {} EventComputerName = {} EventTime = {} EventSourceName = {}"),
+			oneSyslog.dwEventID, CStrUtil::ConvertW2A(wsEventComputerName), CStrUtil::ConvertW2A(wsEventTime), CStrUtil::ConvertW2A(wsEventSourceName));
 	}
 
 END:
@@ -698,7 +691,6 @@ RENEW:
 		else
 		{
 			WriteError(("LoadLibraryExA Dll = {}, Error = {}"), pRealDllPath, GetLastError());
-
 		}
 
 		pCurStr = pNextStr + 1;
@@ -772,7 +764,7 @@ BOOL GetEventDescription(PCHAR pEventString, DWORD dwNumStrings, PCHAR pLogName,
 		}
 
 		if (iLeftSize > iStringSize) {
-			strncat_s(pFormatString, MAX_DESCRIPTION_SIZE + 1,pEventString, iLeftSize);
+			strncat_s(pFormatString, MAX_DESCRIPTION_SIZE + 1, pEventString, iLeftSize);
 		}
 
 		pTempString = strchr(pFormatString, '\0');
@@ -870,7 +862,7 @@ BOOL AnalyEventData(PCHAR pEvtData, DWORD dwDataSize, PCHAR pChannel, HOST_AD_SY
 	pLogComputer = pLogSource + strlen(pLogSource) + 1;
 	wstring wstrLogComputer = CStrUtil::ConvertA2W(string(pLogComputer));
 	_tcscpy_s(pOneSysLog->wsEventComputerName, wstrLogComputer.c_str());
-	
+
 	if (!GetEventDescription((PCHAR)pEvtData + pEvtRecord->StringOffset, pEvtRecord->NumStrings, pChannel, pEvtRecord->EventID, pLogSource, strDescription))
 	{
 		char pBuf[512] = { 0 };
@@ -882,8 +874,8 @@ BOOL AnalyEventData(PCHAR pEvtData, DWORD dwDataSize, PCHAR pChannel, HOST_AD_SY
 			{
 				if (strlen(pBuf) + strlen(p1) + 2 < 512)
 				{
-					strcat_s(pBuf,512 ,p1);
-					strcat_s(pBuf,512,";");
+					strcat_s(pBuf, 512, p1);
+					strcat_s(pBuf, 512, ";");
 				}
 				else
 				{
@@ -1002,7 +994,7 @@ unsigned int __stdcall CSysLogFun::DoSystemEventThread(LPVOID lpParameter)
 				}
 				continue;
 			}
-			else 
+			else
 			{
 				// log
 				WriteInfo(("!!!! Failed to read event log record. Error code: {}  ThreadSecuritySysLog Exit"), GetLastError());

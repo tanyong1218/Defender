@@ -24,7 +24,6 @@ wstring CStrUtil::ConvertA2W(const string& str)
 	return result;
 }
 
-
 std::wstring CStrUtil::UTF8ToUnicode(std::string szAnsi)
 {
 	int nLen = MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, szAnsi.c_str(), -1, NULL, 0);
@@ -36,7 +35,6 @@ std::wstring CStrUtil::UTF8ToUnicode(std::string szAnsi)
 	delete[]wszAnsi;
 	return strRet;
 }
-
 
 std::string CStrUtil::UnicodeToUTF8(std::wstring str)
 {

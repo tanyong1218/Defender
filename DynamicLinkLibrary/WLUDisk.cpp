@@ -7,7 +7,6 @@
 #pragma comment(lib, "Iphlpapi.lib")
 #pragma comment(lib,"shlwapi.lib")
 
-
 static HANDLE	g_DeviceNotifyHandle = NULL;
 static HWND		g_SrvWnd = NULL;
 static BOOL		g_StopMonitorThread = FALSE;
@@ -67,8 +66,6 @@ void CWLUDisk::GetSymbolicName(DEVINST devInst, wstring& strSymbolicName)
 	}
 	strSymbolicName = SymbolicName;
 	RegCloseKey(hKey);
-
-
 }
 
 wstring CWLUDisk::getVendorNameByVid(unsigned short VendorID)
@@ -83,7 +80,6 @@ wstring CWLUDisk::getVendorNameByVid(unsigned short VendorID)
 	}
 	return wsVendorInfo;
 }
-
 
 /*
 * @function		getUsbDevProductInfo
@@ -129,7 +125,6 @@ void CWLUDisk::getUsbDevProductInfo(vector<DevPathAndDevInst>& vectHubDevBaseInf
 	USBDeviceInfo.ParentDevPort = PortId;
 	USBDeviceInfo.ParentDevHub = hubId;
 }
-
 
 /*
 * @fn           GetUsbDeviceDeviceName
@@ -212,7 +207,6 @@ BOOL CWLUDisk::HubGetNodeStringDescriptorProduct(
 	__out std::wstring& strError)
 {
 	return  GetStringDescriptor(hHubDevice, ConnectIndex, DevDescInfo.iProduct, 0x0409, WstrDesc, strError);
-
 }
 
 /*
@@ -328,7 +322,6 @@ END:
 	return bRet;
 }
 
-
 /*
 * @fn           HubGetNodeConnectionInformation
 * @brief        通过usb ioctl IOCTL_USB_GET_DESCRIPTOR_FROM_NODE_CONNECTION 取出USB_STRING_DESCRIPTOR_TYPE 相关的信息。
@@ -373,7 +366,6 @@ BOOL CWLUDisk::HubGetNodeConnectionInformation(HANDLE							hHubDevice,
 		strTemp = (_T("DeviceIoControl IOCTL_USB_GET_NODE_CONNECTION_INFORMATION failed! "));
 		WriteError("{} DeviceIoControl IOCTL_USB_GET_NODE_CONNECTION_INFORMATION failed! ErrorCode= {}", __LINE__, GetLastError());
 		goto END;
-
 	}
 
 	memcpy(&connectinfo, pConnectionInfo, sizeof(connectinfo));
@@ -387,7 +379,6 @@ END:
 	strError += strTemp.data();
 	return bRet;
 }
-
 
 void CWLUDisk::GetUsbDeviceProductInfo(vector<DevPathAndDevInst>& vectHubDevBaseInfo, DeviceInfoFull& USBDeviceInfo)
 {
@@ -406,7 +397,6 @@ void CWLUDisk::GetUsbDeviceProductInfo(vector<DevPathAndDevInst>& vectHubDevBase
 		//getCM_DRP_DEVICEDESC
 		GetCMPropertybyDevinst(USBDeviceInfo.DeviceInfoData.DevInst, CM_DRP_DEVICEDESC, USBDeviceInfo.wsProductInfo);
 	}
-
 }
 
 void CWLUDisk::GetCMPropertybyDevinst(const DEVINST& devInst, DWORD cm_drp_flag, wstring& WstRet)
@@ -451,7 +441,6 @@ void CWLUDisk::GetCMPropertybyDevinst(const DEVINST& devInst, DWORD cm_drp_flag,
 	delete[] PropertyInfo;
 }
 
-
 BOOL CWLUDisk::GetDeviceFullInfo(
 	HDEVINFO hDevInfo,
 	PSP_DEVINFO_DATA pDeviceInfoData,
@@ -482,7 +471,6 @@ BOOL CWLUDisk::GetDeviceFullInfo(
 		(PBYTE)wszClassName,
 		sizeof(wszClassName),
 		NULL);
-
 
 	wstring wstrClassName = wszClassName;
 	transform(wstrClassName.begin(), wstrClassName.end(), wstrClassName.begin(), ::tolower);
@@ -571,7 +559,6 @@ BOOL CWLUDisk::GetDeviceFullInfo(
 	return TRUE;
 }
 
-
 /*
 * @fn           extractPortAndHub
 * @brief        从字符口中Port_#0009.Hub_#0001
@@ -600,8 +587,6 @@ bool CWLUDisk::extractPortAndHub(const std::wstring& input, int& port, int& hub)
 	}
 	return true;
 }
-
-
 
 BOOL CWLUDisk::GetDevicePathAndDevInst(LPGUID lpGuid, vector<DevPathAndDevInst>& vectDevInfo, wstring& strError, DWORD flags)
 {
@@ -690,7 +675,7 @@ BOOL CWLUDisk::EnumAllDeviceFullInfo(vector<boost::shared_ptr<DeviceInfoFull>>& 
 
 	for (DWORD DeviceId = 0; SetupDiEnumDeviceInfo(hDevInfo, DeviceId, &DeviceInfoData); DeviceId++)
 	{
-		//获取外设的完整消息<DeviceInfoFull> 
+		//获取外设的完整消息<DeviceInfoFull>
 		GetDeviceFullInfo(hDevInfo, &DeviceInfoData, g_vecDevice, vectHubDevBaseInfo);
 	}
 	//关闭设备信息集句柄
@@ -744,7 +729,6 @@ CWLUDisk::CWLUDisk()
 {
 	//获取当前的计算机系统版本,存储在m_nWinVersion中
 	CWindowsHelper::SeGetWindowsVersion(m_nWinVersion);
-
 }
 
 CWLUDisk::~CWLUDisk()
@@ -801,7 +785,6 @@ BOOL CWLUDisk::DispatchMessages(IPC_MSG_DATA* pIpcMsg)
 	return 0;
 }
 
-
 void CWLUDisk::Destroy()
 {
 	if (NULL != m_instance)
@@ -810,7 +793,6 @@ void CWLUDisk::Destroy()
 		m_instance = nullptr;
 	}
 }
-
 
 /*
 * @fn           GetVUsbVendorProductIdFromUsbParentId
@@ -855,9 +837,7 @@ void CWLUDisk::ParseUsbVendorProductIdFromUsbParentId(wstring UsbDeviceId, ULONG
 	}
 
 	return;
-
 }
-
 
 /*
 * @fn           DevicePathToGUID
@@ -912,7 +892,6 @@ int CWLUDisk::DevicePathToGUID(wstring& SymbolicName, GUID& outGuid)
 	return 0;
 }
 
-
 /*
 * @fn           buildDeviceRelation
 * @brief		g_vecDeviceUSB 仅为USB设备以及相关的设备 建立父子关系。
@@ -953,7 +932,6 @@ void CWLUDisk::BuildDeviceRelation()
 		}
 	}
 }
-
 
 void CWLUDisk::RsynUSBParentAndChlidignoreState(DeviceInfoFull& childDevInfo)
 {
@@ -1010,7 +988,6 @@ void CWLUDisk::RsynUSBChildignoreState(DeviceInfoFull& USBDeviceInfo)
 
 		//ParseUsbVendorProductIdFromUsbParentId(devInfo.ParentDevInstanceId,dwdefailInfoVid,dwdefailInfoPid);
 
-
 		//step 1 同步"bIgnore"信息。父向子同步。
 		if (USBDeviceInfo.bIgnore && !childDevInfo.bIgnore)
 		{
@@ -1029,8 +1006,6 @@ void CWLUDisk::RsynUSBChildignoreState(DeviceInfoFull& USBDeviceInfo)
 		}
 	}
 }
-
-
 
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
@@ -1059,7 +1034,6 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	return DefWindowProc(hwnd, uMsg, wParam, lParam);
 }
 
-
 unsigned int WINAPI CWLUDisk::MonitorThread(LPVOID lpParameter)
 {
 	CWLUDisk* pUDisk = (CWLUDisk*)lpParameter;
@@ -1079,7 +1053,7 @@ unsigned int WINAPI CWLUDisk::MonitorThread(LPVOID lpParameter)
 	//g_SrvWnd = CreateWindow(wc.lpszClassName, NULL, 0, 0, 0, 0, 0, HWND_MESSAGE, NULL, NULL, NULL);
 
 	g_SrvWnd = CreateWindowEx(0, TEXT("VolumeChangeWnd"), _T(""), WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
-		NULL,       // Parent window    
+		NULL,       // Parent window
 		NULL,       // Menu
 		GetModuleHandle(NULL),  // Instance handle
 		NULL        // Additional application data
@@ -1121,7 +1095,7 @@ unsigned int WINAPI CWLUDisk::MonitorThread(LPVOID lpParameter)
 			Sleep(1000); // 休眠 100 毫秒
 		}
 	}
-	
+
 	PostQuitMessage(0);
 	_endthreadex(0);
 	return 0;

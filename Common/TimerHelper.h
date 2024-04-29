@@ -20,7 +20,6 @@ struct Task
 	Task(uint64_t id, uint64_t period, bool repeated, std::function<void(Args...)> func)
 		: id(id), period(period), repeated(repeated), func(func), removed(false)
 	{
-
 	}
 };
 

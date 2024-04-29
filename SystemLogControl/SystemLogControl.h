@@ -9,8 +9,6 @@
 #include "SysLogFun.h"
 #include "IComponent.h"
 
-
-
 class CSystemLogControl : public IComponent {
 public:
 	~CSystemLogControl();
@@ -27,4 +25,4 @@ private:
 	CSystemLogControl(void);
 };
 
-extern "C" __declspec(dllexport) IComponent* GetComInstance();
+extern "C" __declspec(dllexport) IComponent * GetComInstance();

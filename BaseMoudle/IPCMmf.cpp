@@ -3,7 +3,7 @@
 CWLIPCMmf::CWLIPCMmf(LPCWSTR lpMmfName, LPCWSTR lpMutexName, PSECURITY_ATTRIBUTES lpSa, DWORD dwMmfSize)
 {
 	m_hMutex = CreateMutex(lpSa, FALSE, lpMutexName);
-	m_hMFF	 = CreateFileMapping(INVALID_HANDLE_VALUE, lpSa, PAGE_READWRITE, 0,sizeof(dwMmfSize) + dwMmfSize, lpMmfName);
+	m_hMFF = CreateFileMapping(INVALID_HANDLE_VALUE, lpSa, PAGE_READWRITE, 0, sizeof(dwMmfSize) + dwMmfSize, lpMmfName);
 	if (!m_hMFF || !m_hMutex)
 	{
 		m_dwErrorCode = ::GetLastError();
@@ -67,14 +67,14 @@ BOOL CWLIPCMmf::WriteDataInternal(DWORD dwDataSize, const BYTE* pData)
 	}
 
 	DWORD* pCurDataSize = (DWORD*)(BYTE*)m_pMapView;	//*pCurDataSize = 当前共享内存中还未被读取的字节数
-	BYTE* pCurData = (BYTE*)m_pMapView + sizeof(DWORD);	
+	BYTE* pCurData = (BYTE*)m_pMapView + sizeof(DWORD);
 
 	if (*pCurDataSize + dwDataSize > m_dwMmfSize)
 	{
 		m_dwErrorCode = WRITEDATA_OUTRANGE_ERROR;
 		return FALSE;
 	}
-	
+
 	//如果*pCurDataSize为0的话，他就会覆盖之前写入的内存。
 	memcpy(pCurData + *pCurDataSize, pData, dwDataSize);
 	*pCurDataSize += dwDataSize;

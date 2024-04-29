@@ -26,56 +26,54 @@ using format_string_t = fmt::format_string<Args...>;
 class LogHelper
 {
 public:
-    LogHelper(const LogHelper&) = delete;
-    LogHelper& operator=(const LogHelper&) = delete;
-    ~LogHelper();
-    static LogHelper& GetInstance();
-    std::shared_ptr<spdlog::logger> GetLogger();
+	LogHelper(const LogHelper&) = delete;
+	LogHelper& operator=(const LogHelper&) = delete;
+	~LogHelper();
+	static LogHelper& GetInstance();
+	std::shared_ptr<spdlog::logger> GetLogger();
 
 public:
-    template<typename... Args>
-    inline void info(format_string_t<Args...> fmt, Args &&...args)
-    {
-        auto msg = fmt::format(fmt, std::forward<Args>(args)...);
-        GetLogger()->info(("{}"), std::move(msg));
-    }
-    template<typename... Args>
-    inline void error(format_string_t<Args...> fmt, Args &&...args)
-    {
-        auto msg = fmt::format(fmt, std::forward<Args>(args)...);
-        GetLogger()->error(("{}"), std::move(msg));
-    }
-    template<typename... Args>
-    inline void debug(format_string_t<Args...> fmt, Args &&...args)
-    {
-        auto msg = fmt::format(fmt, std::forward<Args>(args)...);
-        GetLogger()->debug(("{}"), std::move(msg));
-    }
-    template<typename... Args>
-    inline void critical(format_string_t<Args...> fmt, Args &&...args)
-    {
-        auto msg = fmt::format(fmt, std::forward<Args>(args)...);
-        GetLogger()->critical(("{}"), std::move(msg));
-    }
-    template<typename... Args>
-    inline void trace(format_string_t<Args...> fmt, Args &&...args)
-    {
-        auto msg = fmt::format(fmt, std::forward<Args>(args)...);
-        GetLogger()->trace(("{}"), std::move(msg));
-    }
-    template<typename... Args>
-    inline void warn(format_string_t<Args...> fmt, Args &&...args)
-    {
-        auto msg = fmt::format(fmt, std::forward<Args>(args)...);
-        GetLogger()->warn(("{}"), std::move(msg));
-    }
+	template<typename... Args>
+	inline void info(format_string_t<Args...> fmt, Args &&...args)
+	{
+		auto msg = fmt::format(fmt, std::forward<Args>(args)...);
+		GetLogger()->info(("{}"), std::move(msg));
+	}
+	template<typename... Args>
+	inline void error(format_string_t<Args...> fmt, Args &&...args)
+	{
+		auto msg = fmt::format(fmt, std::forward<Args>(args)...);
+		GetLogger()->error(("{}"), std::move(msg));
+	}
+	template<typename... Args>
+	inline void debug(format_string_t<Args...> fmt, Args &&...args)
+	{
+		auto msg = fmt::format(fmt, std::forward<Args>(args)...);
+		GetLogger()->debug(("{}"), std::move(msg));
+	}
+	template<typename... Args>
+	inline void critical(format_string_t<Args...> fmt, Args &&...args)
+	{
+		auto msg = fmt::format(fmt, std::forward<Args>(args)...);
+		GetLogger()->critical(("{}"), std::move(msg));
+	}
+	template<typename... Args>
+	inline void trace(format_string_t<Args...> fmt, Args &&...args)
+	{
+		auto msg = fmt::format(fmt, std::forward<Args>(args)...);
+		GetLogger()->trace(("{}"), std::move(msg));
+	}
+	template<typename... Args>
+	inline void warn(format_string_t<Args...> fmt, Args &&...args)
+	{
+		auto msg = fmt::format(fmt, std::forward<Args>(args)...);
+		GetLogger()->warn(("{}"), std::move(msg));
+	}
 
 private:
-    LogHelper();
-    std::shared_ptr<spdlog::logger> m_logger;
-
+	LogHelper();
+	std::shared_ptr<spdlog::logger> m_logger;
 };
-
 
 #define WriteTrace(msg,...) LogHelper::GetInstance().trace(suffix(msg),__VA_ARGS__)
 #define WriteDebug(msg,...) LogHelper::GetInstance().debug(suffix(msg),__VA_ARGS__)

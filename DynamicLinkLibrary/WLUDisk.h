@@ -47,7 +47,6 @@ typedef struct _USB_NODE_CONNECTION_NAME {
 #define FILE_DEVICE_UNKNOWN             0x00000022
 #define FILE_DEVICE_USB					FILE_DEVICE_UNKNOWN
 
-
 #define USB_GET_NODE_INFORMATION                    258
 #define USB_GET_NODE_CONNECTION_INFORMATION         259
 #define USB_GET_DESCRIPTOR_FROM_NODE_CONNECTION     260
@@ -79,9 +78,6 @@ typedef struct _USB_NODE_CONNECTION_NAME {
 	USB_GET_DESCRIPTOR_FROM_NODE_CONNECTION,  \
 	METHOD_BUFFERED,  \
 	FILE_ANY_ACCESS)
-
-
-
 
 typedef struct _USB_DEVICE_DESCRIPTOR {
 	UCHAR  bLength;
@@ -152,7 +148,6 @@ typedef struct _USB_DESCRIPTOR_REQUEST {
 	UCHAR  Data[0];
 } USB_DESCRIPTOR_REQUEST, * PUSB_DESCRIPTOR_REQUEST;
 
-
 typedef struct _USB_STRING_DESCRIPTOR {
 	UCHAR bLength;
 	UCHAR bDescriptorType;
@@ -169,7 +164,6 @@ typedef struct _USB_STRING_DESCRIPTOR {
 #define USB_RESERVED_DESCRIPTOR_TYPE              0x06
 #define USB_CONFIG_POWER_DESCRIPTOR_TYPE          0x07
 #define USB_INTERFACE_POWER_DESCRIPTOR_TYPE       0x08
-
 
 const GUID GUID_DEVINTERFACE_USB_HUB = { 0xf18a0e88L, 0xc30c, 0x11d0, {0x88, 0x15, 0x00, 0xa0, 0xc9, 0x06, 0xbe, 0xd8} };
 const GUID GUID_DEVINTERFACE_USB_DEVICE = { 0xA5DCBF10L, 0x6530, 0x11D2, { 0x90, 0x1F, 0x00, 0xC0, 0x4F, 0xB9, 0x51, 0xED } };
@@ -222,7 +216,7 @@ typedef struct DeviceInfoFull_st
 
 	//设备信息
 	DWORD				UsbVid;              //产品信息ID
-	DWORD				UsbPid;				 //厂商ID 
+	DWORD				UsbPid;				 //厂商ID
 	DWORD				SelfDevInst;         //设备实例标识符，句柄
 	wstring				SelfDeviceInstanceId;//设备实例标ID，
 	wstring				SelfClassName;		 //ClassName指的是usb、mouse、port等
@@ -236,12 +230,11 @@ typedef struct DeviceInfoFull_st
 	//设备状态信息
 	DWORD		dwDevStatus;				//CM_Get_DevNode_Status获取设备状态dwDevStatus 、dwProblem
 	DWORD       dwProblem;
-	BOOL		isInsert;					//设备是否插入		
-	int			iAction;					//Action 设备将要进行的操作		
+	BOOL		isInsert;					//设备是否插入
+	int			iAction;					//Action 设备将要进行的操作
 	int			ActionMethod;				//动作方法
 	bool        bIgnore;					//Device是否忽略，（鼠标、键盘）
 	BOOL		isParentUSB;				//父节点是不是USB
-
 
 	//管理数据
 	vector<boost::shared_ptr<struct DeviceInfoFull_st>> vectChild;
@@ -262,7 +255,6 @@ typedef struct DevPathAndDevInst_st
 	BOOL		isExist;  //表示当前设备是否插入到系统
 } DevPathAndDevInst;
 
-
 typedef struct _VENDOR_ID {
 	USHORT  usVendorID;
 	string  szVendor;
@@ -281,7 +273,7 @@ static const GUID GUID_DEVINTERFACE_LIST[] =
 	{ 0xA5DCBF10, 0x6530, 0x11D2, { 0x90, 0x1F, 0x00, 0xC0, 0x4F, 0xB9, 0x51, 0xED } },
 	// GUID_DEVINTERFACE_DISK
 	{ 0x53f56307, 0xb6bf, 0x11d0, { 0x94, 0xf2, 0x00, 0xa0, 0xc9, 0x1e, 0xfb, 0x8b } },
-	// GUID_DEVINTERFACE_HID, 
+	// GUID_DEVINTERFACE_HID,
 	//{ 0x4D1E55B2, 0xF16F, 0x11CF, { 0x88, 0xCB, 0x00, 0x11, 0x11, 0x00, 0x00, 0x30 } },
 	// GUID_NDIS_LAN_CLASS
 	//{ 0xad498944, 0x762f, 0x11d0, { 0x8d, 0xcb, 0x00, 0xc0, 0x4f, 0xc3, 0x35, 0x8c } }
@@ -295,7 +287,6 @@ static const GUID GUID_DEVINTERFACE_LIST[] =
 	//GUID_DEVINTERFACE_PARCLASS
 	//{ 0x811FC6A5, 0xF728, 0x11D0, { 0xA5, 0x37, 0x00, 0x00, 0xF8, 0x75, 0x3E, 0xD1 } }
 };
-
 
 vector<boost::shared_ptr<DeviceInfoFull>> g_vecDevice;
 
@@ -352,5 +343,4 @@ private:
 	void Destroy();
 };
 
-extern "C" __declspec(dllexport) IComponent* GetComInstance();
-
+extern "C" __declspec(dllexport) IComponent * GetComInstance();

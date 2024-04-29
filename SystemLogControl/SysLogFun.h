@@ -10,7 +10,6 @@
 #define MAX_ITEMVALUE_SIZE (100)
 #define MAX_DESCRIPTION_SIZE 1024 * 6
 
-
 //WINXP以上系统，注册操作系统事件回调
 typedef HANDLE(WINAPI* PEVTSUBSCRIBE) (EVT_HANDLE, HANDLE, LPCWSTR, LPCWSTR, EVT_HANDLE, PVOID, EVT_SUBSCRIBE_CALLBACK, DWORD);
 //WINXP以上系统，读取操作系统事件
@@ -39,11 +38,9 @@ enum HOST_AD_SYSLOG_CLASS
 	EVENT_CLASS_Setup
 };
 
-
 //系统日志
 typedef struct  __HOST_AD_SYSLOG_STRUCT
 {
-
 	__HOST_AD_SYSLOG_STRUCT()
 	{
 		dwEventClass = 0;
@@ -69,7 +66,6 @@ typedef struct  __HOST_AD_SYSLOG_STRUCT
 		memcpy(wsEventDescription, t.wsEventDescription, sizeof(wsEventDescription));
 		memcpy(wsEventComputerName, t.wsEventComputerName, sizeof(wsEventComputerName)); \
 			dwEventRecordID = t.dwEventRecordID;
-
 	};
 #endif
 	DWORD dwEventClass;		//日志信息包括类别  -- BASELINE_EVENT_LOG_CLASS,app,system,sec,setup
@@ -92,7 +88,7 @@ public:
 	void InitSysLogFun();
 	BOOL GetSysLogByPsloglist(wstring wsStartDateTime, wstring wsEndDateTime, wstring wsLogClass);   //通过PslogList命令行获取
 	BOOL GetSysLogByEvtSubscribe();																	 //通过订阅的方式实时获取
-	BOOL GetSysLogByReadEventLog();																	 //通过读取事件日志的方式获取		
+	BOOL GetSysLogByReadEventLog();																	 //通过读取事件日志的方式获取
 	BOOL m_EvtSubscribeThreadExit;
 	BOOL m_ReadSystemEventThreadExit;
 public:
@@ -107,7 +103,6 @@ public:
 	EVT_HANDLE m_hEvtHandleSec;
 	EVT_HANDLE m_hEvtHandleSys;
 	EVT_HANDLE m_hEvtHandleSetup;
-
 
 	EVT_CALLBACK_CONTEXT m_stContextApp;
 	EVT_CALLBACK_CONTEXT m_stContextSec;
@@ -125,4 +120,3 @@ public:
 private:
 	CSysLogFun();
 };
-

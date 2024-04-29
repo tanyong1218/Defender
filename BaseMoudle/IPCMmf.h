@@ -32,7 +32,7 @@ enum IPC_ERROE_CODE
 class CWLIPCMmf
 {
 public:
-	CWLIPCMmf(LPCWSTR lpMmfName, LPCWSTR lpMutexName ,PSECURITY_ATTRIBUTES lpSa = NULL, DWORD dwMmfSize = MAX_MMF_BUFFER_SIZE);
+	CWLIPCMmf(LPCWSTR lpMmfName, LPCWSTR lpMutexName, PSECURITY_ATTRIBUTES lpSa = NULL, DWORD dwMmfSize = MAX_MMF_BUFFER_SIZE);
 	virtual ~CWLIPCMmf(void);
 
 	BOOL WriteData(DWORD dwDataSize, const BYTE* pData);

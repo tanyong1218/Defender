@@ -119,7 +119,6 @@ BOOL CWindowsHelper::GetOnePIDBelongUserName(wstring wstrUserName, DWORD& dwPid,
 		{
 			break;
 		}
-
 	} while (Process32Next(hSnapshot, &pe32));
 END:
 	if (hSnapshot)
@@ -256,7 +255,6 @@ BOOL CWindowsHelper::GetSIDByUserName_Wmic(std::wstring& strUserSid, LPCTSTR psz
 
 	hr = CoInitializeSecurity(NULL, -1, NULL, NULL, RPC_C_AUTHN_LEVEL_DEFAULT, RPC_C_IMP_LEVEL_IMPERSONATE, NULL, EOAC_NONE, NULL);
 
-
 	hr = CoCreateInstance(CLSID_WbemLocator, 0, CLSCTX_INPROC_SERVER, IID_IWbemLocator, (LPVOID*)&pLoc);
 	if (FAILED(hr))
 	{
@@ -284,7 +282,6 @@ BOOL CWindowsHelper::GetSIDByUserName_Wmic(std::wstring& strUserSid, LPCTSTR psz
 
 	while (pEnumerator)
 	{
-
 		VARIANT vtSID;
 		VARIANT vtUserName;
 		VariantInit(&vtSID);
@@ -336,12 +333,12 @@ END:
 		pEnumerator->Release();
 	}
 
-	if(pLoc)
+	if (pLoc)
 	{
 		pLoc->Release();
 	}
 
-	if(pSvc)
+	if (pSvc)
 	{
 		pSvc->Release();
 	}
@@ -354,7 +351,6 @@ END:
 	{
 		return TRUE;
 	}
-
 }
 
 /*
@@ -431,8 +427,8 @@ END:
 BOOL CWindowsHelper::GetSIDByUserName(std::wstring& strUserSid, LPCTSTR pszUserName)
 {
 	wchar_t szComputerName[MAX_COMPUTERNAME_LENGTH + 1] = { 0 };
-	DWORD	dwSize	= MAX_COMPUTERNAME_LENGTH + 1;
-	BOOL	bRet	= TRUE;
+	DWORD	dwSize = MAX_COMPUTERNAME_LENGTH + 1;
+	BOOL	bRet = TRUE;
 
 	if (wcscmp(pszUserName, L"SYSTEM") == 0)
 	{
@@ -554,7 +550,6 @@ void CWindowsHelper::SeGetWindowsVersion(int& iWinVersion)
 	{
 		iWinVersion = -1;
 	}
-
 }
 
 BOOL CWindowsHelper::RtlGetOSVersionInfo(PRTL_OSVERSIONINFOEXW lpOsVersionInfo)
@@ -579,7 +574,6 @@ BOOL CWindowsHelper::RtlGetOSVersionInfo(PRTL_OSVERSIONINFOEXW lpOsVersionInfo)
 
 	return bRet;
 }
-
 
 //获取当前运行目录
 std::wstring CWindowsHelper::GetRunDir()
@@ -666,8 +660,6 @@ BOOL CWindowsHelper::StartProcess(LPCTSTR pszProcessName)
 		CloseHandle(pi.hProcess);
 		CloseHandle(pi.hThread);
 		return TRUE;
-
 	}
 	return FALSE;
 }
-

@@ -15,7 +15,7 @@ DWORD CWLMessageSender::SendMsg(DWORD dwMsgCode, DWORD dwEventType, DWORD dwData
 
 	try
 	{
-		CWLIPCMmf *msgContainer = new CWLIPCMmf(IPC_CFG_MMF_NAME_SERVER, IPC_CFG_MUTEX_NAME_SERVER, NULL, DEFAULT_MMF_BUFFER_SIZE);
+		CWLIPCMmf* msgContainer = new CWLIPCMmf(IPC_CFG_MMF_NAME_SERVER, IPC_CFG_MUTEX_NAME_SERVER, NULL, DEFAULT_MMF_BUFFER_SIZE);
 		if (dwResult != ERROR_SUCCESS)
 		{
 			return dwResult;

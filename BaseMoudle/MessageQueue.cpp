@@ -17,7 +17,7 @@ void CWLMetaDataQueue::Insert(IPC_MSG_DATA* pMetadata)
 		if (pMetadata)
 		{
 			m_Queue.push(pMetadata);
-			m_nTotalSize ++;
+			m_nTotalSize++;
 		}
 	}
 }
@@ -30,7 +30,7 @@ IPC_MSG_DATA* CWLMetaDataQueue::GetHead()
 		pMetadata = m_Queue.front();
 		if (pMetadata)
 		{
-			m_nTotalSize --;
+			m_nTotalSize--;
 		}
 		m_Queue.pop();
 	}
@@ -73,4 +73,3 @@ void CWLMetaDataQueue::RemoveAll()
 		m_Queue.pop();
 	}
 }
-
