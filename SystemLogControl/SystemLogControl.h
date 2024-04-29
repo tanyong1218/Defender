@@ -22,6 +22,7 @@ public:
 	IComponent* Register();
 	BOOL EnableFunction();
 	BOOL DisableFunction();
+	BOOL DispatchMessages(IPC_MSG_DATA* pIpcMsg);
 private:
 	CSystemLogControl(void);
 };

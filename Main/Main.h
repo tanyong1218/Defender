@@ -9,21 +9,14 @@
 #include <LogHelper.h>
 #include <WindowsHelper.h>
 #include <future>
-#include "IComponent.h"
+#include <TimerHelper.h>
+#include <chrono>
+#include <ThreadPoolHelper.h>
+#include <FileOperationHelper.h>
+#include <IPCMmf.h>
+#include <MessageSender.h>
 using namespace std;
 
-#define DEVICECONTROL _T("DeviceControl.dll")
-#define SYSTEMLOGCONTROL _T("SystemLogControl.dll")
 
-vector<wstring> g_LoadMoudleVector
-{
-	DEVICECONTROL,
-	SYSTEMLOGCONTROL
-};
-
-
-typedef IComponent* (_cdecl* ICOMFUNCTION)();
-
-std::vector<std::shared_ptr<IComponent*>> g_IComponentVector;
 
 

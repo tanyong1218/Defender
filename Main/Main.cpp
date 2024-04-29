@@ -1,93 +1,43 @@
 ﻿
 #include "Main.h"
-#include <TimerHelper.h>
-#include <chrono>
-#include <ThreadPoolHelper.h>
-#include <FileOperationHelper.h>
 
 //TODO:命令行模式
 //#include "tclap/CmdLine.h"
-
 using namespace std;
-
-void LogTime()
+void CheckServiceExist()
 {
-	char buffer[26];
-	auto currentTime = std::chrono::system_clock::now();
-	std::time_t current_time_t = std::chrono::system_clock::to_time_t(currentTime);
-	ctime_s(buffer, sizeof(buffer), &current_time_t);
-	WriteInfo(("Current time: {}"), buffer);
-}
-void LogNumner(int iNumber)
-{
-	WriteInfo(("Current iNumber: {}"), iNumber);
-}
-
-void TimeDemo()
-{
-	Timer timer2;
-	timer2.add(10000, true, LogTime);
-
-	Timer time;
-	int iNumber = 100;
-	time.add(10000, false, [iNumber]() {
-		WriteInfo("Current time: {}", iNumber);
-		});
+	if (!CWindowsHelper::IsProcessExist(_T("Service.exe")))
+	{
+		WriteInfo("Service.exe is not exist!");
+		CWindowsHelper::StartProcess(_T("Service.exe"));   //默认当前目录
+	}
 }
 
 int main(int argc, char** argv)
 {
-	WriteInfo("===================Begin=====================");
+	//Init阶段  提权、添加定时器、声明变量
+	WriteInfo("===================Main Begin=====================");
 	SetConsoleOutputCP(65001); // 设置为UTF-8
 	CWindowsHelper::EnablePrivilege(SE_DEBUG_NAME, FALSE);
-	IComponent* pIComponent = nullptr;
 
-	//定时器
-	TimeDemo();
-	//线程池
-	const size_t numThreads = 8;
-	ThreadPool threadPool(numThreads);
-	threadPool.enqueue(LogTime);
-	threadPool.enqueue(LogNumner, 100);
+	Timer timer;
+	timer.add(1000 * 60, true, CheckServiceExist);  //每隔1min检测一次服务程序是否存在
 
-	//获取当前用户的SID
-	wstring wstrSID;
-	CWindowsHelper::GetSIDByUserName(wstrSID, _T("Administrator"));
-
-	for (auto& wstDLLName : g_LoadMoudleVector)
-	{
-		HMODULE hMoudle = ::LoadLibrary(wstDLLName.c_str());
-		ICOMFUNCTION lpproc = (ICOMFUNCTION)GetProcAddress(hMoudle, "GetComInstance");
-		if (lpproc)
-		{
-			auto Instance = lpproc();
-			g_IComponentVector.push_back(std::make_shared<IComponent*>(Instance));
-		}
-		else
-		{
-			WriteError("LoadLibrary failed");
-		}
-	}
-
-	for (const auto& ComponentPtr : g_IComponentVector)
-	{
-		IComponent* Component = *ComponentPtr;
-		Component->EnableFunction();
-	}
+	string strJson = "Hello World";
+	int iLen = strJson.length();
+	BYTE* BytePlyData = new BYTE[iLen + 1];
+	memset(BytePlyData, 0, iLen + 1);
+	memcpy(BytePlyData, strJson.c_str(), iLen);
+	CWLMessageSender::SendMsg(CLIENT_MSG_CODE_DEVICE_CONTROL, DEVICE_CONTROL_OPEN_ALL_FUNCTION, iLen, BytePlyData);
+	CWLMessageSender::SendMsg(CLIENT_MSG_CODE_SYSTEMLOG_CONTROL, SYSTEMLOG_CONTROL_OPEN_ALL_FUNCTION, iLen, BytePlyData);
 
 	for (;;)
 	{
+		
 		Sleep(1000);
 	}
 
-	for (const auto& ComponentPtr : g_IComponentVector)
-	{
-		IComponent* Component = *ComponentPtr;
-		Component->DisableFunction();
-	}
-
-
-	WriteInfo("===================End=====================");
+	WriteInfo("===================Main End=====================");
 	return 0;
 }
 

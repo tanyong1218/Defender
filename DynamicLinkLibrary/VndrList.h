@@ -297,7 +297,7 @@ std::shared_ptr<std::unordered_map<USHORT, std::string>> GetUSBVendorIDs()
     { 0x0522, "ACON, Advanced-Connectek, Inc."  },
     { 0x0523, "ATEN GMBH"  },
     { 0x0524, "Sola Electronics"  },
-    { 0x0525, "PLX Technology, Inc."  },
+    /*{0x0525, "PLX Technology, Inc."},
     { 0x0526, "Temic MHS S.A."  },
     { 0x0527, "ALTRA"  },
     { 0x0528, "ATI Technologies, Inc."  },

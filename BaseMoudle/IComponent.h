@@ -1,5 +1,6 @@
 #pragma once
 #include "CommonHeader.h"
+#include "MessageSender.h"
 class IComponent
 {
 public:
@@ -7,4 +8,5 @@ public:
 	virtual IComponent*  Register()		   = 0;
 	virtual BOOL		 EnableFunction()  = 0;
 	virtual BOOL		 DisableFunction() = 0;
+	virtual BOOL		 DispatchMessages(IPC_MSG_DATA* pIpcMsg) = 0;
 };

@@ -27,9 +27,8 @@ public:
         static T instance;
         return instance;
     }
-
     Singleton(const Singleton&) = delete;
-    Singleton& operator=(const Singleton&) = delete;
-    Singleton() = default;
+    Singleton& operator=(const Singleton&) = delete;    //阻止用户错用拷贝构造函数
+    Singleton() = default;                              //显示指定编译器生成该函数的默认版本
     ~Singleton() = default;
 };

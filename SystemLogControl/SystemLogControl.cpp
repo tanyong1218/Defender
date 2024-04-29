@@ -32,10 +32,8 @@ IComponent* CSystemLogControl::Register()
 
 BOOL CSystemLogControl::EnableFunction()
 {
+    WriteInfo("EnableFunction CSystemLogControl");
     CSysLogFun::GetInstance().GetSysLogByPsloglist(_T("02/28/2015"), _T("04/01/2024"), _T("System"));
-    //CSysLogFun::GetInstance().GetSysLogByPsloglist(_T("02/28/2015"), _T("04/01/2024"), _T("Security"));
-    //CSysLogFun::GetInstance().GetSysLogByPsloglist(_T("02/28/2015"), _T("04/01/2024"), _T("Application"));
-    //CSysLogFun::GetInstance().GetSysLogByPsloglist(_T("02/28/2015"), _T("04/01/2024"), _T("Setup"));
     CSysLogFun::GetInstance().GetSysLogByEvtSubscribe();
     CSysLogFun::GetInstance().GetSysLogByReadEventLog();
 
@@ -45,6 +43,20 @@ BOOL CSystemLogControl::EnableFunction()
 BOOL CSystemLogControl::DisableFunction()
 {
     CSysLogFun::GetInstance().RecycleSysLogResource();
+    return 0;
+}
+
+BOOL CSystemLogControl::DispatchMessages(IPC_MSG_DATA* pIpcMsg)
+{
+    switch (pIpcMsg->dwMsgCode)
+    {
+    case 1:
+        break;
+    case 2:
+        break;
+    default:
+        break;
+    }
     return 0;
 }
 

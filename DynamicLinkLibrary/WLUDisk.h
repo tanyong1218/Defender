@@ -310,7 +310,7 @@ public:
 	IComponent* Register();
 	BOOL EnableFunction();
 	BOOL DisableFunction();
-
+	BOOL DispatchMessages(IPC_MSG_DATA* pIpcMsg);
 public:
 	void DealDeviceChangeMsg();
 	bool extractPortAndHub(const std::wstring& input, int& port, int& hub);

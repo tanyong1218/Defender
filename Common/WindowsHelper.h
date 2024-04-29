@@ -87,4 +87,7 @@ public:
 
 	static wstring GetRunDir();
 	static wstring GetSystemDir();
+
+	static BOOL IsProcessExist(LPCTSTR pszProcessName);
+	static BOOL StartProcess(LPCTSTR pszProcessName);
 };

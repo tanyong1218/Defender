@@ -787,6 +787,20 @@ BOOL CWLUDisk::DisableFunction()
 	return TRUE;
 }
 
+BOOL CWLUDisk::DispatchMessages(IPC_MSG_DATA* pIpcMsg)
+{
+	switch (pIpcMsg->dwMsgCode)
+	{
+	case 1:
+		break;
+	case 2:
+		break;
+	default:
+		break;
+	}
+	return 0;
+}
+
 
 void CWLUDisk::Destroy()
 {

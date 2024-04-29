@@ -584,9 +584,19 @@ BOOL CWindowsHelper::RtlGetOSVersionInfo(PRTL_OSVERSIONINFOEXW lpOsVersionInfo)
 //获取当前运行目录
 std::wstring CWindowsHelper::GetRunDir()
 {
-	fs::path currentDir = fs::current_path();
-	fs::path parentDir = currentDir.parent_path();
-	return parentDir.generic_wstring();
+	TCHAR chPath[MAX_PATH];
+	wstring strPath;
+	GetModuleFileName(NULL, (LPTSTR)chPath, sizeof(chPath));
+	strPath = chPath;
+
+	wstring::size_type nPos = strPath.rfind(_T("\\"));
+
+	if (wstring::npos == nPos)
+	{
+		return _T("");
+	}
+
+	return strPath.substr(0, nPos);
 }
 
 //获取系统目录
@@ -600,3 +610,64 @@ std::wstring CWindowsHelper::GetSystemDir()
 	}
 	return wstrSystemDir;
 }
+
+BOOL CWindowsHelper::IsProcessExist(LPCTSTR pszProcessName)
+{
+	BOOL bExist = FALSE;
+	HANDLE hSnapshot = NULL;
+	PROCESSENTRY32 pe32 = { 0 };
+	pe32.dwSize = sizeof(PROCESSENTRY32);
+	hSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
+	if (hSnapshot == INVALID_HANDLE_VALUE)
+	{
+		return FALSE;
+	}
+
+	if (Process32First(hSnapshot, &pe32))
+	{
+		do
+		{
+			if (_wcsicmp(pe32.szExeFile, pszProcessName) == 0)
+			{
+				bExist = TRUE;
+				break;
+			}
+		} while (Process32Next(hSnapshot, &pe32));
+	}
+
+	if (hSnapshot)
+	{
+		CloseHandle(hSnapshot);
+	}
+	return bExist;
+}
+
+BOOL CWindowsHelper::StartProcess(LPCTSTR pszProcessName)
+{
+	wstring             wsWorkDir = _T("");
+	wstring             wsCmdLine = _T("");
+	STARTUPINFO         s = { sizeof(s) };
+	PROCESS_INFORMATION pi = { 0 };
+
+	wsWorkDir = CWindowsHelper::GetRunDir();
+	wsCmdLine = CWindowsHelper::GetRunDir();
+
+	wsCmdLine.append(_T("\\"));
+	wsCmdLine.append(pszProcessName);
+
+	s.dwFlags = STARTF_USESHOWWINDOW | STARTF_USESTDHANDLES;
+	s.wShowWindow = SW_NORMAL;//
+
+	if (CreateProcess(NULL, (LPTSTR)wsCmdLine.c_str(), NULL, NULL, TRUE, CREATE_NEW_CONSOLE, NULL, wsWorkDir.c_str(), &s, &pi))
+	{
+		WaitForSingleObject(pi.hProcess, 1000);
+
+		//等待进程执行完毕
+		CloseHandle(pi.hProcess);
+		CloseHandle(pi.hThread);
+		return TRUE;
+
+	}
+	return FALSE;
+}
+

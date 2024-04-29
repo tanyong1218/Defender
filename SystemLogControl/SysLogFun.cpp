@@ -29,6 +29,7 @@ void CSysLogFun::InitSysLogFun()
 
 	m_EvtSubscribeThreadExit = FALSE;
 	m_ReadSystemEventThreadExit = FALSE;
+
 }
 
 
@@ -114,9 +115,8 @@ BOOL CSysLogFun::GetSysLogByPsloglist(wstring wsStartDateTime, wstring wsEndDate
 //---------------------GetSysLogByEvtSubscribe-----------------------------
 BOOL CSysLogFun::GetSysLogByEvtSubscribe()
 {
-	HANDLE hThread = (HANDLE)_beginthreadex(NULL, 0, DoThreadSysLogExport, this, 0, NULL);
-
-	return 0;
+	HANDLE hThread = (HANDLE)_beginthreadex(NULL, 0, DoSystemEventThread, this, 0, NULL);
+	return TRUE;
 }
 unsigned int WINAPI CSysLogFun::DoThreadSysLogExport(LPVOID lpParameter)
 {
