@@ -82,7 +82,7 @@ unsigned int WINAPI CMessageHelper::DispatchMessageThread(LPVOID lpParameter)
 BOOL CMessageHelper::DispatchMessageFun(IPC_MSG_DATA* MessageData)
 {
 	IComponent* Component = nullptr;
-	switch (MessageData->dwMsgCode)
+	switch (MessageData->dwEventType)
 	{
 	case CLIENT_MSG_CODE_DEVICE_CONTROL:
 		Component = *g_IComponentVector[DEVICECONTROL];
@@ -90,6 +90,10 @@ BOOL CMessageHelper::DispatchMessageFun(IPC_MSG_DATA* MessageData)
 		break;
 	case CLIENT_MSG_CODE_SYSTEMLOG_CONTROL:
 		Component = *g_IComponentVector[SYSTEMLOGCONTROL];
+		Component->DispatchMessages(MessageData);
+		break;
+	case CLIENT_MSG_CODE_FILESCAN_CONTROL:
+		Component = *g_IComponentVector[FILESCANCONTROL];
 		Component->DispatchMessages(MessageData);
 		break;
 	default:
@@ -101,6 +105,24 @@ BOOL CMessageHelper::DispatchMessageFun(IPC_MSG_DATA* MessageData)
 int main(int argc, char** argv)
 {
 	WriteInfo("===================Service Begin=====================");
+
+	//防止多个服务同时运行
+	HANDLE hEvent_WLService = CreateEvent(NULL, FALSE, FALSE, WL_SERVICE_SINGTON_EVENT_NAME);
+	if(!hEvent_WLService)
+	{
+		WriteError(("CreateEvent WL_SERVICE_SINGTON_EVENT_NAME fail, errno={}"), GetLastError());
+		return 0;
+	}
+
+	if(ERROR_ALREADY_EXISTS == GetLastError())
+	{
+		WriteInfo(("WLSERVICE ERROR_ALREADY_EXISTS"));
+		return 0;
+	}
+
+	auto HardDiskSerial =new CGetHardDiskSerialNumber();
+	string HardDriveSerialNumber;
+	HardDiskSerial->GetHardDriveSerialNumber(HardDriveSerialNumber);    //获取系统硬盘序列号
 
 	IComponent* pIComponent = nullptr;
 	for (auto& wstDLLName : g_LoadMoudleVector)

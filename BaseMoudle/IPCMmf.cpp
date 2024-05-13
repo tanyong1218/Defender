@@ -24,6 +24,7 @@ CWLIPCMmf::CWLIPCMmf(LPCWSTR lpMmfName, LPCWSTR lpMutexName, PSECURITY_ATTRIBUTE
 	}
 }
 
+
 CWLIPCMmf::~CWLIPCMmf(void)
 {
 	try

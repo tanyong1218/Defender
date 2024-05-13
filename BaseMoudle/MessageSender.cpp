@@ -8,7 +8,7 @@ CWLMessageSender::~CWLMessageSender(void)
 {
 }
 
-DWORD CWLMessageSender::SendMsg(DWORD dwMsgCode, DWORD dwEventType, DWORD dwDataSize, BYTE* lpEventData)
+DWORD CWLMessageSender::SendMsg(DWORD dwEventType, DWORD dwMsgCode, DWORD dwDataSize, BYTE* lpEventData)
 {
 	DWORD dwResult = ERROR_SUCCESS;
 	BYTE* pMsgBuffer = nullptr;
@@ -21,7 +21,7 @@ DWORD CWLMessageSender::SendMsg(DWORD dwMsgCode, DWORD dwEventType, DWORD dwData
 			return dwResult;
 		}
 
-		const DWORD dwMsgSize = IPC_MSG_DATA_HEADNER_LEN + dwDataSize;;
+		const DWORD dwMsgSize = IPC_MSG_DATA_HEADNER_LEN + dwDataSize;
 		pMsgBuffer = new BYTE[dwMsgSize];
 		if (!pMsgBuffer) return 0xffffffef;
 

@@ -775,9 +775,11 @@ BOOL CWLUDisk::DispatchMessages(IPC_MSG_DATA* pIpcMsg)
 {
 	switch (pIpcMsg->dwMsgCode)
 	{
-	case 1:
+	case DEVICE_CONTROL_OPEN_ALL_FUNCTION:
+		EnableFunction();
 		break;
-	case 2:
+	case DEVICE_CONTROL_CLOSE_ALL_FUNCTION:
+		DisableFunction();
 		break;
 	default:
 		break;

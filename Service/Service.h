@@ -18,14 +18,15 @@
 #include <MessageQueue.h>
 #include <ThreadPoolHelper.h>
 #include <MessageSender.h>
-
-#define DEVICECONTROL _T("DeviceControl.dll")
-#define SYSTEMLOGCONTROL _T("SystemLogControl.dll")
-
+#include <HardDiskHelper.h>
+#define DEVICECONTROL		_T("DeviceControl.dll")
+#define SYSTEMLOGCONTROL	_T("SystemLogControl.dll")
+#define	FILESCANCONTROL		_T("FileScanControl.dll")
 vector<wstring> g_LoadMoudleVector
 {
 	DEVICECONTROL,
-	SYSTEMLOGCONTROL
+	SYSTEMLOGCONTROL,
+	FILESCANCONTROL
 };
 
 class CMessageHelper : public Singleton<CMessageHelper>

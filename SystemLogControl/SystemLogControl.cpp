@@ -48,11 +48,14 @@ BOOL CSystemLogControl::DisableFunction()
 
 BOOL CSystemLogControl::DispatchMessages(IPC_MSG_DATA* pIpcMsg)
 {
+	std::string strData(reinterpret_cast<char*>(pIpcMsg->Data), pIpcMsg->dwSize);
 	switch (pIpcMsg->dwMsgCode)
 	{
-	case 1:
+	case SYSTEMLOG_CONTROL_OPEN_ALL_FUNCTION:
+		EnableFunction();
 		break;
-	case 2:
+	case SYSTEMLOG_CONTROL_CLOSE_ALL_FUNCTION:
+		DisableFunction();
 		break;
 	default:
 		break;

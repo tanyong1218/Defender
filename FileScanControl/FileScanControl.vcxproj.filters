@@ -21,48 +21,24 @@
     <ClInclude Include="pch.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="LogHelper.h">
+    <ClInclude Include="FileScan.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="TimerHelper.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="WindowsHelper.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="StringHelper.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="ThreadPoolHelper.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="FileOperationHelper.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="HardDiskHelper.h">
+    <ClInclude Include="FileScanFun.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Common.cpp">
+    <ClCompile Include="dllmain.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="pch.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="LogHelper.cpp">
+    <ClCompile Include="FileScan.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="WindowsHelper.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="StringHelper.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="FileOperationHelper.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="HardDiskHelper.cpp">
+    <ClCompile Include="FileScanFun.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
