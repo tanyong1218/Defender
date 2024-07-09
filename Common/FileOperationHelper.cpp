@@ -24,3 +24,19 @@ std::uintmax_t FileOperationHelper::SeGetFileSize(const std::string& strFilePath
 		return 0;
 	}
 }
+
+BOOL FileOperationHelper::SeEnumFile(const std::string strFileName, std::unordered_map<std::string, int>& FileMapViews)
+{
+	for (const auto& entry : std::filesystem::recursive_directory_iterator(strFileName))   //¹ö¶¯±éÀúÄ¿Â¼
+	{
+		if (entry.is_directory())
+		{
+			continue;
+		}
+		else if (entry.is_regular_file())
+		{
+			FileMapViews[entry.path().string()] = (int)entry.file_size();
+		}
+	}
+	return TRUE;
+}

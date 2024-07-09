@@ -27,14 +27,14 @@ BOOL CWindowsHelper::GetOnePIDBelongUserName(wstring wstrUserName, DWORD& dwPid,
 	hSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
 	if (hSnapshot == INVALID_HANDLE_VALUE)
 	{
-		wsprintf(buffer, L"CreateToolhelp32Snapshot Fail Error = %d", GetLastError());
+		_snwprintf_s(buffer, _countof(buffer), _TRUNCATE, L"CreateToolhelp32Snapshot Fail Error = %d", GetLastError());
 		goto END;
 	}
 
 	pe32.dwSize = sizeof(PROCESSENTRY32);
 	if (!Process32First(hSnapshot, &pe32))
 	{
-		wsprintf(buffer, L"Process32First Fail Error = %d pe32.dwSize = %d", GetLastError(), pe32.dwSize);
+		_snwprintf_s(buffer, _countof(buffer), _TRUNCATE, L"Process32First Fail Error = %d pe32.dwSize = %d", GetLastError(), pe32.dwSize);
 		goto END;
 	}
 
@@ -430,6 +430,11 @@ BOOL CWindowsHelper::GetSIDByUserName(std::wstring& strUserSid, LPCTSTR pszUserN
 	DWORD	dwSize = MAX_COMPUTERNAME_LENGTH + 1;
 	BOOL	bRet = TRUE;
 
+	if (!pszUserName)
+	{
+		return FALSE;
+	}
+
 	if (wcscmp(pszUserName, L"SYSTEM") == 0)
 	{
 		strUserSid = L"S-1-5-18";
@@ -465,14 +470,13 @@ BOOL CWindowsHelper::GetSIDByUserName(std::wstring& strUserSid, LPCTSTR pszUserN
 * param : iWinVersion
 * return : void
 */
-void CWindowsHelper::SeGetWindowsVersion(int& iWinVersion)
+void CWindowsHelper::SeGetWindowsVersion(int& iWinVersion, BOOL& b64Bit)
 {
 	BOOL bRet = FALSE;
 	HMODULE hModNtdll = NULL;
 	DWORD dwMajorVersion = 0;
 	DWORD dwMinorVersion = 0;
 	DWORD dwBuildNumber = 0;
-	BOOL b64Bit = FALSE;
 	SYSTEM_INFO si;
 	ZeroMemory(&si, sizeof(SYSTEM_INFO));
 	::GetNativeSystemInfo(&si);
@@ -662,4 +666,169 @@ BOOL CWindowsHelper::StartProcess(LPCTSTR pszProcessName)
 		return TRUE;
 	}
 	return FALSE;
+}
+
+BOOL CWindowsHelper::GetPIDByProcessName(__in const wstring  processName, __out DWORD& dwPid)
+{
+	HANDLE hProcessSnap;
+	PROCESSENTRY32 pe32;
+
+	// Take a snapshot for all processes in the system.
+	hProcessSnap = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
+	if (hProcessSnap == INVALID_HANDLE_VALUE)
+	{
+		return FALSE;
+	}
+
+	pe32.dwSize = sizeof(PROCESSENTRY32);
+
+	if (!Process32First(hProcessSnap, &pe32))
+	{
+		CloseHandle(hProcessSnap);
+		return FALSE;
+	}
+
+	BOOL bRet = FALSE;
+	do
+	{
+		if (processName == pe32.szExeFile)
+		{
+			dwPid = pe32.th32ProcessID;
+			bRet = TRUE;
+			break;
+		}
+	} while (Process32Next(hProcessSnap, &pe32));
+
+	CloseHandle(hProcessSnap);
+
+	return bRet;
+}
+
+BOOL CWindowsHelper::GetMacByIp(__in const wstring wsIp, __out wstring& wstrMacAddress)
+{
+	PIP_ADAPTER_INFO pAdapterInfo;
+	PIP_ADAPTER_INFO pAdapter = NULL;
+	DWORD dwRetVal = 0;
+
+	pAdapterInfo = (IP_ADAPTER_INFO*)malloc(sizeof(IP_ADAPTER_INFO));
+	ULONG ulOutBufLen = sizeof(IP_ADAPTER_INFO);
+	if (GetAdaptersInfo(pAdapterInfo, &ulOutBufLen) != ERROR_SUCCESS)
+	{
+		free(pAdapterInfo);
+		pAdapterInfo = (IP_ADAPTER_INFO*)malloc(ulOutBufLen);
+	}
+
+	if ((dwRetVal = GetAdaptersInfo(pAdapterInfo, &ulOutBufLen)) == NO_ERROR)
+	{
+		pAdapter = pAdapterInfo;
+		while (pAdapter)
+		{
+			if (pAdapter->Type == MIB_IF_TYPE_ETHERNET ||
+				pAdapter->Type == 71//pAdapter->Type是71为：无线网卡
+				)
+			{
+				//循环匹配输入的IP地址,针对一网卡多IP的情况
+				std::string strIP = CStrUtil::ConvertW2A(wsIp);
+				PIP_ADDR_STRING pIpAddrString = &pAdapter->IpAddressList;
+				while (pIpAddrString != NULL)
+				{
+					if (_stricmp(strIP.c_str(), pIpAddrString->IpAddress.String) == 0)
+					{
+						wstrMacAddress = CStrUtil::MacAddrToString(pAdapter->Address);
+						goto DONE;
+					}
+					pIpAddrString = pIpAddrString->Next;
+				}
+			}
+			pAdapter = pAdapter->Next;
+		}
+	}
+
+DONE:
+	if (pAdapterInfo)
+	{
+		free(pAdapterInfo);
+		pAdapterInfo = NULL;
+	}
+
+	return TRUE;
+}
+
+BOOL Wow64RedirectOff::m_bCheckVersion = FALSE;
+BOOL Wow64RedirectOff::m_bWin64 = FALSE;
+Wow64RedirectOff::Wow64RedirectOff() {
+#ifdef _WIN64//X64_BIT					// only 32bit application needs the function
+	return;
+#endif
+	BOOL nRes = FALSE;
+	DWORD dwRes = 0;
+	if (!m_bCheckVersion)
+	{
+		CWindowsHelper getwindowversion;
+		int iWindowsVersion = 0;
+		getwindowversion.SeGetWindowsVersion(iWindowsVersion, m_bWin64);
+		m_bCheckVersion = TRUE;
+	}
+
+	if (!m_bWin64)
+	{
+		LPFN_Disable = NULL;
+		return;
+	}
+
+	LPFN_Disable = (FN_Wow64DisableWow64FsRedirection)GetProcAddress(
+		GetModuleHandle(TEXT("kernel32")), "Wow64DisableWow64FsRedirection");
+	if (LPFN_Disable) {
+		nRes = LPFN_Disable(&m_OldValue);
+		dwRes = GetLastError();
+	}
+}
+
+VOID Wow64RedirectOff::SetWow64RedirectOff() {
+#ifdef _WIN64//X64_BIT					// only 32bit application needs the function
+	return;
+#endif
+	BOOL nRes = FALSE;
+	DWORD dwRes = 0;
+
+	if (!m_bWin64)
+	{
+		LPFN_Disable = NULL;
+		return;
+	}
+
+	LPFN_Disable = (FN_Wow64DisableWow64FsRedirection)GetProcAddress(
+		GetModuleHandle(TEXT("kernel32")), "Wow64DisableWow64FsRedirection");
+	if (LPFN_Disable) {
+		nRes = LPFN_Disable(&m_OldValue);
+		dwRes = GetLastError();
+	}
+}
+
+VOID Wow64RedirectOff::SetWow64RedirectOn() {
+#ifdef _WIN64//X64_BIT
+	return;
+#endif
+
+	if (LPFN_Disable) {
+		FN_Wow64RevertWow64FsRedirection LPFN_Revert = (FN_Wow64RevertWow64FsRedirection)GetProcAddress(
+			GetModuleHandle(TEXT("kernel32")), "Wow64RevertWow64FsRedirection");
+		if (LPFN_Revert) {
+			LPFN_Revert(m_OldValue);
+		}
+	}
+}
+
+Wow64RedirectOff::~Wow64RedirectOff() {
+#ifdef _WIN64//X64_BIT
+	return;
+#endif
+
+	if (LPFN_Disable) {
+		FN_Wow64RevertWow64FsRedirection LPFN_Revert = (FN_Wow64RevertWow64FsRedirection)GetProcAddress(
+			GetModuleHandle(TEXT("kernel32")), "Wow64RevertWow64FsRedirection");
+		if (LPFN_Revert) {
+			LPFN_Revert(m_OldValue);
+		}
+	}
 }

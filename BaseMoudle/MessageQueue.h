@@ -2,6 +2,7 @@
 #include "CommonHeader.h"
 #include "SingletonClass.h"
 #include "IPCMmf.h"
+
 #include <queue>
 
 enum DATA_TYPE { NORMAL_LOG = 1, VALIOTION_LOG, ALARM_LOG, INFO, MESSAGE };

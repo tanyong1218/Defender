@@ -45,7 +45,7 @@ void CWLUDisk::GetSymbolicName(DEVINST devInst, wstring& strSymbolicName)
 	}
 	HKEY hKey;
 	WCHAR regPath[MAX_PATH];
-	swprintf(regPath, MAX_PATH, L"SYSTEM\\CurrentControlSet\\Enum\\%s\\Device Parameters", deviceID);
+	_snwprintf_s(regPath, _countof(regPath), _TRUNCATE,  L"SYSTEM\\CurrentControlSet\\Enum\\%s\\Device Parameters", deviceID);
 
 	LONG result = RegOpenKeyEx(HKEY_LOCAL_MACHINE, regPath, 0, KEY_READ, &hKey);
 	if (result != ERROR_SUCCESS) {
@@ -382,7 +382,7 @@ END:
 
 void CWLUDisk::GetUsbDeviceProductInfo(vector<DevPathAndDevInst>& vectHubDevBaseInfo, DeviceInfoFull& USBDeviceInfo)
 {
-	USBDeviceInfo.wsVendorInfo = getVendorNameByVid(USBDeviceInfo.UsbVid);
+	USBDeviceInfo.wsVendorInfo = getVendorNameByVid((unsigned short)(USBDeviceInfo.UsbVid));
 	if (m_nWinVersion >= WIN_2008_SERVER_X32)
 	{
 		getUsbDevProductInfo(vectHubDevBaseInfo, USBDeviceInfo, USBDeviceInfo.wsProductInfo);
@@ -573,13 +573,13 @@ bool CWLUDisk::extractPortAndHub(const std::wstring& input, int& port, int& hub)
 {
 	wstring portStr = L"Port_#";
 	wstring hubStr = L"Hub_#";
-	int pos = input.find(portStr);
+	int pos = (int)input.find(portStr);
 	if (pos != -1)
 	{
 		wstring portNum = input.substr(pos + portStr.length(), 4);
 		port = _wtoi(portNum.c_str());
 	}
-	pos = input.find(hubStr);
+	pos = (int)input.find(hubStr);
 	if (pos != -1)
 	{
 		wstring hubNum = input.substr(pos + hubStr.length(), 4);
@@ -727,8 +727,12 @@ void CWLUDisk::DealDeviceChangeMsg()
 
 CWLUDisk::CWLUDisk()
 {
+	m_hMonitorThread = nullptr;
+	m_hWorkThread = nullptr;
+
+	BOOL bWin64 = FALSE;
 	//获取当前的计算机系统版本,存储在m_nWinVersion中
-	CWindowsHelper::SeGetWindowsVersion(m_nWinVersion);
+	CWindowsHelper::SeGetWindowsVersion(m_nWinVersion,bWin64);
 }
 
 CWLUDisk::~CWLUDisk()

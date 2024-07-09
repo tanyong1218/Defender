@@ -38,6 +38,10 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Service", "Service\Service.
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FileScanControl", "FileScanControl\FileScanControl.vcxproj", "{7A61F55B-5AF8-48EA-B23C-CCE8247427F0}"
+	ProjectSection(ProjectDependencies) = postProject
+		{6073554F-90D4-489A-A7F3-0787A699E4F4} = {6073554F-90D4-489A-A7F3-0787A699E4F4}
+		{63965E22-7CF5-4FFA-8E26-823418C2DAF3} = {63965E22-7CF5-4FFA-8E26-823418C2DAF3}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -99,8 +103,8 @@ Global
 		{E9F879FA-0F2C-4A8D-BF49-BF2207893643}.RelWithDebInfo|x64.Build.0 = Release|x64
 		{E9F879FA-0F2C-4A8D-BF49-BF2207893643}.RelWithDebInfo|x86.ActiveCfg = Release|Win32
 		{E9F879FA-0F2C-4A8D-BF49-BF2207893643}.RelWithDebInfo|x86.Build.0 = Release|Win32
-		{6073554F-90D4-489A-A7F3-0787A699E4F4}.Debug|x64.ActiveCfg = Debug|x64
-		{6073554F-90D4-489A-A7F3-0787A699E4F4}.Debug|x64.Build.0 = Debug|x64
+		{6073554F-90D4-489A-A7F3-0787A699E4F4}.Debug|x64.ActiveCfg = Release|x64
+		{6073554F-90D4-489A-A7F3-0787A699E4F4}.Debug|x64.Build.0 = Release|x64
 		{6073554F-90D4-489A-A7F3-0787A699E4F4}.Debug|x86.ActiveCfg = Debug|Win32
 		{6073554F-90D4-489A-A7F3-0787A699E4F4}.Debug|x86.Build.0 = Debug|Win32
 		{6073554F-90D4-489A-A7F3-0787A699E4F4}.MinSizeRel|x64.ActiveCfg = Debug|x64

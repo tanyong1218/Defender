@@ -37,16 +37,17 @@ int main(int argc, char** argv)
 	timer.add(1000 * 60 * 10, true, CheckServiceExist);  //每隔10min检测一次服务程序是否存在
 
 	string strJson = "Hello World";
-	int iLen = strJson.length();
+	int iLen = (int)strJson.length();
 	BYTE* BytePlyData = new BYTE[iLen + 1];
 	memset(BytePlyData, 0, iLen + 1);
 	memcpy(BytePlyData, strJson.c_str(), iLen);
-	CWLMessageSender::SendMsg(CLIENT_MSG_CODE_DEVICE_CONTROL, DEVICE_CONTROL_OPEN_ALL_FUNCTION, 0, nullptr);
-	CWLMessageSender::SendMsg(CLIENT_MSG_CODE_SYSTEMLOG_CONTROL, SYSTEMLOG_CONTROL_OPEN_ALL_FUNCTION, iLen, BytePlyData);
-	CWLMessageSender::SendMsg(CLIENT_MSG_CODE_FILESCAN_CONTROL, FILESCAN_CONTROL_OPEN_ALL_FUNCTION, 0, nullptr);
+	//CWLMessageSender::SendMsg(CLIENT_MSG_CODE_DEVICE_CONTROL, DEVICE_CONTROL_OPEN_ALL_FUNCTION, 0, nullptr);
+	//CWLMessageSender::SendMsg(CLIENT_MSG_CODE_SYSTEMLOG_CONTROL, SYSTEMLOG_CONTROL_OPEN_ALL_FUNCTION, iLen, BytePlyData);
+	
 
 	for (;;)
 	{
+		CWLMessageSender::SendMsg(CLIENT_MSG_CODE_FILESCAN_CONTROL, FILESCAN_CONTROL_OPEN_ALL_FUNCTION, 0, nullptr);
 		Sleep(1000);
 	}
 

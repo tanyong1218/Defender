@@ -48,6 +48,11 @@ BOOL CSystemLogControl::DisableFunction()
 
 BOOL CSystemLogControl::DispatchMessages(IPC_MSG_DATA* pIpcMsg)
 {
+	if (!pIpcMsg)
+	{
+		return FALSE;
+	}
+
 	std::string strData(reinterpret_cast<char*>(pIpcMsg->Data), pIpcMsg->dwSize);
 	switch (pIpcMsg->dwMsgCode)
 	{
@@ -60,7 +65,7 @@ BOOL CSystemLogControl::DispatchMessages(IPC_MSG_DATA* pIpcMsg)
 	default:
 		break;
 	}
-	return 0;
+	return TRUE;
 }
 
 // 这是导出函数的一个示例。

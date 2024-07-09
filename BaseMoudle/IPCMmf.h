@@ -28,6 +28,7 @@ enum IPC_ERROE_CODE
 {
 	MAPVIEWOFFILE_ERROR,
 	WRITEDATA_OUTRANGE_ERROR,
+	NULL_POINTER_ERROR,
 	CATCH_ERROR,
 };
 class CWLIPCMmf
@@ -36,10 +37,10 @@ public:
 	CWLIPCMmf(LPCWSTR lpMmfName, LPCWSTR lpMutexName, PSECURITY_ATTRIBUTES lpSa = NULL, DWORD dwMmfSize = MAX_MMF_BUFFER_SIZE);
 	virtual ~CWLIPCMmf(void);
 
-	BOOL WriteData(DWORD dwDataSize, const BYTE* pData);
+	DWORD WriteData(DWORD dwDataSize, const BYTE* pData);
 	BOOL WriteDataInternal(DWORD dwDataSize, const BYTE* pData);
 	BOOL ReadDataInternal(DWORD& dwDataSize, BYTE*& pDataBuffer);
-	BOOL ReadData(DWORD& dwDataSize, BYTE*& pDataBuffer);
+	DWORD ReadData(DWORD& dwDataSize, BYTE*& pDataBuffer);
 
 	DWORD m_dwErrorCode;
 private:

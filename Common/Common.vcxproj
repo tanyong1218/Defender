@@ -72,7 +72,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <IncludePath>../include/Boost/x64/include/boost-1_80;$(IncludePath)</IncludePath>
-    <LibraryPath>../include/Boost/x64/lib;$(LibraryPath)</LibraryPath>
+    <LibraryPath>../include/Boost/x64/lib;../include/lib/x64;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -116,7 +116,7 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>../include/spdlog-1.12.0/include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../include/spdlog-1.12.0/include;../include</AdditionalIncludeDirectories>
       <AdditionalOptions>/Zm500 %(AdditionalOptions)</AdditionalOptions>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
@@ -125,6 +125,9 @@
       </SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
+    <Lib>
+      <AdditionalDependencies>sha1lib.lib</AdditionalDependencies>
+    </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -147,10 +150,15 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="FileOperationHelper.h" />
+    <ClInclude Include="FileVaildate.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="HardDiskHelper.h" />
     <ClInclude Include="LogHelper.h" />
     <ClInclude Include="pch.h" />
+    <ClInclude Include="peimage2.h" />
+    <ClInclude Include="scheme.h" />
+    <ClInclude Include="sha1.h" />
+    <ClInclude Include="sha256.h" />
     <ClInclude Include="StringHelper.h" />
     <ClInclude Include="ThreadPoolHelper.h" />
     <ClInclude Include="TimerHelper.h" />
@@ -159,6 +167,7 @@
   <ItemGroup>
     <ClCompile Include="Common.cpp" />
     <ClCompile Include="FileOperationHelper.cpp" />
+    <ClCompile Include="FileVaildate.cpp" />
     <ClCompile Include="HardDiskHelper.cpp" />
     <ClCompile Include="LogHelper.cpp" />
     <ClCompile Include="pch.cpp">
@@ -167,6 +176,9 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="peimage2.cpp" />
+    <ClCompile Include="sha1.c" />
+    <ClCompile Include="sha256.c" />
     <ClCompile Include="StringHelper.cpp" />
     <ClCompile Include="WindowsHelper.cpp" />
   </ItemGroup>

@@ -11,6 +11,11 @@
 #pragma comment(lib, "advapi32.lib")
 #include <Wbemidl.h>
 #pragma comment(lib, "wbemuuid.lib")
+
+#include <Iphlpapi.h>
+#pragma comment(lib, "Iphlpapi.lib")
+
+#include "StringHelper.h"
 using namespace std;
 namespace fs = boost::filesystem;
 enum {
@@ -74,7 +79,7 @@ public:
 	CWindowsHelper(void);
 	~CWindowsHelper(void);
 
-	static void SeGetWindowsVersion(int& iWinVersion);
+	static void SeGetWindowsVersion(int& iWinVersion, BOOL& b64Bit);
 	static BOOL RtlGetOSVersionInfo(PRTL_OSVERSIONINFOEXW lpOsVersionInfo);
 	static BOOL GetOnePIDBelongUserName(wstring wstrUserName, DWORD& dwPid, wstring& wstrErr);
 	static BOOL EnablePrivilege(LPCTSTR lpszPrivilege, BOOL bEnablePrivilege);
@@ -89,4 +94,25 @@ public:
 
 	static BOOL IsProcessExist(LPCTSTR pszProcessName);
 	static BOOL StartProcess(LPCTSTR pszProcessName);
+	static BOOL GetPIDByProcessName(const wstring processName, DWORD& dwPid);
+	static BOOL GetMacByIp(__in const wstring wsIp, __out wstring& wstrMacAddress);
+};
+
+//32bit 程序访问64bit系统目录需要使用这个，否则会被重定向到wow中
+class Wow64RedirectOff {
+	typedef BOOL(WINAPI* FN_Wow64DisableWow64FsRedirection) (__out PVOID* OldValue);
+	typedef BOOL(WINAPI* FN_Wow64RevertWow64FsRedirection) (__in  PVOID OldValue);
+
+public:
+	Wow64RedirectOff();
+	~Wow64RedirectOff();
+	VOID SetWow64RedirectOn();
+	VOID SetWow64RedirectOff();
+
+private:
+	FN_Wow64DisableWow64FsRedirection LPFN_Disable;
+	PVOID m_OldValue;
+
+	static BOOL m_bCheckVersion;
+	static BOOL m_bWin64;
 };

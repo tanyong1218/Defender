@@ -28,8 +28,7 @@ IComponent* CFileScan::Register()
 BOOL CFileScan::EnableFunction()
 {
 	auto FileScan = new CFileScanFun();
-	wstring wstrFolder = L"C:\\";
-	FileScan->GetFileListByFolder(wstrFolder);
+	FileScan->EnableScanFileFunction();
 	return 0;
 }
 

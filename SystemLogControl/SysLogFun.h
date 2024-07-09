@@ -26,6 +26,7 @@ typedef struct _EVT_CALLBACK_CONTEXT
 {
 	std::wstring wsChannelPath;
 	CSysLogFun* pCSysLogFun;
+
 }
 EVT_CALLBACK_CONTEXT, * PEVT_CALLBACK_CONTEXT;
 
@@ -53,6 +54,7 @@ typedef struct  __HOST_AD_SYSLOG_STRUCT
 		memset(wsEventComputerName, 0, sizeof(wsEventComputerName));
 		dwEventRecordID = 0;
 		dwLogCount = 0;
+		dwEventTime = 0;
 	};
 #if 0
 	__HOST_AD_SYSLOG_STRUCT(__HOST_AD_SYSLOG_STRUCT& t)

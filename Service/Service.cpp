@@ -7,13 +7,18 @@ CMessageHelper::CMessageHelper()
 
 CMessageHelper::~CMessageHelper()
 {
-	delete m_pCWLMetaDataQueue;
+	if (m_pCWLMetaDataQueue)
+	{
+		delete m_pCWLMetaDataQueue;
+	}
+	
 }
 
 BOOL CMessageHelper::InitMessageHelper()
 {
-	HANDLE hGetMessageThread = (HANDLE)_beginthreadex(NULL, 0, GetMessageThread, this, 0, NULL);
+	HANDLE hGetMessageThread	  = (HANDLE)_beginthreadex(NULL, 0, GetMessageThread, this, 0, NULL);
 	HANDLE hDispatchMessageThread = (HANDLE)_beginthreadex(NULL, 0, DispatchMessageThread, this, 0, NULL);
+
 	if (hGetMessageThread)
 	{
 		CloseHandle(hGetMessageThread);
@@ -28,6 +33,11 @@ BOOL CMessageHelper::InitMessageHelper()
 //创建消息采集线程，负责将消息从共享内存中取出来存放到Queue中
 unsigned int WINAPI CMessageHelper::GetMessageThread(LPVOID lpParameter)
 {
+	if (!lpParameter)
+	{
+		return 0;
+	}
+
 	CMessageHelper* pMessageHelper = (CMessageHelper*)lpParameter;
 	while (true)
 	{
@@ -63,6 +73,11 @@ unsigned int WINAPI CMessageHelper::GetMessageThread(LPVOID lpParameter)
 
 unsigned int WINAPI CMessageHelper::DispatchMessageThread(LPVOID lpParameter)
 {
+	if (!lpParameter)
+	{
+		return 0;
+	}
+
 	CMessageHelper* pMessageHelper = (CMessageHelper*)lpParameter;
 
 	while (true)
@@ -113,10 +128,10 @@ int main(int argc, char** argv)
 		WriteError(("CreateEvent WL_SERVICE_SINGTON_EVENT_NAME fail, errno={}"), GetLastError());
 		return 0;
 	}
-
-	if(ERROR_ALREADY_EXISTS == GetLastError())
+	else if(ERROR_ALREADY_EXISTS == GetLastError())
 	{
 		WriteInfo(("WLSERVICE ERROR_ALREADY_EXISTS"));
+		CloseHandle(hEvent_WLService);
 		return 0;
 	}
 

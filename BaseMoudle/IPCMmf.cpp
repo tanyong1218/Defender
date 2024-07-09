@@ -1,7 +1,9 @@
+#include "pch.h"
 #include "IPCMmf.h"
 
 CWLIPCMmf::CWLIPCMmf(LPCWSTR lpMmfName, LPCWSTR lpMutexName, PSECURITY_ATTRIBUTES lpSa, DWORD dwMmfSize)
 {
+	m_pMapView = NULL;
 	m_hMutex = CreateMutex(lpSa, FALSE, lpMutexName);
 	m_hMFF = CreateFileMapping(INVALID_HANDLE_VALUE, lpSa, PAGE_READWRITE, 0, sizeof(dwMmfSize) + dwMmfSize, lpMmfName);
 	if (!m_hMFF || !m_hMutex)
@@ -52,15 +54,24 @@ CWLIPCMmf::~CWLIPCMmf(void)
 	}
 }
 
-BOOL CWLIPCMmf::WriteData(DWORD dwDataSize, const BYTE* pData)
+DWORD CWLIPCMmf::WriteData(DWORD dwDataSize, const BYTE* pData)
 {
 	WaitForSingleObject(m_hMutex, INFINITE);
-	WriteDataInternal(dwDataSize, pData);
+	if (!WriteDataInternal(dwDataSize, pData))
+	{
+		return m_dwErrorCode;
+	}
 	ReleaseMutex(m_hMutex);
-	return TRUE;
+	return 0;
 }
 BOOL CWLIPCMmf::WriteDataInternal(DWORD dwDataSize, const BYTE* pData)
 {
+	if (!pData)
+	{
+		m_dwErrorCode = NULL_POINTER_ERROR;
+		return FALSE;
+	}
+
 	if (!m_pMapView)
 	{
 		m_dwErrorCode = MAPVIEWOFFILE_ERROR;
@@ -122,10 +133,13 @@ BOOL CWLIPCMmf::ReadDataInternal(DWORD& dwDataSize, BYTE*& pDataBuffer)
 	}
 	return FALSE;
 }
-BOOL CWLIPCMmf::ReadData(DWORD& dwDataSize, BYTE*& pDataBuffer)
+DWORD CWLIPCMmf::ReadData(DWORD& dwDataSize, BYTE*& pDataBuffer)
 {
 	WaitForSingleObject(m_hMutex, INFINITE);
-	ReadDataInternal(dwDataSize, pDataBuffer);
+	if (!ReadDataInternal(dwDataSize, pDataBuffer))
+	{
+		return m_dwErrorCode;
+	}
 	ReleaseMutex(m_hMutex);
 	return 0;
 }

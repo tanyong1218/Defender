@@ -112,6 +112,10 @@ BOOL CSysLogFun::GetSysLogByPsloglist(wstring wsStartDateTime, wstring wsEndDate
 BOOL CSysLogFun::GetSysLogByEvtSubscribe()
 {
 	HANDLE hThread = (HANDLE)_beginthreadex(NULL, 0, DoSystemEventThread, this, 0, NULL);
+	if (hThread)
+	{
+		CloseHandle(hThread);
+	}
 	return TRUE;
 }
 unsigned int WINAPI CSysLogFun::DoThreadSysLogExport(LPVOID lpParameter)
@@ -269,11 +273,11 @@ BOOL AnalyEvtXmlData(PWCHAR pEvtXmlData, PEVT_CALLBACK_CONTEXT pEvtCBKContext, H
 			}
 			else if (0 == wcscmp(pNodeName, _T("Level")))//等级
 			{
-				pOneSyslog->dwEventType = _wtoi64(pNodeValue);
+				pOneSyslog->dwEventType = (DWORD)_wtoi64(pNodeValue);
 			}
 			else if (0 == wcscmp(pNodeName, _T("EventRecordID")))//等级
 			{
-				pOneSyslog->dwEventRecordID = _wtoi64(pNodeValue);
+				pOneSyslog->dwEventRecordID = (DWORD)_wtoi64(pNodeValue);
 			}
 			else if (0 == wcscmp(pNodeName, _T("Channel")))//日志类型
 			{
@@ -420,11 +424,12 @@ CLEAN:
 // 订阅系统日志事件的回调函数
 DWORD WINAPI EvtCallbackFunction(EVT_SUBSCRIBE_NOTIFY_ACTION EvtAction, PVOID pContext, EVT_HANDLE hEvtHandle)
 {
-	DWORD dwBufferSize = 0;
-	DWORD dwBufferUsed = 0;
-	DWORD dwPropertyCount = 0;
-	PWCHAR pEvtData = NULL;
-	BOOL bRet = FALSE;
+	DWORD	dwBufferSize	= 0;
+	DWORD	dwBufferUsed	= 0;
+	DWORD	dwPropertyCount = 0;
+	PWCHAR	pEvtData		= NULL;
+	BOOL	bRet			= FALSE;
+	HRESULT hr				= 0;
 	if (NULL == hEvtHandle || NULL == pContext || EvtSubscribeActionError == EvtAction)
 	{
 		return 0;
@@ -462,7 +467,11 @@ DWORD WINAPI EvtCallbackFunction(EVT_SUBSCRIBE_NOTIFY_ACTION EvtAction, PVOID pC
 			goto END;
 		}
 		//解析xml数据
-		CoInitialize(NULL);
+		hr = CoInitialize(NULL);
+		if (FAILED(hr))
+		{
+			goto END;
+		}
 		HOST_AD_SYSLOG_STRUCT oneSyslog;
 		bRet = AnalyEvtXmlData(pEvtData, pEvtCBKContext, &oneSyslog);
 
@@ -633,7 +642,8 @@ BOOL FormatEventDescription(DWORD dwEventID, PCHAR pLogName, PCHAR pLogSource, P
 		{
 			WriteError(("FormatMessageA Failed, Dll = {}, Error = {}"), strSource.c_str(), GetLastError());
 			FreeLibrary(hModule);
-			g_MapDllHModule.erase(it);
+			if(it._Ptr != NULL)
+				g_MapDllHModule.erase(it);
 			goto RENEW;
 		}
 		else
@@ -754,8 +764,8 @@ BOOL GetEventDescription(PCHAR pEventString, DWORD dwNumStrings, PCHAR pLogName,
 	}
 	memset(pFormatString, 0, MAX_DESCRIPTION_SIZE + 1);
 
-	for (int i = 0; i < dwNumStrings; i++) {
-		iStringSize = strlen(pEventString);
+	for (int i = 0; i < (int)dwNumStrings; i++) {
+		iStringSize = (int)strlen(pEventString);
 
 		if (iStringSize >= MAX_PATH - 1)
 		{
@@ -931,7 +941,7 @@ unsigned int __stdcall CSysLogFun::DoSystemEventThread(LPVOID lpParameter)
 	Buffer = malloc(BufferSize);
 	if (!Buffer)
 	{
-		return 0;
+		goto END;
 	}
 
 	// 打开系统日志
@@ -939,7 +949,7 @@ unsigned int __stdcall CSysLogFun::DoSystemEventThread(LPVOID lpParameter)
 	if (NULL == hSysEvent)
 	{
 		WriteError(("OpenEventLog System Failed, Error = {}"), GetLastError());
-		return 0;
+		goto END;
 	}
 
 	while (1)
@@ -986,7 +996,7 @@ unsigned int __stdcall CSysLogFun::DoSystemEventThread(LPVOID lpParameter)
 			{
 				WriteInfo(("!!!! Failed to read event log record. Error code: {} Need To Reload OpenEventLogA"), GetLastError());
 				Sleep(1000);
-				CloseHandle(hSysEvent);
+				CloseEventLog(hSysEvent);
 				hSysEvent = OpenEventLogA(NULL, "System");
 				if (hSysEvent)
 				{
@@ -1014,6 +1024,18 @@ unsigned int __stdcall CSysLogFun::DoSystemEventThread(LPVOID lpParameter)
 			WriteInfo(("SysLog EventID = {} EventComputerName = {} EventTime = {} EventSourceName = {} RecodeNumber = {}"),
 				oneSysLog.dwEventID, CStrUtil::ConvertW2A(wsEventComputerName), CStrUtil::ConvertW2A(wsEventTime), CStrUtil::ConvertW2A(wsEventSourceName), oneSysLog.dwEventRecordID);
 		}
+	}
+
+
+END:
+	if (Buffer)
+	{
+		free(Buffer);
+	}
+
+	if (hSysEvent)
+	{
+		 CloseEventLog(hSysEvent);
 	}
 	return 0;
 }

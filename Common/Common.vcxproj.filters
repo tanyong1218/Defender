@@ -13,6 +13,9 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="ImageDigest">
+      <UniqueIdentifier>{127fe8ff-0012-4d1a-a298-0fc085566606}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -42,6 +45,21 @@
     <ClInclude Include="HardDiskHelper.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="FileVaildate.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="peimage2.h">
+      <Filter>ImageDigest</Filter>
+    </ClInclude>
+    <ClInclude Include="sha1.h">
+      <Filter>ImageDigest</Filter>
+    </ClInclude>
+    <ClInclude Include="sha256.h">
+      <Filter>ImageDigest</Filter>
+    </ClInclude>
+    <ClInclude Include="scheme.h">
+      <Filter>ImageDigest</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Common.cpp">
@@ -64,6 +82,18 @@
     </ClCompile>
     <ClCompile Include="HardDiskHelper.cpp">
       <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="FileVaildate.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="peimage2.cpp">
+      <Filter>ImageDigest</Filter>
+    </ClCompile>
+    <ClCompile Include="sha1.c">
+      <Filter>ImageDigest</Filter>
+    </ClCompile>
+    <ClCompile Include="sha256.c">
+      <Filter>ImageDigest</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

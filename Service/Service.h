@@ -19,6 +19,7 @@
 #include <ThreadPoolHelper.h>
 #include <MessageSender.h>
 #include <HardDiskHelper.h>
+#include <FileOperationHelper.h>
 #define DEVICECONTROL		_T("DeviceControl.dll")
 #define SYSTEMLOGCONTROL	_T("SystemLogControl.dll")
 #define	FILESCANCONTROL		_T("FileScanControl.dll")

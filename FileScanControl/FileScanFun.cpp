@@ -1,6 +1,6 @@
 #include "FileScanFun.h"
-#include <LogHelper.h>
-				
+
+
 CFileScanFun::CFileScanFun()
 {
 	m_bStopSearch = FALSE;
@@ -10,22 +10,56 @@ CFileScanFun::~CFileScanFun()
 {
 }
 
-unsigned int __stdcall CFileScanFun::ScanFileThread(LPVOID lpParameter)
-{
-    CFileScanFun* pFileScanFun = (CFileScanFun*)lpParameter;
-    pFileScanFun->GetFileListByFolder(L"C:\\");
-    _endthreadex(0);
-    return 0;
-}
-
 BOOL CFileScanFun::EnableScanFileFunction()
 {
-    std::wstring wstrFolder = L"C:\\";
-    HANDLE hThread = (HANDLE)_beginthreadex(NULL, 0, ScanFileThread, this, 0, NULL);
+	//ThreadPool FileScanThreadPool(5);
+
+    /*
+     //获取所有逻辑驱动器
+     DWORD drives = GetLogicalDrives();
+     DWORD count = 0;
+     wstring wstrDrive;
+     for (TCHAR letter = 'A'; letter <= 'Z'; ++letter)
+     {
+         if ((drives & 1) == 1)
+         {
+             wchar_t FileName[MAX_PATH] = { 0 };
+             swprintf_s(FileName, MAX_PATH, _T("%c:\\"), letter); 
+			 FileScanThreadPool.enqueue([FileName](){
+                 CFileScanFun File;
+                 File.GetFileListByFolder(wstring(FileName));
+                 });
+         }
+         drives >>= 1;
+     }
+    */
+    wstring FilePath1 = _T("D:\\SVN-Work\\Windows\\branch\\Master\\include\\1\\4M\\");
+	wstring FilePath2 = _T("D:\\SVN-Work\\Windows\\branch\\Master\\include\\2\\4M\\");
+
+	LARGE_INTEGER start;
+	LARGE_INTEGER start1;
+	startTime(start);
+    GetFileListByFolder(FilePath1, TRUE);  //lib
+	double SHA_LIB =  endTime(start);
+
+
+	startTime(start1);
+	GetFileListByFolder(FilePath2, FALSE); //sha1
+	double SHA_C =  endTime(start1);
+
+
+    for (int i = 0; i < m_FileSHA1Time.size(); i++)
+    {
+        WriteInfo(("File = {}, SHA1 Time = {}"), CStrUtil::ConvertW2A(m_FileSHA1Time[i].first).c_str(), m_FileSHA1Time[i].second);
+		WriteInfo(("File = {}, SHA1Lib Time = {}"), CStrUtil::ConvertW2A(m_FileSHA1TimeLib[i].first).c_str(), m_FileSHA1TimeLib[i].second);
+	}
+
+
+    WriteInfo(("END"));
     return 0;
 }
 
-BOOL CFileScanFun::GetFileListByFolder(const std::wstring wstrFolder)
+BOOL CFileScanFun::GetFileListByFolder(const std::wstring wstrFolder, BOOL IsSHA1Lib)
 {
 	std::wstring		strFullMask;
 	std::wstring		wstrSubFolder;
@@ -132,15 +166,41 @@ BOOL CFileScanFun::GetFileListByFolder(const std::wstring wstrFolder)
             }
 
             // Recursive call
-            GetFileListByFolder(wstrSubFolder);
+            GetFileListByFolder(wstrSubFolder, IsSHA1Lib);
         }
         else
         {
             wstring wstrFullFileName = wstrFolder + finder.name;
+			LARGE_INTEGER start;
+			double SHATime = 0;
             if (CheckIsPEFile(wstrFullFileName))
             {
-				m_FileList.push_back(CStrUtil::ConvertW2A(wstrFullFileName));
-                //WriteInfo(("PEFilePath = {}"), CStrUtil::ConvertW2A(wstrFullFileName));
+				std::unique_lock<std::mutex> lock(MapMutex);
+				m_FileMap[CStrUtil::ConvertW2A(wstrFullFileName)] = PE;
+				unsigned char bHashCode[INTEGRITY_LENGTH] = { 0 };
+
+                if (IsSHA1Lib)
+                {   
+                    startTime(start);
+					if (!m_pefilevalidate.GetPEFileDegistByLib(wstrFullFileName.c_str(), bHashCode))
+                    {                  
+                        continue;
+                    }   
+					SHATime =  endTime(start);
+					m_FileSHA1TimeLib.push_back(std::make_pair(wstrFullFileName, SHATime));
+
+                }
+                else
+                {
+					startTime(start);
+					if (!m_pefilevalidate.GetPEFileDegist(wstrFullFileName.c_str(), bHashCode))
+                    {                  
+                        continue;
+                    }
+	                SHATime =  endTime(start);
+					m_FileSHA1Time.push_back(std::make_pair(wstrFullFileName, SHATime));
+                }
+
             }
         }
 		dwFileCount++;
@@ -151,6 +211,12 @@ BOOL CFileScanFun::GetFileListByFolder(const std::wstring wstrFolder)
 
 	return 0;
 }
+FILE_TYPE CFileScanFun::GetFileType(const std::wstring wstrFilePath)
+{
+    
+    return PE;
+}
+
 
 BOOL CFileScanFun::CheckIsPEFile(const std::wstring wstrFilePath)
 {
@@ -195,3 +261,5 @@ END:
     }
 	return bIsPEFile;
 }
+
+

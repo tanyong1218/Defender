@@ -1,3 +1,4 @@
+#include "pch.h"
 #include "MessageQueue.h"
 
 CWLMetaDataQueue::CWLMetaDataQueue(void)

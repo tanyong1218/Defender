@@ -206,6 +206,7 @@ typedef struct DeviceInfoFull_st
 		memset(&devGuid, 0, sizeof(devGuid));
 		wsVendorInfo = _T("");
 		wsProductInfo = _T("");
+		DeviceInfoData = {};
 	};
 
 	//设备父节点信息
@@ -253,17 +254,29 @@ typedef struct DevPathAndDevInst_st
 	wstring     wstrDevicePath;
 	DWORD       DevInst;
 	BOOL		isExist;  //表示当前设备是否插入到系统
+
+	DevPathAndDevInst_st(){
+		wstrDevicePath = _T("");
+		DevInst = 0;
+		isExist = FALSE;
+	}
+
 } DevPathAndDevInst;
 
 typedef struct _VENDOR_ID {
 	USHORT  usVendorID;
 	string  szVendor;
+	_VENDOR_ID() {
+		usVendorID = 0;
+		szVendor = ("");
+	}
+
 } VENDOR_ID, * PVENDOR_ID;
 
 enum DeviceAction_st
 {
-	DEVICE_KEEP = 0,
-	DEVICE_DISABLE = 1,
+	DEVICE_KEEP = 0,       //保持
+	DEVICE_DISABLE = 1,    //禁用
 	DEVICE_ENABLE = 2,
 };
 

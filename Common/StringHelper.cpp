@@ -47,3 +47,21 @@ std::string CStrUtil::UnicodeToUTF8(std::wstring str)
 
 	return strUtf8;
 }
+
+wstring CStrUtil::MacAddrToString(const unsigned char* pMac)
+{
+	char buf[64] = { 0 };
+	_snprintf_s(buf, _countof(buf), _TRUNCATE, "%02X:%02X:%02X:%02X:%02X:%02X",
+		pMac[0], pMac[1], pMac[2], pMac[3], pMac[4], pMac[5]);
+
+	wstring strRet = _T("");
+#ifdef _UNICODE
+	string s1 = buf;
+	wstring ws1 = ConvertA2W(s1);
+	strRet = ws1.c_str();
+#else
+	strRet = buf;
+#endif
+
+	return strRet;
+}
