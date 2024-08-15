@@ -127,6 +127,7 @@
     </Link>
     <Lib>
       <AdditionalDependencies>sha1lib.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>../include/lib/;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
