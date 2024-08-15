@@ -153,9 +153,11 @@
     <ClInclude Include="FileVaildate.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="HardDiskHelper.h" />
+    <ClInclude Include="JsonParse.h" />
     <ClInclude Include="LogHelper.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="peimage2.h" />
+    <ClInclude Include="PETools.h" />
     <ClInclude Include="scheme.h" />
     <ClInclude Include="sha1.h" />
     <ClInclude Include="sha256.h" />
@@ -169,6 +171,7 @@
     <ClCompile Include="FileOperationHelper.cpp" />
     <ClCompile Include="FileVaildate.cpp" />
     <ClCompile Include="HardDiskHelper.cpp" />
+    <ClCompile Include="JsonParse.cpp" />
     <ClCompile Include="LogHelper.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
@@ -177,6 +180,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="peimage2.cpp" />
+    <ClCompile Include="PETools.cpp" />
     <ClCompile Include="sha1.c" />
     <ClCompile Include="sha256.c" />
     <ClCompile Include="StringHelper.cpp" />

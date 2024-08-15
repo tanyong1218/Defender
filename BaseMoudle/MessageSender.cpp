@@ -3,21 +3,24 @@
 
 CWLMessageSender::CWLMessageSender(void)
 {
+	m_msgContainer = new CWLIPCMmf(IPC_CFG_MMF_NAME_SERVER, IPC_CFG_MUTEX_NAME_SERVER, NULL, DEFAULT_MMF_BUFFER_SIZE);
 }
 
 CWLMessageSender::~CWLMessageSender(void)
 {
+	if (m_msgContainer)
+	{
+		delete m_msgContainer;
+		m_msgContainer = nullptr;
+	}
 }
-
-DWORD CWLMessageSender::SendMsg(DWORD dwEventType, DWORD dwMsgCode, DWORD dwDataSize, BYTE* lpEventData)
+DWORD CWLMessageSender::SendMsgToMmf(DWORD dwEventType, DWORD dwMsgCode, DWORD dwDataSize, BYTE* lpEventData)
 {
 	DWORD dwResult = ERROR_SUCCESS;
 	BYTE* pMsgBuffer = nullptr;
-
+	
 	try
 	{
-		CWLIPCMmf* msgContainer = new CWLIPCMmf(IPC_CFG_MMF_NAME_SERVER, IPC_CFG_MUTEX_NAME_SERVER, NULL, DEFAULT_MMF_BUFFER_SIZE);
-
 		const DWORD dwMsgSize = IPC_MSG_DATA_HEADNER_LEN + dwDataSize;
 		pMsgBuffer = new BYTE[dwMsgSize];
 		memset(pMsgBuffer, 0, dwMsgSize);
@@ -46,7 +49,7 @@ DWORD CWLMessageSender::SendMsg(DWORD dwEventType, DWORD dwMsgCode, DWORD dwData
 			}
 		}
 
-		dwResult = msgContainer->WriteData(dwMsgSize, pMsgBuffer);
+		dwResult = m_msgContainer->WriteData(dwMsgSize, pMsgBuffer);
 		if (ERROR_SUCCESS != dwResult)
 		{
 			dwResult = ERROR_WRITE_FAULT;
@@ -70,5 +73,6 @@ DWORD CWLMessageSender::SendMsg(DWORD dwEventType, DWORD dwMsgCode, DWORD dwData
 	}
 
 END:
+
 	return dwResult;
 }

@@ -1,4 +1,6 @@
 #include "FileScanFun.h"
+#include <FileOperationHelper.h>
+
 
 
 CFileScanFun::CFileScanFun()
@@ -12,254 +14,242 @@ CFileScanFun::~CFileScanFun()
 
 BOOL CFileScanFun::EnableScanFileFunction()
 {
-	//ThreadPool FileScanThreadPool(5);
-
-    /*
-     //获取所有逻辑驱动器
-     DWORD drives = GetLogicalDrives();
-     DWORD count = 0;
-     wstring wstrDrive;
-     for (TCHAR letter = 'A'; letter <= 'Z'; ++letter)
-     {
-         if ((drives & 1) == 1)
-         {
-             wchar_t FileName[MAX_PATH] = { 0 };
-             swprintf_s(FileName, MAX_PATH, _T("%c:\\"), letter); 
-			 FileScanThreadPool.enqueue([FileName](){
-                 CFileScanFun File;
-                 File.GetFileListByFolder(wstring(FileName));
-                 });
-         }
-         drives >>= 1;
-     }
-    */
-    wstring FilePath1 = _T("D:\\SVN-Work\\Windows\\branch\\Master\\include\\1\\4M\\");
-	wstring FilePath2 = _T("D:\\SVN-Work\\Windows\\branch\\Master\\include\\2\\4M\\");
-
-	LARGE_INTEGER start;
-	LARGE_INTEGER start1;
-	startTime(start);
-    GetFileListByFolder(FilePath1, TRUE);  //lib
-	double SHA_LIB =  endTime(start);
-
-
-	startTime(start1);
-	GetFileListByFolder(FilePath2, FALSE); //sha1
-	double SHA_C =  endTime(start1);
-
-
-    for (int i = 0; i < m_FileSHA1Time.size(); i++)
-    {
-        WriteInfo(("File = {}, SHA1 Time = {}"), CStrUtil::ConvertW2A(m_FileSHA1Time[i].first).c_str(), m_FileSHA1Time[i].second);
-		WriteInfo(("File = {}, SHA1Lib Time = {}"), CStrUtil::ConvertW2A(m_FileSHA1TimeLib[i].first).c_str(), m_FileSHA1TimeLib[i].second);
+	ThreadPool FileScanThreadPool(5);
+	//获取所有逻辑驱动器
+	DWORD drives = GetLogicalDrives();
+	DWORD count = 0;
+	wstring wstrDrive;
+	for (TCHAR letter = 'A'; letter <= 'Z'; ++letter)
+	{
+		if ((drives & 1) == 1)
+		{
+			wchar_t FileName[MAX_PATH] = { 0 };
+			swprintf_s(FileName, MAX_PATH, _T("%c:\\"), letter);
+			FileScanThreadPool.enqueue([FileName]() {
+				CFileScanFun File;
+				File.GetFileListByFolder(wstring(FileName), TRUE);
+				});
+		}
+		drives >>= 1;
 	}
 
-
-    WriteInfo(("END"));
-    return 0;
+	WriteInfo(("END"));
+	return 0;
 }
 
-BOOL CFileScanFun::GetFileListByFolder(const std::wstring wstrFolder, BOOL IsSHA1Lib)
+BOOL  CFileScanFun::GetFileListByFolder(const std::wstring wstrFolder, BOOL IsSHA1Lib)
 {
 	std::wstring		strFullMask;
 	std::wstring		wstrSubFolder;
 	std::wstring		strCurFolder;
-    std::string			strFileName;
+	std::string			strFileName;
 
 	static DWORD 		dwFileCount = 0;
 
-    static int cnt = 0;
-    long long handle; //文件句柄
-    size_t len = 0;
-    size_t pos = 0;
-    size_t find_ret = wstring::npos;
-    wstring strTail;
-    struct _wfinddata_t finder;           //文件信息的结构体
+	static int cnt = 0;
+	long long handle; //文件句柄
+	size_t len = 0;
+	size_t pos = 0;
+	size_t find_ret = wstring::npos;
+	wstring strTail;
+	struct _wfinddata_t finder;           //文件信息的结构体
 	/* win32 链接文件有4种
-      类型
-    1.快捷方式 （文件或目录）文件属性与普通文件相同，通过后缀.link识别 就是一种普通文件由explorer.exe进程解析/维护 非内核维护
-    2.硬链接 （只能是文件） 就是普通文件，无法与真身区别 或者说每个都是真身 类型由内核维护
-    3.软链接  （只能是目录）通过文件属性FILE_ATTRIBUTE_REPARSE_POINT识别，暂不知如何与符号链接区别 类型由内核维护
-    4.符号链接 （文件或目录） 通过文件属性FILE_ATTRIBUTE_REPARSE_POINT识别，暂不知如何与软链接区别 类型由内核维护
-    对于除硬链接之外 的全部不扫描！
+	  类型
+	1.快捷方式 （文件或目录）文件属性与普通文件相同，通过后缀.link识别 就是一种普通文件由explorer.exe进程解析/维护 非内核维护
+	2.硬链接 （只能是文件） 就是普通文件，无法与真身区别 或者说每个都是真身 类型由内核维护
+	3.软链接  （只能是目录）通过文件属性FILE_ATTRIBUTE_REPARSE_POINT识别，暂不知如何与符号链接区别 类型由内核维护
+	4.符号链接 （文件或目录） 通过文件属性FILE_ATTRIBUTE_REPARSE_POINT识别，暂不知如何与软链接区别 类型由内核维护
+	对于除硬链接之外 的全部不扫描！
 
-    */
+	*/
 	//判断是否是.link文件
-    len = wstrFolder.length();
-    if (len > 6) /* 字符串".link/" 的长度 */
-    {
-        pos = len - 6;
-    }
+	len = wstrFolder.length();
+	if (len > 6) /* 字符串".link/" 的长度 */
+	{
+		pos = len - 6;
+	}
 
-    /* 如果找到了 */
-    strTail = wstrFolder.substr(pos, 6);
-    if (!_tcsicmp(strTail.c_str(), _T(".link/")))
-    {
+	/* 如果找到了 */
+	strTail = wstrFolder.substr(pos, 6);
+	if (!_tcsicmp(strTail.c_str(), _T(".link/")))
+	{
 
-        WriteInfo((" skip quick link path= {}"),CStrUtil::ConvertW2A(wstrFolder).c_str());
-        return 0;
-    }
+		WriteInfo((" skip quick link path= {}"), CStrUtil::ConvertW2A(wstrFolder).c_str());
+		return 0;
+	}
 
-    DWORD attr = GetFileAttributes(wstrFolder.c_str());
+	DWORD attr = GetFileAttributes(wstrFolder.c_str());
 	if (attr == INVALID_FILE_ATTRIBUTES)
-    {
-        WriteInfo(("GetFileAttributes return attr is INVALID_FILE_ATTRIBUTES, Folder = {}"), CStrUtil::ConvertW2A(wstrFolder).c_str());
-        return 0;
-    }
+	{
+		WriteInfo(("GetFileAttributes return attr is INVALID_FILE_ATTRIBUTES, Folder = {}"), CStrUtil::ConvertW2A(wstrFolder).c_str());
+		return 0;
+	}
 	if (attr & FILE_ATTRIBUTE_REPARSE_POINT)
-    {
-        WriteInfo((" skip soft/symbol link path= {}"),CStrUtil::ConvertW2A(wstrFolder).c_str());
-        return 0;
-    }
-    else if (attr & FILE_ATTRIBUTE_DIRECTORY)
-    {
-        strFullMask = wstrFolder + std::wstring(_T("*.*"));
-    }
-    else
-    {
-        strFullMask = wstrFolder;
-    }
+	{
+		WriteInfo((" skip soft/symbol link path= {}"), CStrUtil::ConvertW2A(wstrFolder).c_str());
+		return 0;
+	}
+	else if (attr & FILE_ATTRIBUTE_DIRECTORY)
+	{
+		strFullMask = wstrFolder + std::wstring(_T("*.*"));
+	}
+	else
+	{
+		strFullMask = wstrFolder;
+	}
 
 	handle = _wfindfirst(strFullMask.c_str(), &finder); //第一次查找
-    if (-1 == handle)
-    {
-        return -1;
-    }
+	if (-1 == handle)
+	{
+		return -1;
+	}
 
-    do
-    {
-        if (finder.attrib & _A_SUBDIR)  //如果是目录则递归;
-        {
-            if (0 == _tcscmp(finder.name, _T(".")) || 0 == _tcscmp(finder.name, _T("..")) )//如果是.或..则过滤;
-                continue;
+	do
+	{
+		if (finder.attrib & _A_SUBDIR)  //如果是目录则递归;
+		{
+			if (0 == _tcscmp(finder.name, _T(".")) || 0 == _tcscmp(finder.name, _T("..")))//如果是.或..则过滤;
+				continue;
 
-            wstrSubFolder = wstrFolder + finder.name + _T("\\");
+			wstrSubFolder = wstrFolder + finder.name + _T("\\");
 
-            strCurFolder = wstrSubFolder;
+			strCurFolder = wstrSubFolder;
 
-            //if (m_pFileFinderProc != NULL && !m_bStopSearch)
-            //	m_pFileFinderProc(this, FF_FOLDER, m_pCustomParam);
+			//if (m_pFileFinderProc != NULL && !m_bStopSearch)
+			//	m_pFileFinderProc(this, FF_FOLDER, m_pCustomParam);
 
-            // skip RECYCLER
-            /*strCurFolder.MakeLower();*/
-            transform(strCurFolder.begin(), strCurFolder.end(), strCurFolder.begin(), ::tolower);
-            if (-1 != strCurFolder.find(_T("recycler")) || -1 != strCurFolder.find(_T("$recycle.bin")))
-            {
-                continue;
-            }
+			// skip RECYCLER
+			/*strCurFolder.MakeLower();*/
+			transform(strCurFolder.begin(), strCurFolder.end(), strCurFolder.begin(), ::tolower);
+			if (-1 != strCurFolder.find(_T("recycler")) || -1 != strCurFolder.find(_T("$recycle.bin")))
+			{
+				continue;
+			}
 
-            // skip system temp folder    //不能过滤掉临时目录，有些工业软件会释放文件到临时目录运行
-            if (-1 != strCurFolder.find(_T("winnt\\temp")) || -1 != strCurFolder.find(_T("windows\\temp")))
-            {
-                continue;
-            }
-            // skip user temp folder
-            if (-1 != strCurFolder.find(_T("local settings\\temp")) || -1 != strCurFolder.find(_T("local\\temp")))
-            {
-                continue;
-            }
+			// skip system temp folder    //不能过滤掉临时目录，有些工业软件会释放文件到临时目录运行
+			if (-1 != strCurFolder.find(_T("winnt\\temp")) || -1 != strCurFolder.find(_T("windows\\temp")))
+			{
+				continue;
+			}
+			// skip user temp folder
+			if (-1 != strCurFolder.find(_T("local settings\\temp")) || -1 != strCurFolder.find(_T("local\\temp")))
+			{
+				continue;
+			}
 
-            // skip volume folder
-            if (-1 != strCurFolder.find(_T("system volume information")) )
-            {
-                continue;
-            }
+			// skip volume folder
+			if (-1 != strCurFolder.find(_T("system volume information")))
+			{
+				continue;
+			}
 
-            // Recursive call
-            GetFileListByFolder(wstrSubFolder, IsSHA1Lib);
-        }
-        else
-        {
-            wstring wstrFullFileName = wstrFolder + finder.name;
-			LARGE_INTEGER start;
-			double SHATime = 0;
-            if (CheckIsPEFile(wstrFullFileName))
-            {
-				std::unique_lock<std::mutex> lock(MapMutex);
-				m_FileMap[CStrUtil::ConvertW2A(wstrFullFileName)] = PE;
+			// Recursive call
+			GetFileListByFolder(wstrSubFolder, IsSHA1Lib);
+		}
+		else
+		{
+			wstring wstrFullFileName = wstrFolder + finder.name;
+			if (CheckIsPEFile(wstrFullFileName))
+			{
 				unsigned char bHashCode[INTEGRITY_LENGTH] = { 0 };
 
-                if (IsSHA1Lib)
-                {   
-                    startTime(start);
+				if (IsSHA1Lib)
+				{
 					if (!m_pefilevalidate.GetPEFileDegistByLib(wstrFullFileName.c_str(), bHashCode))
-                    {                  
-                        continue;
-                    }   
-					SHATime =  endTime(start);
-					m_FileSHA1TimeLib.push_back(std::make_pair(wstrFullFileName, SHATime));
-
-                }
-                else
-                {
-					startTime(start);
+					{
+						continue;
+					}
+				}
+				else
+				{
 					if (!m_pefilevalidate.GetPEFileDegist(wstrFullFileName.c_str(), bHashCode))
-                    {                  
-                        continue;
-                    }
-	                SHATime =  endTime(start);
-					m_FileSHA1Time.push_back(std::make_pair(wstrFullFileName, SHATime));
-                }
+					{
+						continue;
+					}
+				}
 
-            }
-        }
+				TCHAR szFileHash[INTEGRITY_LENGTH * 2 + 1] = { 0 };
+				GetHashString(bHashCode, sizeof(bHashCode), szFileHash, sizeof(szFileHash) / sizeof(TCHAR));
+				wstring wstrSHA1Hash = szFileHash;
+				{
+					string strFileName = CStrUtil::ConvertW2A(wstrFullFileName) + "Hash:" + CStrUtil::ConvertW2A(wstrSHA1Hash);
+					std::unique_lock<std::mutex> lock(m_VectorMutex);
+					FileOperationHelper::SeWriteFile("FileScan.txt", strFileName, strFileName.size());
+					m_FileHash.push_back(std::make_pair(wstrFullFileName, wstrSHA1Hash));
+
+				}
+
+			}
+		}
 		dwFileCount++;
-    }while(!_wfindnext(handle, &finder) && !m_bStopSearch);
+	} while (!_wfindnext(handle, &finder) && !m_bStopSearch);
 
 
-    _findclose(handle);
+
+
+	_findclose(handle);
 
 	return 0;
-}
-FILE_TYPE CFileScanFun::GetFileType(const std::wstring wstrFilePath)
-{
-    
-    return PE;
 }
 
 
 BOOL CFileScanFun::CheckIsPEFile(const std::wstring wstrFilePath)
 {
-    BOOL bIsPEFile = FALSE;
-    HANDLE hFileHandle = nullptr;
-    BYTE buffer[2];
-    DWORD bytesRead;
+	BOOL bIsPEFile = FALSE;
+	HANDLE hFileHandle = nullptr;
+	BYTE buffer[2];
+	DWORD bytesRead;
 
 	// 获取文件的属性
-    DWORD fileAttributes = GetFileAttributes(wstrFilePath.c_str());
-	if (fileAttributes == INVALID_FILE_ATTRIBUTES || (fileAttributes & FILE_ATTRIBUTE_DIRECTORY)) 
-    {
-        WriteError(("File not found or invalid"));
-        goto END;
-    }
+	DWORD fileAttributes = GetFileAttributes(wstrFilePath.c_str());
+	if (fileAttributes == INVALID_FILE_ATTRIBUTES || (fileAttributes & FILE_ATTRIBUTE_DIRECTORY))
+	{
+		WriteError(("File not found or invalid"));
+		goto END;
+	}
 	// 打开文件
-    hFileHandle = CreateFile(wstrFilePath.c_str(), GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
-    if (hFileHandle == INVALID_HANDLE_VALUE)
-    {
+	hFileHandle = CreateFile(wstrFilePath.c_str(), GENERIC_ALL, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+	if (hFileHandle == INVALID_HANDLE_VALUE)
+	{
 		WriteError(("Failed to open file"));
-        goto END;
-    }
+		goto END;
+	}
 
-    // 读取文件的前两个字节
-    if (!ReadFile(hFileHandle, buffer, sizeof(buffer), &bytesRead, NULL) || bytesRead != sizeof(buffer)) 
-    {
-		WriteError(("Failed to ReadFile GetLasrError = {}"),GetLastError());
-        goto END;
-    }
+	// 读取文件的前两个字节
+	if (!ReadFile(hFileHandle, buffer, sizeof(buffer), &bytesRead, NULL) || bytesRead != sizeof(buffer))
+	{
+		WriteError(("Failed to ReadFile GetLasrError = {}"), GetLastError());
+		goto END;
+	}
 
-    // 判断是否为 PE 文件
-    if (buffer[0] == 'M' && buffer[1] == 'Z') 
-    {
-        bIsPEFile = TRUE;
-    }
+	// 判断是否为 PE 文件
+	if (buffer[0] == 'M' && buffer[1] == 'Z')
+	{
+		bIsPEFile = TRUE;
+	}
 
 END:
-    // 关闭文件句柄
-    if (hFileHandle)
-    {
+	// 关闭文件句柄
+	if (hFileHandle)
+	{
 		CloseHandle(hFileHandle);
-    }
+	}
 	return bIsPEFile;
 }
 
+
+TCHAR* CFileScanFun::GetHashString(const unsigned char* pcSrc, DWORD dwSrcLen, TCHAR* pszDst, DWORD dwDstLen)
+{
+	if (dwSrcLen * 2 > dwDstLen)
+	{
+		return NULL;
+	}
+
+	for (int i = 0; i < dwSrcLen; i++)
+	{
+		swprintf_s(pszDst + 2 * i, dwDstLen - 2 * i, _T("%02X"), pcSrc[i]);
+	}
+
+	return pszDst;
+}
 

@@ -765,6 +765,7 @@ IComponent* CWLUDisk::Register()
 
 BOOL CWLUDisk::EnableFunction()
 {
+	CWLUDisk::GetInstance()->DealDeviceChangeMsg();
 	CreatMonitorThread();
 	return TRUE;
 }

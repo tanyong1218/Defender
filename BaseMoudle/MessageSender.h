@@ -41,5 +41,7 @@ public:
 	* \param[in] lpEventData  事件数据
 	* \return  返回ERROR_SUCCESS(即0)表示成功，返回其他值表示失败(返回值为错误码)。
 	*/
-	static DWORD SendMsg(DWORD dwEventType, DWORD dwMsgCode, DWORD dwDataSize, BYTE* lpEventData);
+	DWORD SendMsgToMmf(DWORD dwEventType, DWORD dwMsgCode, DWORD dwDataSize, BYTE* lpEventData);
+private:
+	CWLIPCMmf* m_msgContainer;
 };

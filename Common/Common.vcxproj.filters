@@ -60,6 +60,12 @@
     <ClInclude Include="scheme.h">
       <Filter>ImageDigest</Filter>
     </ClInclude>
+    <ClInclude Include="JsonParse.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="PETools.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Common.cpp">
@@ -94,6 +100,12 @@
     </ClCompile>
     <ClCompile Include="sha256.c">
       <Filter>ImageDigest</Filter>
+    </ClCompile>
+    <ClCompile Include="JsonParse.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="PETools.cpp">
+      <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

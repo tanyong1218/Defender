@@ -40,3 +40,25 @@ BOOL FileOperationHelper::SeEnumFile(const std::string strFileName, std::unorder
 	}
 	return TRUE;
 }
+
+BOOL FileOperationHelper::SeWriteFile(const std::string strFilePath, const std::string strBuffer, unsigned int iLength)
+{
+    fs::path filePath(strFilePath);
+
+    if (!fs::exists(filePath)) 
+	{
+		std::ofstream createFile(filePath.c_str());
+    }
+
+    std::ofstream outputFile(filePath.string(), std::ios::out | std::ios::binary | std::ios::app);
+    if (!outputFile.is_open()) {
+       
+        return FALSE;
+    }
+
+    outputFile.write(strBuffer.c_str(), iLength);
+	outputFile << std::endl;
+    outputFile.close();
+    return TRUE;
+}
+

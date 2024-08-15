@@ -11,12 +11,12 @@ CMessageHelper::~CMessageHelper()
 	{
 		delete m_pCWLMetaDataQueue;
 	}
-	
+
 }
 
 BOOL CMessageHelper::InitMessageHelper()
 {
-	HANDLE hGetMessageThread	  = (HANDLE)_beginthreadex(NULL, 0, GetMessageThread, this, 0, NULL);
+	HANDLE hGetMessageThread = (HANDLE)_beginthreadex(NULL, 0, GetMessageThread, this, 0, NULL);
 	HANDLE hDispatchMessageThread = (HANDLE)_beginthreadex(NULL, 0, DispatchMessageThread, this, 0, NULL);
 
 	if (hGetMessageThread)
@@ -39,34 +39,42 @@ unsigned int WINAPI CMessageHelper::GetMessageThread(LPVOID lpParameter)
 	}
 
 	CMessageHelper* pMessageHelper = (CMessageHelper*)lpParameter;
+	CWLIPCMmf* pIPCContainer = new CWLIPCMmf(IPC_CFG_MMF_NAME_SERVER, IPC_CFG_MUTEX_NAME_SERVER, NULL, DEFAULT_MMF_BUFFER_SIZE);
 	while (true)
 	{
-		CWLIPCMmf* pIPCContainer = new CWLIPCMmf(IPC_CFG_MMF_NAME_SERVER, IPC_CFG_MUTEX_NAME_SERVER, NULL, DEFAULT_MMF_BUFFER_SIZE);
 		BYTE* pMsgData = NULL;
 		DWORD dwSize = 0;
 
 		if (ERROR_SUCCESS == pIPCContainer->ReadData(dwSize, pMsgData))
+		{
 			try
-		{
-			DWORD dwSizeDone = 0;
-			while (dwSizeDone + IPC_MSG_DATA_HEADNER_LEN <= dwSize)
 			{
-				IPC_MSG_DATA* pMsg = reinterpret_cast<IPC_MSG_DATA*>(pMsgData + dwSizeDone);
-				pMessageHelper->m_pCWLMetaDataQueue->Insert(pMsg);
-				dwSizeDone += IPC_MSG_DATA_HEADNER_LEN + pMsg->dwSize;
+				DWORD dwSizeDone = 0;
+				while (dwSizeDone + IPC_MSG_DATA_HEADNER_LEN <= dwSize)
+				{
+					IPC_MSG_DATA* pMsg = reinterpret_cast<IPC_MSG_DATA*>(pMsgData + dwSizeDone);
+					pMessageHelper->m_pCWLMetaDataQueue->Insert(pMsg);
+					dwSizeDone += IPC_MSG_DATA_HEADNER_LEN + pMsg->dwSize;
+				}
 			}
-		}
-		catch (exception e)
-		{
-			WriteError(("catch exception {}"), e.what());
-		}
-		catch (...)
-		{
-			WriteError(("unexception catch error."));
+			catch (exception e)
+			{
+				WriteError(("catch exception {}"), e.what());
+			}
+			catch (...)
+			{
+				WriteError(("unexception catch error."));
+			}
 		}
 
 		Sleep(1000);
 	}
+
+	if (pIPCContainer)
+	{
+		delete pIPCContainer;
+	}
+
 	_endthreadex(0);
 	return 0;
 }
@@ -119,23 +127,26 @@ BOOL CMessageHelper::DispatchMessageFun(IPC_MSG_DATA* MessageData)
 
 int main(int argc, char** argv)
 {
-	WriteInfo("===================Service Begin=====================");
+	CPETool::PaserPeFile(_T("md5.exe"));
 
+
+
+	WriteInfo("===================Service Begin=====================");
 	//防止多个服务同时运行
 	HANDLE hEvent_WLService = CreateEvent(NULL, FALSE, FALSE, WL_SERVICE_SINGTON_EVENT_NAME);
-	if(!hEvent_WLService)
+	if (!hEvent_WLService)
 	{
 		WriteError(("CreateEvent WL_SERVICE_SINGTON_EVENT_NAME fail, errno={}"), GetLastError());
 		return 0;
 	}
-	else if(ERROR_ALREADY_EXISTS == GetLastError())
+	else if (ERROR_ALREADY_EXISTS == GetLastError())
 	{
 		WriteInfo(("WLSERVICE ERROR_ALREADY_EXISTS"));
 		CloseHandle(hEvent_WLService);
 		return 0;
 	}
 
-	auto HardDiskSerial =new CGetHardDiskSerialNumber();
+	auto HardDiskSerial = new CGetHardDiskSerialNumber();
 	string HardDriveSerialNumber;
 	HardDiskSerial->GetHardDriveSerialNumber(HardDriveSerialNumber);    //获取系统硬盘序列号
 

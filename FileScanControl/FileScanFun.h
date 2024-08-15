@@ -9,12 +9,9 @@
 #include <LogHelper.h>
 #include <ThreadPoolHelper.h>
 #include <FileVaildate.h>
+#include <JsonParse.h>
 #define FILESCANCONTROL_EXPORTS __declspec(dllexport)
-enum FILE_TYPE
-{
-	PE = 0,
-	OEL,
-};
+
 
 
 using namespace std;
@@ -26,15 +23,13 @@ public:
 	static unsigned int	WINAPI ScanFileThread(LPVOID lpParameter);
 	BOOL EnableScanFileFunction();
 	BOOL GetFileListByFolder(const std::wstring wstrFolder, BOOL IsSHA1Lib);
-	FILE_TYPE GetFileType(const std::wstring wstrFilePath);
 	BOOL CheckIsPEFile(const std::wstring wstrFilePath);
-	std::unordered_map<std::string,FILE_TYPE> m_FileMap;
+	TCHAR* GetHashString(const unsigned char* pcSrc, DWORD dwSrcLen, TCHAR* pszDst, DWORD dwDstLen);
 	CPEFileValidate m_pefilevalidate;
-	std::mutex MapMutex;
+	std::mutex m_VectorMutex;
 	BOOL m_bStopSearch;
 
-	vector<std::pair<wstring,double>> m_FileSHA1TimeLib;
-	vector<std::pair<wstring,double>> m_FileSHA1Time;
+	vector<std::pair<wstring,wstring>> m_FileHash;
 private:
 
 };

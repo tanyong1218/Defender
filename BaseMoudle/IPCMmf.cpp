@@ -4,8 +4,19 @@
 CWLIPCMmf::CWLIPCMmf(LPCWSTR lpMmfName, LPCWSTR lpMutexName, PSECURITY_ATTRIBUTES lpSa, DWORD dwMmfSize)
 {
 	m_pMapView = NULL;
-	m_hMutex = CreateMutex(lpSa, FALSE, lpMutexName);
-	m_hMFF = CreateFileMapping(INVALID_HANDLE_VALUE, lpSa, PAGE_READWRITE, 0, sizeof(dwMmfSize) + dwMmfSize, lpMmfName);
+
+	m_hMutex = OpenMutex(MUTEX_ALL_ACCESS, FALSE, lpMutexName);
+	if (m_hMutex)
+	{
+		m_hMutex = CreateMutex(lpSa, FALSE, lpMutexName);
+	}
+	
+	m_hMFF = OpenFileMapping(FILE_MAP_ALL_ACCESS,FALSE,lpMmfName);
+	if(!m_hMFF)
+	{
+		m_hMFF = CreateFileMapping(INVALID_HANDLE_VALUE, lpSa, PAGE_READWRITE, 0, sizeof(dwMmfSize) + dwMmfSize, lpMmfName); 
+	}
+
 	if (!m_hMFF || !m_hMutex)
 	{
 		m_dwErrorCode = ::GetLastError();
