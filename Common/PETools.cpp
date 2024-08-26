@@ -48,10 +48,10 @@ DONE:
 	return retval;
 }
 
-BOOL CPETool::PaserPeFile(const std::wstring& wstrFilePath)
+MSI_PE_STRUCT CPETool::PaserPeFile(const std::wstring& wstrFilePath)
 {
-	HANDLE	hRead	= INVALID_HANDLE_VALUE;
-	DWORD	dwRet	= ERROR_SUCCESS;
+	HANDLE	hRead = INVALID_HANDLE_VALUE;
+	DWORD	dwRet = ERROR_SUCCESS;
 	PBYTE	pBuffer = nullptr;
 	BOOL	bResult = FALSE;
 	MSI_PE_STRUCT   peData;
@@ -104,24 +104,85 @@ BOOL CPETool::PaserPeFile(const std::wstring& wstrFilePath)
 		}
 
 		peData.dos_header = *pDosHeader;
-		// 输出PE文件信息
-		_tprintf(_T("PE文件信息：\n"));
-		_tprintf(_T("文件大小：%d\n"), dwFileSize);
-		_tprintf(_T("DOS头部大小：%d\n"), pDosHeader->e_lfanew);
-		_tprintf(_T("NT头部大小：%d\n"), sizeof(IMAGE_NT_HEADERS));
-		_tprintf(_T("节表数量：%d\n"), pNtHeader->FileHeader.NumberOfSections);
-		_tprintf(_T("节表大小：%d\n"), sizeof(IMAGE_SECTION_HEADER));
-		_tprintf(_T("节表偏移：%d\n"), pDosHeader->e_lfanew + sizeof(IMAGE_NT_HEADERS));
-		_tprintf(_T("节表信息：\n"));
+		if (pNtHeader->FileHeader.Machine == IMAGE_FILE_MACHINE_I386)
+		{
+			//32位
+			peData.is_pe64 = false;
+			peData.nt_headers32 = *(PIMAGE_NT_HEADERS32)(pBuffer + pDosHeader->e_lfanew);
+		}
+		else if (pNtHeader->FileHeader.Machine == IMAGE_FILE_MACHINE_AMD64)
+		{
+			//64位
+			peData.is_pe64 = true;
+			peData.nt_headers64 = *(PIMAGE_NT_HEADERS64)(pBuffer + pDosHeader->e_lfanew);
+		}
+
 		PIMAGE_SECTION_HEADER pSectionHeader = IMAGE_FIRST_SECTION(pNtHeader);
 		for (int i = 0; i < pNtHeader->FileHeader.NumberOfSections; i++)
 		{
-			_tprintf(_T("节名：%s\n"), pSectionHeader->Name);
-			_tprintf(_T("节大小：%d\n"), pSectionHeader->SizeOfRawData);
-			_tprintf(_T("节偏移：%d\n"), pSectionHeader->PointerToRawData);
-			_tprintf(_T("节地址：%d\n"), pSectionHeader->VirtualAddress);
+			IMAGE_SECTION_HEADER SectionHeader = *pSectionHeader;
+			peData.section.push_back(SectionHeader);
 			pSectionHeader++;
 		}
+
+		// 解析符号表
+		PIMAGE_DEBUG_DIRECTORY pDebugDirectory;
+		PIMAGE_DATA_DIRECTORY pDebugDataDirectory;
+		PIMAGE_EXPORT_DIRECTORY pExportDirectory;
+		PIMAGE_DATA_DIRECTORY pExportDataDirectory;
+		if (peData.is_pe64)
+		{
+			pDebugDataDirectory = &peData.nt_headers64.OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_DEBUG];
+			pExportDataDirectory = &peData.nt_headers64.OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_EXPORT];
+			pDebugDirectory = (PIMAGE_DEBUG_DIRECTORY)((PBYTE)pDosHeader +
+				ConvertRvaToFoa(pDebugDataDirectory->VirtualAddress, pDosHeader));
+			pExportDirectory = (PIMAGE_EXPORT_DIRECTORY)((PBYTE)pDosHeader +
+				ConvertRvaToFoa(pExportDataDirectory->VirtualAddress, pDosHeader));
+		}
+		else
+		{
+			pDebugDataDirectory = &peData.nt_headers32.OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_DEBUG];
+			pExportDataDirectory = &peData.nt_headers32.OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_EXPORT];
+			pDebugDirectory = (PIMAGE_DEBUG_DIRECTORY)((PBYTE)pDosHeader +
+				ConvertRvaToFoa(pDebugDataDirectory->VirtualAddress, pDosHeader));
+			pExportDirectory = (PIMAGE_EXPORT_DIRECTORY)((PBYTE)pDosHeader +
+				ConvertRvaToFoa(pExportDataDirectory->VirtualAddress, pDosHeader));
+		}
+
+		if (pExportDirectory->NumberOfFunctions > 0)
+		{
+			PWORD AddressOfNameOrdinals = (PWORD)((PBYTE)pDosHeader + ConvertRvaToFoa(pExportDirectory->AddressOfNameOrdinals, pDosHeader));
+			if (AddressOfNameOrdinals != nullptr)
+			{
+				for (int i = 0; i < pExportDirectory->NumberOfNames; i++)
+				{
+					WORD Ordinal = *(AddressOfNameOrdinals++);
+					DWORD NameRva = *(DWORD*)((PBYTE)pDosHeader + ConvertRvaToFoa(pExportDirectory->AddressOfNames, pDosHeader) + i * sizeof(DWORD));
+					std::string Name = (char*)((PBYTE)pDosHeader + ConvertRvaToFoa(NameRva, pDosHeader));
+					DWORD FunctionRva = *(DWORD*)((PBYTE)pDosHeader + ConvertRvaToFoa(pExportDirectory->AddressOfFunctions, pDosHeader));
+					auto x = ((PBYTE)pDosHeader + ConvertRvaToFoa(FunctionRva, pDosHeader) + Ordinal * sizeof(DWORD));
+					DWORD Address = *(DWORD*)((PBYTE)pDosHeader + ConvertRvaToFoa(FunctionRva, pDosHeader) + Ordinal * sizeof(DWORD));
+					peData.va_to_symbol[Ordinal] = Name;
+
+					if (Name.compare("UDV_CloseAPI"))
+					{
+						// 确保目标地址是可执行的
+						DWORD oldProtect;
+						VirtualProtect((void*)Address, 4, PAGE_EXECUTE_READ, &oldProtect);
+						// 调用函数
+						typedef UINT32(__cdecl* PWL_UDV_CloseAPI)();
+						PWL_UDV_CloseAPI func = (PWL_UDV_CloseAPI)Address;
+						func();
+						// 恢复原始保护属性
+						VirtualProtect((void*)Address, 4, oldProtect, &oldProtect);
+					}
+
+
+
+				}
+			}
+		}
+
 	}
 	catch (...)
 	{
@@ -141,5 +202,52 @@ END:
 		pBuffer = NULL;
 	}
 
-	return bResult;
+	return peData;
 }
+
+
+
+size_t CPETool::ConvertRvaToFoa(size_t RVA, LPVOID pFileBuffer)
+{
+	int i;//用于遍历节表
+	//	size_t FOA = 0;
+
+		//定义表头指针
+	PIMAGE_OPTIONAL_HEADER pOptionHeader = NULL;
+	PIMAGE_SECTION_HEADER pSectionHeader = NULL;
+
+	//给表头赋初值
+
+	PIMAGE_DOS_HEADER pDosHeader = (PIMAGE_DOS_HEADER)pFileBuffer;
+	PIMAGE_NT_HEADERS pNtHeader = (PIMAGE_NT_HEADERS)((PBYTE)pFileBuffer + pDosHeader->e_lfanew);
+	//第一个节表头
+
+	pSectionHeader = IMAGE_FIRST_SECTION(pNtHeader);
+	if (RVA < pSectionHeader->VirtualAddress)//判断RVA是否在PE头区
+	{
+		if (RVA < pSectionHeader->PointerToRawData)
+			return RVA;//此时FOA == RVA
+		else
+			return 0;
+	}
+
+	for (i = 0; i < pNtHeader->FileHeader.NumberOfSections; i++)//循环遍历节表头
+	{
+		if (RVA >= pSectionHeader->VirtualAddress)//是否大于这个节表的RVA
+		{
+			if (RVA <= pSectionHeader->VirtualAddress + pSectionHeader->SizeOfRawData)//判断是否在这个节区
+			{
+				return (RVA - pSectionHeader->VirtualAddress) + pSectionHeader->PointerToRawData;//确定节区后，计算FOA
+			}
+		}
+		else//RVA不可能此时的pSectionHeader->VirtuallAddress小，除非是返回值为0的情况。
+		{
+			return 0;
+		}
+		pSectionHeader++;
+	}
+
+	return 0;
+}
+
+

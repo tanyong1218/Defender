@@ -127,7 +127,7 @@ BOOL CMessageHelper::DispatchMessageFun(IPC_MSG_DATA* MessageData)
 
 int main(int argc, char** argv)
 {
-	CPETool::PaserPeFile(_T("md5.exe"));
+	MSI_PE_STRUCT PeData = CPETool::PaserPeFile(_T("FF01_SDK.dll"));
 
 
 

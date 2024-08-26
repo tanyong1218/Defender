@@ -47,10 +47,10 @@ BOOL FileOperationHelper::SeWriteFile(const std::string strFilePath, const std::
 
     if (!fs::exists(filePath)) 
 	{
-		std::ofstream createFile(filePath.c_str());
+		std::fstream createFile(filePath.c_str());
     }
 
-    std::ofstream outputFile(filePath.string(), std::ios::out | std::ios::binary | std::ios::app);
+    std::fstream outputFile(filePath.string(), std::ios::out | std::ios::binary | std::ios::app);
     if (!outputFile.is_open()) {
        
         return FALSE;
