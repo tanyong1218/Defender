@@ -127,9 +127,7 @@ BOOL CMessageHelper::DispatchMessageFun(IPC_MSG_DATA* MessageData)
 
 int main(int argc, char** argv)
 {
-	MSI_PE_STRUCT PeData = CPETool::PaserPeFile(_T("FF01_SDK.dll"));
-
-
+	//MSI_PE_STRUCT PeData = CPETool::PaserPeFile(_T("FF01_SDK.dll"));
 
 	WriteInfo("===================Service Begin=====================");
 	//防止多个服务同时运行

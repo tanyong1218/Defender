@@ -479,38 +479,6 @@ BOOL WINAPI digest_sha1(DIGEST_HANDLE refdata, PBYTE pData, DWORD dwLength)
 
 BOOL ImageDigestCalcExtBySHA1Lib(const WCHAR* path, unsigned char* digest, BOOL bForce)
 {
-	/*
-	* 	BOOL retval = FALSE;
-	HANDLE fHandle = NULL;
-
-	int DigestLevel = 0;
-	EVP_MD_CTX* ctx;
-	const EVP_MD* md = nullptr;
-	unsigned int digestLength;
-	fHandle = CreateFileW(path, GENERIC_READ,
-		FILE_SHARE_READ,NULL,
-		OPEN_EXISTING,
-		FILE_ATTRIBUTE_NORMAL,
-		(HANDLE)0);
-	if (INVALID_HANDLE_VALUE == fHandle) goto DONE;
-	ctx = EVP_MD_CTX_new();
-	EVP_DigestInit(ctx, md);
-	retval = imagehack_AuImageGetDigestStream(
-		fHandle,
-		DigestLevel,
-		digest_sha1_lib,
-		(DIGEST_HANDLE)&ctx,
-		bForce
-	);
-	EVP_DigestFinal(ctx, digest, &digestLength);
-	EVP_MD_CTX_free(ctx);
-
-DONE:
-	if(INVALID_HANDLE_VALUE != fHandle){
-		::CloseHandle(fHandle);
-	}
-	return retval;
-	*/
 	BOOL retval = FALSE;
 	HANDLE fHandle = NULL;
 
@@ -522,6 +490,7 @@ DONE:
 		OPEN_EXISTING,
 		FILE_ATTRIBUTE_NORMAL,
 		(HANDLE)0);
+
 	if (INVALID_HANDLE_VALUE == fHandle) goto DONE;
 	SHA1_Init(&ctx);
 	retval = imagehack_AuImageGetDigestStream(
@@ -538,7 +507,6 @@ DONE:
 		::CloseHandle(fHandle);
 	}
 	return retval;
-	return TRUE;
 }
 
 BOOL WINAPI digest_sha1_lib(DIGEST_HANDLE refdata, PBYTE pData, DWORD dwLength)

@@ -45,7 +45,7 @@ void CWLUDisk::GetSymbolicName(DEVINST devInst, wstring& strSymbolicName)
 	}
 	HKEY hKey;
 	WCHAR regPath[MAX_PATH];
-	_snwprintf_s(regPath, _countof(regPath), _TRUNCATE,  L"SYSTEM\\CurrentControlSet\\Enum\\%s\\Device Parameters", deviceID);
+	_snwprintf_s(regPath, _countof(regPath), _TRUNCATE, L"SYSTEM\\CurrentControlSet\\Enum\\%s\\Device Parameters", deviceID);
 
 	LONG result = RegOpenKeyEx(HKEY_LOCAL_MACHINE, regPath, 0, KEY_READ, &hKey);
 	if (result != ERROR_SUCCESS) {
@@ -732,7 +732,7 @@ CWLUDisk::CWLUDisk()
 
 	BOOL bWin64 = FALSE;
 	//获取当前的计算机系统版本,存储在m_nWinVersion中
-	CWindowsHelper::SeGetWindowsVersion(m_nWinVersion,bWin64);
+	CWindowsHelper::SeGetWindowsVersion(m_nWinVersion, bWin64);
 }
 
 CWLUDisk::~CWLUDisk()
@@ -1014,6 +1014,22 @@ void CWLUDisk::RsynUSBChildignoreState(DeviceInfoFull& USBDeviceInfo)
 	}
 }
 
+BOOL FirstDriveFromMask(ULONG unitmask, string& strDisk)
+{
+	char i;
+	for (i = 0; i < 26; ++i)
+	{
+		if (unitmask & 0x1)
+			break;
+		unitmask = unitmask >> 1;
+	}
+
+	strDisk = (i + 'A');
+
+	return TRUE;
+}
+
+
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	if (uMsg == WM_DEVICECHANGE)
@@ -1022,17 +1038,25 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		if (DBT_DEVICEARRIVAL == wParam || DBT_DEVICEREMOVECOMPLETE == wParam)
 		{
 			PDEV_BROADCAST_HDR pHdr = (PDEV_BROADCAST_HDR)lParam;
+			PDEV_BROADCAST_VOLUME pVolumePre = (PDEV_BROADCAST_VOLUME)lParam;
 			//检测设备是否是磁盘卷
 			if (pHdr->dbch_devicetype == DBT_DEVTYP_VOLUME)
 			{
 				PDEV_BROADCAST_VOLUME pVolume = (PDEV_BROADCAST_VOLUME)lParam;
 				WriteInfo(("Volume changed,dbcv_size: {} dbcv_devicetype: {} dbcv_reserved: {}  dbcv_unitmask: {}  dbcv_flags: {}"),
 					pVolume->dbcv_size, pVolume->dbcv_devicetype, pVolume->dbcv_reserved, pVolume->dbcv_unitmask, pVolume->dbcv_flags);
-				CWLUDisk::GetInstance()->DealDeviceChangeMsg();
+
+				string strDisk;
+				FirstDriveFromMask(pVolume->dbcv_unitmask, strDisk);
+				WriteInfo(("Insert Disk is = {}"),strDisk.c_str());
+				
+				//CWLUDisk::GetInstance()->DealDeviceChangeMsg();
 			}
 			else if (pHdr->dbch_devicetype == DBT_DEVTYP_DEVICEINTERFACE)
 			{
-				WriteInfo(("dbch_devicetype == DBT_DEVTYP_DEVICEINTERFACE"));
+				 PDEV_BROADCAST_DEVICEINTERFACE pInterface = (PDEV_BROADCAST_DEVICEINTERFACE)lParam;
+				 WriteInfo(("Device Interface Class dbcc_size = {}"),pInterface->dbcc_size);
+				//WriteInfo(("dbch_devicetype == DBT_DEVTYP_DEVICEINTERFACE pVolumePre->dbcv_unitmask = {}"),pVolumePre->dbcv_unitmask);
 			}
 		}
 		return 0;

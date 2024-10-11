@@ -2,7 +2,6 @@
 #include <FileOperationHelper.h>
 
 
-
 CFileScanFun::CFileScanFun()
 {
 	m_bStopSearch = FALSE;
@@ -10,6 +9,13 @@ CFileScanFun::CFileScanFun()
 
 CFileScanFun::~CFileScanFun()
 {
+	if (m_PeCacheHelper)
+	{
+		m_PeCacheHelper->PE_CACHE_Clear_AllCache();
+		delete m_PeCacheHelper;
+		m_PeCacheHelper = nullptr;
+	}
+
 }
 
 BOOL CFileScanFun::EnableScanFileFunction()
@@ -19,6 +25,11 @@ BOOL CFileScanFun::EnableScanFileFunction()
 	DWORD drives = GetLogicalDrives();
 	DWORD count = 0;
 	wstring wstrDrive;
+	if (!m_PeCacheHelper)
+	{
+		m_PeCacheHelper = new PECacheHelper();
+	}
+	
 	for (TCHAR letter = 'A'; letter <= 'Z'; ++letter)
 	{
 		if ((drives & 1) == 1)
@@ -27,7 +38,7 @@ BOOL CFileScanFun::EnableScanFileFunction()
 			swprintf_s(FileName, MAX_PATH, _T("%c:\\"), letter);
 			FileScanThreadPool.enqueue([FileName]() {
 				CFileScanFun File;
-				File.GetFileListByFolder(wstring(FileName), TRUE);
+				File.GetFileListByFolder(wstring(FileName));
 				});
 		}
 		drives >>= 1;
@@ -37,7 +48,7 @@ BOOL CFileScanFun::EnableScanFileFunction()
 	return 0;
 }
 
-BOOL  CFileScanFun::GetFileListByFolder(const std::wstring wstrFolder, BOOL IsSHA1Lib)
+BOOL  CFileScanFun::GetFileListByFolder(const std::wstring wstrFolder)
 {
 	std::wstring		strFullMask;
 	std::wstring		wstrSubFolder;
@@ -144,48 +155,32 @@ BOOL  CFileScanFun::GetFileListByFolder(const std::wstring wstrFolder, BOOL IsSH
 			}
 
 			// Recursive call
-			GetFileListByFolder(wstrSubFolder, IsSHA1Lib);
+			GetFileListByFolder(wstrSubFolder);
 		}
 		else
 		{
 			wstring wstrFullFileName = wstrFolder + finder.name;
 			if (CheckIsPEFile(wstrFullFileName))
 			{
-				unsigned char bHashCode[INTEGRITY_LENGTH] = { 0 };
+				//获取PE文件的详细信息
+				wstring wstrHashCode;
+				ULONGLONG FileSize;
+				ULONGLONG LastWriteTime;
+				GetFileInfoEx(wstrFullFileName, wstrHashCode, FileSize, LastWriteTime);
 
-				if (IsSHA1Lib)
+				//保存到文件中
+				string strFileName = CStrUtil::ConvertW2A(wstrFullFileName) + "Hash:" + CStrUtil::ConvertW2A(wstrHashCode);
+				FileOperationHelper::SeWriteFile("FileScan.txt", strFileName, strFileName.size());
+
+				if (!m_PeCacheHelper->PE_CACHE_Query_Cache(wstrFullFileName, FileSize, LastWriteTime, NULL, NULL, NULL))
 				{
-					if (!m_pefilevalidate.GetPEFileDegistByLib(wstrFullFileName.c_str(), bHashCode))
-					{
-						continue;
-					}
+					m_PeCacheHelper->PE_CACHE_insert(wstrFullFileName, FileSize, LastWriteTime, wstrHashCode);
 				}
-				else
-				{
-					if (!m_pefilevalidate.GetPEFileDegist(wstrFullFileName.c_str(), bHashCode))
-					{
-						continue;
-					}
-				}
-
-				TCHAR szFileHash[INTEGRITY_LENGTH * 2 + 1] = { 0 };
-				GetHashString(bHashCode, sizeof(bHashCode), szFileHash, sizeof(szFileHash) / sizeof(TCHAR));
-				wstring wstrSHA1Hash = szFileHash;
-				{
-					string strFileName = CStrUtil::ConvertW2A(wstrFullFileName) + "Hash:" + CStrUtil::ConvertW2A(wstrSHA1Hash);
-					std::unique_lock<std::mutex> lock(m_VectorMutex);
-					FileOperationHelper::SeWriteFile("FileScan.txt", strFileName, strFileName.size());
-					m_FileHash.push_back(std::make_pair(wstrFullFileName, wstrSHA1Hash));
-
-				}
-
+				
 			}
 		}
 		dwFileCount++;
 	} while (!_wfindnext(handle, &finder) && !m_bStopSearch);
-
-
-
 
 	_findclose(handle);
 
@@ -211,14 +206,14 @@ BOOL CFileScanFun::CheckIsPEFile(const std::wstring wstrFilePath)
 	hFileHandle = CreateFile(wstrFilePath.c_str(), GENERIC_ALL, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 	if (hFileHandle == INVALID_HANDLE_VALUE)
 	{
-		WriteError(("Failed to open file"));
+		WriteError(("Failed to open file  GetLasrError = {} filepath = {}"), GetLastError(), CStrUtil::ConvertW2A(wstrFilePath).c_str());
 		goto END;
 	}
 
 	// 读取文件的前两个字节
 	if (!ReadFile(hFileHandle, buffer, sizeof(buffer), &bytesRead, NULL) || bytesRead != sizeof(buffer))
 	{
-		WriteError(("Failed to ReadFile GetLasrError = {}"), GetLastError());
+		WriteError(("Failed to ReadFile GetLasrError = {} filepath = {} "), GetLastError(),CStrUtil::ConvertW2A(wstrFilePath).c_str());
 		goto END;
 	}
 
@@ -253,3 +248,34 @@ TCHAR* CFileScanFun::GetHashString(const unsigned char* pcSrc, DWORD dwSrcLen, T
 	return pszDst;
 }
 
+BOOL CFileScanFun::GetFileInfoEx(const std::wstring wstrFullFileName, wstring& wstrHashCode, ULONGLONG& FileSize, ULONGLONG& LastWriteTime)
+{
+	unsigned char bHashCode[INTEGRITY_LENGTH] = { 0 };
+	TCHAR szFileHash[INTEGRITY_LENGTH * 2 + 1] = { 0 };
+	WIN32_FILE_ATTRIBUTE_DATA FileAttrData;
+
+	if (!m_pefilevalidate.GetPEFileDegistByLib(wstrFullFileName.c_str(), bHashCode))
+	{
+		return FALSE;
+	}
+
+	GetHashString(bHashCode, sizeof(bHashCode), szFileHash, sizeof(szFileHash) / sizeof(TCHAR));
+	if (!GetFileAttributesEx(wstrFullFileName.c_str(), GetFileExInfoStandard, &FileAttrData))
+	{
+		return FALSE;
+	}
+
+	ULARGE_INTEGER size;
+	ULARGE_INTEGER WriteTime;
+    size.HighPart = FileAttrData.nFileSizeHigh;
+    size.LowPart  = FileAttrData.nFileSizeLow;
+	
+	WriteTime.HighPart = FileAttrData.ftLastWriteTime.dwHighDateTime;
+	WriteTime.LowPart = FileAttrData.ftLastWriteTime.dwLowDateTime;
+
+	FileSize = size.QuadPart;
+	LastWriteTime = WriteTime.QuadPart;
+	wstrHashCode = szFileHash;
+
+	return TRUE;
+}

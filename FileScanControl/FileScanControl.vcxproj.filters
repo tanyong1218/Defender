@@ -27,6 +27,12 @@
     <ClInclude Include="FileScanFun.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="PECache.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="HashHelper.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -39,6 +45,12 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="FileScanFun.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="PECache.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="HashHelper.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

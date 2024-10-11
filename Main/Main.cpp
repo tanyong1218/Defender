@@ -41,10 +41,11 @@ int main(int argc, char** argv)
 	BYTE* BytePlyData = new BYTE[iLen + 1];
 	memset(BytePlyData, 0, iLen + 1);
 	memcpy(BytePlyData, strJson.c_str(), iLen);
-	//CWLMessageSender::SendMsg(CLIENT_MSG_CODE_DEVICE_CONTROL, DEVICE_CONTROL_OPEN_ALL_FUNCTION, 0, nullptr);
+	
 	//CWLMessageSender::SendMsg(CLIENT_MSG_CODE_SYSTEMLOG_CONTROL, SYSTEMLOG_CONTROL_OPEN_ALL_FUNCTION, iLen, BytePlyData);
 	CWLMessageSender *pSender = new CWLMessageSender();
 	pSender->SendMsgToMmf(CLIENT_MSG_CODE_FILESCAN_CONTROL, FILESCAN_CONTROL_OPEN_ALL_FUNCTION, iLen, BytePlyData);
+	//pSender->SendMsgToMmf(CLIENT_MSG_CODE_DEVICE_CONTROL, DEVICE_CONTROL_OPEN_ALL_FUNCTION, 0, nullptr);
 
 	for (;;)
 	{

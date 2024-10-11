@@ -10,6 +10,7 @@
 #include <ThreadPoolHelper.h>
 #include <FileVaildate.h>
 #include <JsonParse.h>
+#include "PECache.h"
 #define FILESCANCONTROL_EXPORTS __declspec(dllexport)
 
 
@@ -22,14 +23,15 @@ public:
 	~CFileScanFun();
 	static unsigned int	WINAPI ScanFileThread(LPVOID lpParameter);
 	BOOL EnableScanFileFunction();
-	BOOL GetFileListByFolder(const std::wstring wstrFolder, BOOL IsSHA1Lib);
+	BOOL GetFileListByFolder(const std::wstring wstrFolder);
 	BOOL CheckIsPEFile(const std::wstring wstrFilePath);
 	TCHAR* GetHashString(const unsigned char* pcSrc, DWORD dwSrcLen, TCHAR* pszDst, DWORD dwDstLen);
-	CPEFileValidate m_pefilevalidate;
-	std::mutex m_VectorMutex;
-	BOOL m_bStopSearch;
+	BOOL GetFileInfoEx(const std::wstring wstrFullFileName, wstring& wstrHashCode, ULONGLONG& FileSize, ULONGLONG& LastWriteTime);
 
-	vector<std::pair<wstring,wstring>> m_FileHash;
+public:
+	CPEFileValidate m_pefilevalidate;
+	BOOL m_bStopSearch;
 private:
+	PECacheHelper* m_PeCacheHelper;
 
 };

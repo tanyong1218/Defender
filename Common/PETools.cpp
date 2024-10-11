@@ -104,6 +104,8 @@ MSI_PE_STRUCT CPETool::PaserPeFile(const std::wstring& wstrFilePath)
 		}
 
 		peData.dos_header = *pDosHeader;
+		peData.size = dwFileSize;
+
 		if (pNtHeader->FileHeader.Machine == IMAGE_FILE_MACHINE_I386)
 		{
 			//32位
@@ -121,7 +123,9 @@ MSI_PE_STRUCT CPETool::PaserPeFile(const std::wstring& wstrFilePath)
 		for (int i = 0; i < pNtHeader->FileHeader.NumberOfSections; i++)
 		{
 			IMAGE_SECTION_HEADER SectionHeader = *pSectionHeader;
-			peData.section.push_back(SectionHeader);
+			//std::memcpy(&SectionHeader, pSectionHeader, sizeof(IMAGE_SECTION_HEADER));
+			//peData.section.push_back(SectionHeader);
+			peData.section.emplace_back(SectionHeader);
 			pSectionHeader++;
 		}
 
@@ -159,26 +163,10 @@ MSI_PE_STRUCT CPETool::PaserPeFile(const std::wstring& wstrFilePath)
 					WORD Ordinal = *(AddressOfNameOrdinals++);
 					DWORD NameRva = *(DWORD*)((PBYTE)pDosHeader + ConvertRvaToFoa(pExportDirectory->AddressOfNames, pDosHeader) + i * sizeof(DWORD));
 					std::string Name = (char*)((PBYTE)pDosHeader + ConvertRvaToFoa(NameRva, pDosHeader));
-					DWORD FunctionRva = *(DWORD*)((PBYTE)pDosHeader + ConvertRvaToFoa(pExportDirectory->AddressOfFunctions, pDosHeader));
-					auto x = ((PBYTE)pDosHeader + ConvertRvaToFoa(FunctionRva, pDosHeader) + Ordinal * sizeof(DWORD));
-					DWORD Address = *(DWORD*)((PBYTE)pDosHeader + ConvertRvaToFoa(FunctionRva, pDosHeader) + Ordinal * sizeof(DWORD));
-					peData.va_to_symbol[Ordinal] = Name;
+					LPDWORD pAddFunc = (LPDWORD)((PBYTE)pDosHeader + ConvertRvaToFoa(pExportDirectory->AddressOfFunctions, pDosHeader));
 
-					if (Name.compare("UDV_CloseAPI"))
-					{
-						// 确保目标地址是可执行的
-						DWORD oldProtect;
-						VirtualProtect((void*)Address, 4, PAGE_EXECUTE_READ, &oldProtect);
-						// 调用函数
-						typedef UINT32(__cdecl* PWL_UDV_CloseAPI)();
-						PWL_UDV_CloseAPI func = (PWL_UDV_CloseAPI)Address;
-						func();
-						// 恢复原始保护属性
-						VirtualProtect((void*)Address, 4, oldProtect, &oldProtect);
-					}
-
-
-
+					DWORD FunctionRVA = ConvertRvaToFoa(pAddFunc[Ordinal], pDosHeader);
+					peData.va_to_symbol[FunctionRVA] = Name;
 				}
 			}
 		}
