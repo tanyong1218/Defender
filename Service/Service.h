@@ -22,6 +22,7 @@
 #include <FileOperationHelper.h>
 #include <JsonParse.h>
 #include <PETools.h>
+
 #define DEVICECONTROL		_T("DeviceControl.dll")
 #define SYSTEMLOGCONTROL	_T("SystemLogControl.dll")
 #define	FILESCANCONTROL		_T("FileScanControl.dll")

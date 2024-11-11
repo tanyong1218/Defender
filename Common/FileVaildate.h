@@ -2,7 +2,7 @@
 #include <shlwapi.h>
 #pragma comment(lib, "shlwapi.lib")
 #include <vector>
-#include <atlstr.h>
+//#include <atlstr.h>
 #include<string>
 using namespace std;
 

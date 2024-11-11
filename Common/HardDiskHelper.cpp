@@ -259,8 +259,7 @@ int CGetHardDiskSerialNumber::GetHardDriveSerialNumber(string& HardDriveSerialNu
 				descrip->SerialNumberOffset,
 				flip, serialNumber);
 
-			if (
-				isalnum(serialNumber[0]) || isalnum(serialNumber[19]))
+			if (isalnum(serialNumber[0]) || isalnum(serialNumber[19]))
 			{
 				HardDriveSerialNumber = serialNumber;
 				done = TRUE;

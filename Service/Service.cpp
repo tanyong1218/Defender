@@ -1,5 +1,4 @@
 #include "Service.h"
-
 CMessageHelper::CMessageHelper()
 {
 	m_pCWLMetaDataQueue = new CWLMetaDataQueue();
@@ -127,9 +126,23 @@ BOOL CMessageHelper::DispatchMessageFun(IPC_MSG_DATA* MessageData)
 
 int main(int argc, char** argv)
 {
-	//MSI_PE_STRUCT PeData = CPETool::PaserPeFile(_T("FF01_SDK.dll"));
-
 	WriteInfo("===================Service Begin=====================");
+
+	std::vector<ADMIN_OPERATION_LOG_STRUCT> vecUserActionLog;
+    ADMIN_OPERATION_LOG_STRUCT log1 = { 1633075200, L"Alice", L"Login successful", 1 };
+    ADMIN_OPERATION_LOG_STRUCT log2 = { 1633075260, L"Bob", L"Logout successful", 1 };
+    vecUserActionLog.push_back(log1);
+    vecUserActionLog.push_back(log2);
+
+    JsonHelper parser;
+    std::string computerID = "1111";
+    WORD cmdType = 1;
+    WORD cmdID = 101;
+
+    std::string jsonPacket = parser.UserActionLog_GetJsonByVector(computerID, cmdType, cmdID, vecUserActionLog);
+
+
+
 	//防止多个服务同时运行
 	HANDLE hEvent_WLService = CreateEvent(NULL, FALSE, FALSE, WL_SERVICE_SINGTON_EVENT_NAME);
 	if (!hEvent_WLService)

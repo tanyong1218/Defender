@@ -116,7 +116,7 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>../include/spdlog-1.12.0/include;../include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../include/spdlog-1.12.0/include;../include;../BaseMoudle</AdditionalIncludeDirectories>
       <AdditionalOptions>/Zm500 %(AdditionalOptions)</AdditionalOptions>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
@@ -126,8 +126,8 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <Lib>
-      <AdditionalDependencies>sha1lib.lib</AdditionalDependencies>
-      <AdditionalLibraryDirectories>../include/lib/;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>sha1lib.lib;BaseMoudle.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>../include/lib/;../x64/Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -156,16 +156,22 @@
     <ClInclude Include="HardDiskHelper.h" />
     <ClInclude Include="JsonParse.h" />
     <ClInclude Include="LogHelper.h" />
+    <ClInclude Include="md5.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="peimage2.h" />
     <ClInclude Include="PETools.h" />
     <ClInclude Include="scheme.h" />
     <ClInclude Include="sha1.h" />
     <ClInclude Include="sha256.h" />
+    <ClInclude Include="sm3.h" />
+    <ClInclude Include="sm4.h" />
+    <ClInclude Include="SM4Crypto.h" />
     <ClInclude Include="StringHelper.h" />
     <ClInclude Include="ThreadPoolHelper.h" />
     <ClInclude Include="TimerHelper.h" />
+    <ClInclude Include="WarnLogSender.h" />
     <ClInclude Include="WindowsHelper.h" />
+    <ClInclude Include="WinTimer.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Common.cpp" />
@@ -174,6 +180,7 @@
     <ClCompile Include="HardDiskHelper.cpp" />
     <ClCompile Include="JsonParse.cpp" />
     <ClCompile Include="LogHelper.cpp" />
+    <ClCompile Include="md5ex.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -184,8 +191,12 @@
     <ClCompile Include="PETools.cpp" />
     <ClCompile Include="sha1.c" />
     <ClCompile Include="sha256.c" />
+    <ClCompile Include="sm3.c" />
+    <ClCompile Include="sm4.c" />
+    <ClCompile Include="SM4Crypto.cpp" />
     <ClCompile Include="StringHelper.cpp" />
     <ClCompile Include="WindowsHelper.cpp" />
+    <ClCompile Include="WinTimer.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

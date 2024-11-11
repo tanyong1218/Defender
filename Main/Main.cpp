@@ -1,9 +1,11 @@
 ﻿#include "Main.h"
-
+#include "WinTimer.h"
 //TODO:命令行模式
 //#include "tclap/CmdLine.h"
 using namespace std;
-void CheckServiceExist()
+
+
+VOID CALLBACK TimerRoutine(PVOID lpParam, BOOLEAN TimerOrWaitFired)
 {
 	if (!CWindowsHelper::IsProcessExist(_T("Service.exe")))
 	{
@@ -12,10 +14,14 @@ void CheckServiceExist()
 	}
 }
 
+
 int main(int argc, char** argv)
 {
 	//Init阶段  提权、防止多开、声明变量
 	WriteInfo("===================Main Begin=====================");
+
+	SetConsoleOutputCP(65001); // 设置为UTF-8
+	CWindowsHelper::EnablePrivilege(SE_DEBUG_NAME, FALSE);
 
 	HANDLE hEvent = CreateEvent(NULL, FALSE, FALSE, WL_MAIN_SINGTON_EVENT_NAME);
 	if (!hEvent)
@@ -29,12 +35,11 @@ int main(int argc, char** argv)
 		return 0;
 	}
 
+	//定时器定时检测Service.exe程序
+	WinTimerHelper::GetInstance().CreatTimerToQueue(TimerRoutine, NULL, 600 * 1000, 600 * 1000, 0);
 
-	SetConsoleOutputCP(65001); // 设置为UTF-8
-	CWindowsHelper::EnablePrivilege(SE_DEBUG_NAME, FALSE);
-
-	Timer timer;
-	timer.add(1000 * 60 * 10, true, CheckServiceExist);  //每隔10min检测一次服务程序是否存在
+	//Timer timer;
+	//timer.add(1000 * 60 * 10, true, CheckServiceExist);  //每隔10min检测一次服务程序是否存在
 
 	string strJson = "Hello World";
 	int iLen = (int)strJson.length();
@@ -51,7 +56,7 @@ int main(int argc, char** argv)
 	{
 		Sleep(1000);
 	}
-
+	Sleep(10000);
 	WriteInfo("===================Main End=====================");
 	return 0;
 }

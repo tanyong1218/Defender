@@ -1,9 +1,16 @@
 #include "FileScanFun.h"
 #include <FileOperationHelper.h>
+#include "FeatureDB.h"
 
 
 CFileScanFun::CFileScanFun()
 {
+	BOOL bRet = CFeatureDB::GetInstance()->Init();
+	if (bRet)
+	{
+		CFeatureDB::GetInstance()->Load();  // 加载特征库
+	}
+	
 	m_bStopSearch = FALSE;
 }
 
@@ -15,7 +22,6 @@ CFileScanFun::~CFileScanFun()
 		delete m_PeCacheHelper;
 		m_PeCacheHelper = nullptr;
 	}
-
 }
 
 BOOL CFileScanFun::EnableScanFileFunction()
@@ -29,7 +35,7 @@ BOOL CFileScanFun::EnableScanFileFunction()
 	{
 		m_PeCacheHelper = new PECacheHelper();
 	}
-	
+		
 	for (TCHAR letter = 'A'; letter <= 'Z'; ++letter)
 	{
 		if ((drives & 1) == 1)
@@ -166,6 +172,7 @@ BOOL  CFileScanFun::GetFileListByFolder(const std::wstring wstrFolder)
 				wstring wstrHashCode;
 				ULONGLONG FileSize;
 				ULONGLONG LastWriteTime;
+				CHAR strVirusName[MAX_VIRUS_NAME_LEN] = {0};
 				GetFileInfoEx(wstrFullFileName, wstrHashCode, FileSize, LastWriteTime);
 
 				//保存到文件中
@@ -177,6 +184,12 @@ BOOL  CFileScanFun::GetFileListByFolder(const std::wstring wstrFolder)
 					m_PeCacheHelper->PE_CACHE_insert(wstrFullFileName, FileSize, LastWriteTime, wstrHashCode);
 				}
 				
+				//特征库引擎检测勒索病毒
+				BOOL bVirus = CFeatureDB::GetInstance()->CheckRansomware(strVirusName, wstrFullFileName.c_str());
+				if (bVirus)
+				{
+					WriteError(("*****************Virus Find Virus Path = {}"), CStrUtil::ConvertW2A(wstrFullFileName).c_str());
+				}
 			}
 		}
 		dwFileCount++;

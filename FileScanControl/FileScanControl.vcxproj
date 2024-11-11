@@ -116,14 +116,14 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>../include/spdlog-1.12.0/include;../Common;../BaseMoudle;../include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../include/spdlog-1.12.0/include;../Common;../BaseMoudle;../include;C:\WinDDK\7600.16385.1\inc\ddk;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
       <AdditionalLibraryDirectories>../include/spdlog-1.12.0/build/Release;../x64/Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>spdlog.lib;Common.lib;BaseMoudle.lib;ws2_32.lib;Crypt32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>spdlog.lib;Common.lib;BaseMoudle.lib;ws2_32.lib;Crypt32.lib;lmdb.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -146,6 +146,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="FeatureDB.h" />
     <ClInclude Include="FileScan.h" />
     <ClInclude Include="FileScanFun.h" />
     <ClInclude Include="framework.h" />
@@ -155,6 +156,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp" />
+    <ClCompile Include="FeatureDB.cpp" />
     <ClCompile Include="FileScan.cpp" />
     <ClCompile Include="FileScanFun.cpp" />
     <ClCompile Include="HashHelper.cpp" />

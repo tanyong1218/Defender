@@ -19,4 +19,5 @@ public:
 	static std::uintmax_t SeGetFileSize(const std::string& strFilePath, std::string& strError);
 	static BOOL SeEnumFile(const std::string strFileName, std::unordered_map<std::string, int>& FileMapViews);
 	static BOOL SeWriteFile(const std::string strFilePath, const std::string strBuffer, unsigned int iLength);
+	static BOOL FetchXFromDir(std::list<std::wstring>& lstFiles,const std::wstring& strDir, const std::wstring& strSuffix);
 };

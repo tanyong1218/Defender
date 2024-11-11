@@ -9,8 +9,8 @@
 #include <pathcch.h>
 #include <boost/filesystem.hpp>
 #pragma comment(lib, "advapi32.lib")
-#include <Wbemidl.h>
-#pragma comment(lib, "wbemuuid.lib")
+//#include <Wbemidl.h>
+//#pragma comment(lib, "wbemuuid.lib")
 
 #include <Iphlpapi.h>
 #pragma comment(lib, "Iphlpapi.lib")

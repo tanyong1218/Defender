@@ -13,8 +13,6 @@
 #include "PECache.h"
 #define FILESCANCONTROL_EXPORTS __declspec(dllexport)
 
-
-
 using namespace std;
 class CFileScanFun
 {
@@ -33,5 +31,4 @@ public:
 	BOOL m_bStopSearch;
 private:
 	PECacheHelper* m_PeCacheHelper;
-
 };

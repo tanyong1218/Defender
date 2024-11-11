@@ -66,6 +66,24 @@
     <ClInclude Include="PETools.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="WarnLogSender.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="WinTimer.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="sm3.h">
+      <Filter>ImageDigest</Filter>
+    </ClInclude>
+    <ClInclude Include="sm4.h">
+      <Filter>ImageDigest</Filter>
+    </ClInclude>
+    <ClInclude Include="SM4Crypto.h">
+      <Filter>ImageDigest</Filter>
+    </ClInclude>
+    <ClInclude Include="md5.h">
+      <Filter>ImageDigest</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Common.cpp">
@@ -106,6 +124,21 @@
     </ClCompile>
     <ClCompile Include="PETools.cpp">
       <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="WinTimer.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="sm3.c">
+      <Filter>ImageDigest</Filter>
+    </ClCompile>
+    <ClCompile Include="sm4.c">
+      <Filter>ImageDigest</Filter>
+    </ClCompile>
+    <ClCompile Include="SM4Crypto.cpp">
+      <Filter>ImageDigest</Filter>
+    </ClCompile>
+    <ClCompile Include="md5ex.cpp">
+      <Filter>ImageDigest</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

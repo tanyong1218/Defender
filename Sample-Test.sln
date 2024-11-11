@@ -10,6 +10,9 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DeviceControl", "DynamicLin
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Common", "Common\Common.vcxproj", "{63965E22-7CF5-4FFA-8E26-823418C2DAF3}"
+	ProjectSection(ProjectDependencies) = postProject
+		{6073554F-90D4-489A-A7F3-0787A699E4F4} = {6073554F-90D4-489A-A7F3-0787A699E4F4}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Main", "Main\USBDeview.vcxproj", "{E9F879FA-0F2C-4A8D-BF49-BF2207893643}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -42,6 +45,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FileScanControl", "FileScan
 		{6073554F-90D4-489A-A7F3-0787A699E4F4} = {6073554F-90D4-489A-A7F3-0787A699E4F4}
 		{63965E22-7CF5-4FFA-8E26-823418C2DAF3} = {63965E22-7CF5-4FFA-8E26-823418C2DAF3}
 	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "lmdb", "lmdb\lmdb.vcxproj", "{08410EC0-B1F4-4A3C-A5E4-F850B79A1941}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -167,6 +172,22 @@ Global
 		{7A61F55B-5AF8-48EA-B23C-CCE8247427F0}.RelWithDebInfo|x64.Build.0 = Release|x64
 		{7A61F55B-5AF8-48EA-B23C-CCE8247427F0}.RelWithDebInfo|x86.ActiveCfg = Release|Win32
 		{7A61F55B-5AF8-48EA-B23C-CCE8247427F0}.RelWithDebInfo|x86.Build.0 = Release|Win32
+		{08410EC0-B1F4-4A3C-A5E4-F850B79A1941}.Debug|x64.ActiveCfg = Debug|x64
+		{08410EC0-B1F4-4A3C-A5E4-F850B79A1941}.Debug|x64.Build.0 = Debug|x64
+		{08410EC0-B1F4-4A3C-A5E4-F850B79A1941}.Debug|x86.ActiveCfg = Debug|Win32
+		{08410EC0-B1F4-4A3C-A5E4-F850B79A1941}.Debug|x86.Build.0 = Debug|Win32
+		{08410EC0-B1F4-4A3C-A5E4-F850B79A1941}.MinSizeRel|x64.ActiveCfg = Debug|x64
+		{08410EC0-B1F4-4A3C-A5E4-F850B79A1941}.MinSizeRel|x64.Build.0 = Debug|x64
+		{08410EC0-B1F4-4A3C-A5E4-F850B79A1941}.MinSizeRel|x86.ActiveCfg = Debug|Win32
+		{08410EC0-B1F4-4A3C-A5E4-F850B79A1941}.MinSizeRel|x86.Build.0 = Debug|Win32
+		{08410EC0-B1F4-4A3C-A5E4-F850B79A1941}.Release|x64.ActiveCfg = Release|x64
+		{08410EC0-B1F4-4A3C-A5E4-F850B79A1941}.Release|x64.Build.0 = Release|x64
+		{08410EC0-B1F4-4A3C-A5E4-F850B79A1941}.Release|x86.ActiveCfg = Release|Win32
+		{08410EC0-B1F4-4A3C-A5E4-F850B79A1941}.Release|x86.Build.0 = Release|Win32
+		{08410EC0-B1F4-4A3C-A5E4-F850B79A1941}.RelWithDebInfo|x64.ActiveCfg = Release|x64
+		{08410EC0-B1F4-4A3C-A5E4-F850B79A1941}.RelWithDebInfo|x64.Build.0 = Release|x64
+		{08410EC0-B1F4-4A3C-A5E4-F850B79A1941}.RelWithDebInfo|x86.ActiveCfg = Release|Win32
+		{08410EC0-B1F4-4A3C-A5E4-F850B79A1941}.RelWithDebInfo|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -62,3 +62,46 @@ BOOL FileOperationHelper::SeWriteFile(const std::string strFilePath, const std::
     return TRUE;
 }
 
+BOOL FileOperationHelper::FetchXFromDir(std::list<std::wstring>& lstFiles, const std::wstring& strDir, const std::wstring& strSuffix)
+{
+	 std::wstring strFullPath;
+    BOOL         bRet                = FALSE;
+    std::wstring xstrSuffix          = strSuffix;
+    std::wstring strPathWithWildcard = strDir;
+    std::wstring strBasePath         = _T("");
+    WIN32_FIND_DATA  stFindData      = { 0 };
+    HANDLE           hFind           = INVALID_HANDLE_VALUE;
+
+    if (strPathWithWildcard[strPathWithWildcard.length() - 1] != '\\')
+    {
+        strPathWithWildcard += _T("\\");
+    }
+    strBasePath = strPathWithWildcard;
+
+    strPathWithWildcard += _T("*");
+    strPathWithWildcard += xstrSuffix;
+
+    hFind = FindFirstFile(strPathWithWildcard.c_str(), &stFindData);
+    if (INVALID_HANDLE_VALUE == hFind)
+    {
+        return bRet;
+    }
+
+    // 开始遍历（只遍历1层）
+    lstFiles.clear();
+    do 
+    {
+        if (0 == _tcsicmp(_T("."), stFindData.cFileName)
+            ||0 ==  _tcsicmp(_T(".."), stFindData.cFileName))
+        {
+            continue;
+        }
+
+        strFullPath = strBasePath + stFindData.cFileName;
+        lstFiles.push_back(strFullPath);
+
+    } while (FindNextFile(hFind, &stFindData));
+
+    bRet = TRUE;
+}
+

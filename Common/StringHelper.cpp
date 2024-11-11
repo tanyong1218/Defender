@@ -65,3 +65,28 @@ wstring CStrUtil::MacAddrToString(const unsigned char* pMac)
 
 	return strRet;
 }
+
+wstring CStrUtil::convertTimeTToStr(const time_t& time)
+{
+	std::wstring  wsTime;
+	struct tm tm_time = {0};
+	localtime_s(&tm_time, &time);//把UTC时间转成本地时间。所以在数据库中中保存的时间都是utc时间。
+	TCHAR szTime[1024] = {0};
+	_stprintf_s (szTime, _T("%4d-%02d-%02d %02d-%02d-%02d"), tm_time.tm_year + 1900,
+		tm_time.tm_mon + 1, tm_time.tm_mday, tm_time.tm_hour,
+		tm_time.tm_min, tm_time.tm_sec);
+	wsTime = szTime;
+
+	return wsTime;
+}
+
+
+std::string CStrUtil::StringToUTF8(const std::string &str)
+{ 
+    std::wstring ws;
+    std::string retStr;
+
+    ws = ConvertA2W(str);
+    retStr = UnicodeToUTF8(ws);
+    return retStr;
+}

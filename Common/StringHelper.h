@@ -19,6 +19,8 @@ public:
 	static std::wstring UTF8ToUnicode(std::string szAnsi);
 	static std::string UnicodeToUTF8(std::wstring str);
 	static wstring MacAddrToString(const unsigned char* pMac);
+	static wstring convertTimeTToStr(const time_t& time);
+	static std::string StringToUTF8(const std::string& str);
 };
 
 #ifndef ArraySize

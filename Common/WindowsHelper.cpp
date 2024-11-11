@@ -226,7 +226,8 @@ BOOL CWindowsHelper::GetProcessIdFromName(const std::wstring& processName, DWORD
 */
 BOOL CWindowsHelper::GetSIDByUserName_Wmic(std::wstring& strUserSid, LPCTSTR pszUserName)
 {
-	HRESULT hr;
+	/*
+	* 	HRESULT hr;
 	IWbemLocator* pLoc = NULL;
 	IWbemServices* pSvc = NULL;
 	IEnumWbemClassObject* pEnumerator = NULL;
@@ -351,6 +352,8 @@ END:
 	{
 		return TRUE;
 	}
+	*/
+	return FALSE;
 }
 
 /*
