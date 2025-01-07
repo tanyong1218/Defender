@@ -309,6 +309,7 @@ public:
 
 	~CWLUDisk();
 	static CWLUDisk* GetInstance();
+	static void ReleaseInstance();
 	static vector<wstring> m_stcDevInfo;
 	DWORD UnRegister();
 	IComponent* Register();
@@ -357,3 +358,4 @@ private:
 };
 
 extern "C" __declspec(dllexport) IComponent * GetComInstance();
+extern "C" __declspec(dllexport) void ReleaseComInstance();

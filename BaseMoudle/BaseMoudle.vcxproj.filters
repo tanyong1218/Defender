@@ -42,11 +42,11 @@
     <ClInclude Include="MessageSender.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="BaseThread.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="BaseMoudle.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="pch.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
@@ -57,6 +57,9 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="MessageSender.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="BaseThread.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

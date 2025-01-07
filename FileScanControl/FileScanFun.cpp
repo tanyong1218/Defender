@@ -1,7 +1,7 @@
 #include "FileScanFun.h"
 #include <FileOperationHelper.h>
 #include "FeatureDB.h"
-
+#include "FileEAHelper.h"
 
 CFileScanFun::CFileScanFun()
 {
@@ -35,7 +35,10 @@ BOOL CFileScanFun::EnableScanFileFunction()
 	{
 		m_PeCacheHelper = new PECacheHelper();
 	}
-		
+	
+	FileEAHelper::WriteFileExAttr("md5.exe", "WLHASH", "1234");
+
+	/*
 	for (TCHAR letter = 'A'; letter <= 'Z'; ++letter)
 	{
 		if ((drives & 1) == 1)
@@ -45,10 +48,11 @@ BOOL CFileScanFun::EnableScanFileFunction()
 			FileScanThreadPool.enqueue([FileName]() {
 				CFileScanFun File;
 				File.GetFileListByFolder(wstring(FileName));
-				});
+			});
 		}
 		drives >>= 1;
 	}
+	*/
 
 	WriteInfo(("END"));
 	return 0;
@@ -188,6 +192,7 @@ BOOL  CFileScanFun::GetFileListByFolder(const std::wstring wstrFolder)
 				BOOL bVirus = CFeatureDB::GetInstance()->CheckRansomware(strVirusName, wstrFullFileName.c_str());
 				if (bVirus)
 				{
+					FileEAHelper::WriteFileExAttr(CStrUtil::ConvertW2A(wstrFullFileName), "Virus", "1");
 					WriteError(("*****************Virus Find Virus Path = {}"), CStrUtil::ConvertW2A(wstrFullFileName).c_str());
 				}
 			}

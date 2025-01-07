@@ -91,6 +91,6 @@ public:
 	CGetHardDiskSerialNumber(void);
 	~CGetHardDiskSerialNumber(void);
 
-	int GetHardDriveSerialNumber(string& HardDriveSerialNumber);
-	int FindDiInfos(__in DEVICE_TYPE DeviceType, __in DWORD DeviceNumber, __out wstring& strEunmeratorName);
+	static int GetHardDriveSerialNumber(string& HardDriveSerialNumber);
+	static int FindDiInfos(__in DEVICE_TYPE DeviceType, __in DWORD DeviceNumber, __out wstring& strEunmeratorName);
 };

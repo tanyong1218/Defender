@@ -15,6 +15,7 @@ CFileScan& CFileScan::GetInstance()
 	return instance;
 }
 
+
 DWORD CFileScan::UnRegister()
 {
 	return 0;
@@ -27,7 +28,8 @@ IComponent* CFileScan::Register()
 
 BOOL CFileScan::EnableFunction()
 {
-	auto FileScan = new CFileScanFun();
+	// 开启文件扫描功能,非单例
+	CFileScanFun *FileScan = new CFileScanFun();
 	FileScan->EnableScanFileFunction();
 	return 0;
 }
@@ -58,3 +60,4 @@ FILESCANCONTROL_EXPORTS IComponent* GetComInstance()
 	WriteInfo("Welcome to FileScanControl!");
 	return &CFileScan::GetInstance();
 }
+

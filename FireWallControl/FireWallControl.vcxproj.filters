@@ -15,54 +15,45 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
+    <None Include="cpp.hint" />
+  </ItemGroup>
+  <ItemGroup>
     <ClInclude Include="framework.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="FireWallControl.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="pch.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="FileScan.h">
+    <ClInclude Include="FireWallBase.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="FileScanFun.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="PECache.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="HashHelper.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="FeatureDB.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="FileEAHelper.h">
+    <ClInclude Include="FireWallXP.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="FireWallControl.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
     <ClCompile Include="dllmain.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="pch.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="FileScan.cpp">
+    <ClCompile Include="FireWallBase.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="FileScanFun.cpp">
+    <ClCompile Include="FireWallWin7.h">
+      <Filter>头文件</Filter>
+    </ClCompile>
+    <ClCompile Include="FireWallWin7.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="PECache.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="HashHelper.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="FeatureDB.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="FileEAHelper.cpp">
+    <ClCompile Include="FireWallXP.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

@@ -737,11 +737,7 @@ CWLUDisk::CWLUDisk()
 
 CWLUDisk::~CWLUDisk()
 {
-	if (NULL != m_instance)
-	{
-		delete m_instance;
-		m_instance = nullptr;
-	}
+	WriteInfo("CWLUDiskClass  Buffer Free");
 }
 
 CWLUDisk* CWLUDisk::GetInstance()
@@ -751,6 +747,15 @@ CWLUDisk* CWLUDisk::GetInstance()
 		m_instance = new CWLUDisk();
 	}
 	return m_instance;
+}
+
+void CWLUDisk::ReleaseInstance()
+{
+	if (m_instance)
+	{
+		delete m_instance;
+		m_instance = nullptr;  // 关键是要把静态成员置空
+	}
 }
 
 DWORD CWLUDisk::UnRegister()
@@ -1166,4 +1171,9 @@ DYNAMICLINKLIBRARY_API IComponent* GetComInstance()
 	WriteInfo("Welcome to DeviceControl!");
 	CWLUDisk* instance = CWLUDisk::GetInstance();
 	return instance;
+}
+
+DYNAMICLINKLIBRARY_API void ReleaseComInstance()
+{
+   CWLUDisk::ReleaseInstance();
 }

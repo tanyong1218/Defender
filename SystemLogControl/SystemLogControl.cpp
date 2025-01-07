@@ -12,6 +12,7 @@ CSystemLogControl::CSystemLogControl()
 
 CSystemLogControl::~CSystemLogControl()
 {
+	WriteInfo("CSystemLogControlClass  Buffer Free");
 }
 
 CSystemLogControl& CSystemLogControl::GetInstance()
@@ -19,6 +20,7 @@ CSystemLogControl& CSystemLogControl::GetInstance()
 	static CSystemLogControl instance;
 	return instance;
 }
+
 
 DWORD CSystemLogControl::UnRegister()
 {
@@ -74,3 +76,4 @@ SYSTEMLOGCONTROL_API IComponent* GetComInstance()
 	WriteInfo("Welcome to SystemLogControl!");
 	return &CSystemLogControl::GetInstance();
 }
+

@@ -81,12 +81,6 @@ public:
     // 查询指定HASH是否存在
     BOOL IsHashExist(UCHAR *pHash, int nLength, BOOL &bExist, string pszVirusName);
 
-    // 测试用，查看统计信息（返回数据库中有多少个entry）
-    size_t ShowStatistic();
-
-    // 测试，查看ENV的info
-    void ShowEnvInfo();
-
     BOOL FetchFileHash(PUCHAR pHash, const int& nLength, const int& nType, const std::wstring& strFile);
 protected:
     CFeatureDB();
@@ -103,8 +97,6 @@ protected:
 
     // 加载dat文件
     BOOL LoadDat(const std::wstring& strDatPath, std::wstring& strDatVersion);
-
-    BOOL RecordFeatureLibVersion(const std::list<std::wstring> &lstStrVers);
 
     bool ClearLMDB();
 

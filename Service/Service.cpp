@@ -118,6 +118,10 @@ BOOL CMessageHelper::DispatchMessageFun(IPC_MSG_DATA* MessageData)
 		Component = *g_IComponentVector[FILESCANCONTROL];
 		Component->DispatchMessages(MessageData);
 		break;
+	case CLIENT_MSG_CODE_FIREWALL_CONTROL:
+        Component = *g_IComponentVector[FIREWALLCONTROL];
+		Component->DispatchMessages(MessageData);
+		break;
 	default:
 		break;
 	}
@@ -127,21 +131,6 @@ BOOL CMessageHelper::DispatchMessageFun(IPC_MSG_DATA* MessageData)
 int main(int argc, char** argv)
 {
 	WriteInfo("===================Service Begin=====================");
-
-	std::vector<ADMIN_OPERATION_LOG_STRUCT> vecUserActionLog;
-    ADMIN_OPERATION_LOG_STRUCT log1 = { 1633075200, L"Alice", L"Login successful", 1 };
-    ADMIN_OPERATION_LOG_STRUCT log2 = { 1633075260, L"Bob", L"Logout successful", 1 };
-    vecUserActionLog.push_back(log1);
-    vecUserActionLog.push_back(log2);
-
-    JsonHelper parser;
-    std::string computerID = "1111";
-    WORD cmdType = 1;
-    WORD cmdID = 101;
-
-    std::string jsonPacket = parser.UserActionLog_GetJsonByVector(computerID, cmdType, cmdID, vecUserActionLog);
-
-
 
 	//防止多个服务同时运行
 	HANDLE hEvent_WLService = CreateEvent(NULL, FALSE, FALSE, WL_SERVICE_SINGTON_EVENT_NAME);
@@ -157,9 +146,8 @@ int main(int argc, char** argv)
 		return 0;
 	}
 
-	auto HardDiskSerial = new CGetHardDiskSerialNumber();
 	string HardDriveSerialNumber;
-	HardDiskSerial->GetHardDriveSerialNumber(HardDriveSerialNumber);    //获取系统硬盘序列号
+	CGetHardDiskSerialNumber::GetHardDriveSerialNumber(HardDriveSerialNumber);    //获取系统硬盘序列号
 
 	IComponent* pIComponent = nullptr;
 	for (auto& wstDLLName : g_LoadMoudleVector)
@@ -195,15 +183,33 @@ int main(int argc, char** argv)
 		});
 	*/
 
+	
 	for (;;)
 	{
 		Sleep(1000);
 	}
+	
 
 	for (const auto& ComponentPtr : g_IComponentVector)
 	{
 		IComponent* Component = *ComponentPtr.second;
 		Component->DisableFunction();
+	}
+
+	for (auto& wstDLLName : g_LoadMoudleVector)
+	{
+		HMODULE hMoudle = ::LoadLibrary(wstDLLName.c_str());
+		RELEASECOMINSTANCE lpproc = (RELEASECOMINSTANCE)GetProcAddress(hMoudle, "ReleaseComInstance");
+		if (lpproc)
+		{
+			//CUDisk是通过New创建的，所以需要释放
+			//其他模块是Static创建的，不需要释放
+			lpproc();
+		}
+		else
+		{
+			WriteError("LoadLibrary failed");
+		}
 	}
 
 	return 0;

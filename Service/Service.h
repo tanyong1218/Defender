@@ -26,11 +26,13 @@
 #define DEVICECONTROL		_T("DeviceControl.dll")
 #define SYSTEMLOGCONTROL	_T("SystemLogControl.dll")
 #define	FILESCANCONTROL		_T("FileScanControl.dll")
+#define	FIREWALLCONTROL		_T("FireWallControl.dll")
 vector<wstring> g_LoadMoudleVector
 {
 	DEVICECONTROL,
 	SYSTEMLOGCONTROL,
-	FILESCANCONTROL
+	FILESCANCONTROL,
+	FIREWALLCONTROL
 };
 
 class CMessageHelper : public Singleton<CMessageHelper>
@@ -51,5 +53,7 @@ private:
 };
 
 typedef IComponent* (_cdecl* ICOMFUNCTION)();
+
+typedef void (_cdecl* RELEASECOMINSTANCE)();
 
 std::map<wstring, std::shared_ptr<IComponent*>> g_IComponentVector;
