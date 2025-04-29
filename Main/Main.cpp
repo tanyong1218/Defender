@@ -49,7 +49,9 @@ int main(int argc, char** argv)
 	
 	CWLMessageSender *pSender = new CWLMessageSender();
 	//pSender->SendMsgToMmf(CLIENT_MSG_CODE_FILESCAN_CONTROL, FILESCAN_CONTROL_OPEN_ALL_FUNCTION, iLen, BytePlyData);
-	pSender->SendMsgToMmf(CLIENT_MSG_CODE_FIREWALL_CONTROL, FIREWALL_CONTROL_OPEN_ALL_FUNCTION, 0, nullptr);
+	//pSender->SendMsgToMmf(CLIENT_MSG_CODE_FIREWALL_CONTROL, FIREWALL_CONTROL_OPEN_ALL_FUNCTION, 0, nullptr);
+
+	pSender->SendMsgToMmf(CLIENT_MSG_CODE_CLIPBOARD_CONTROL, CLIPBOARD_CONTROL_OPEN_ALL_FUNCTION, 0, nullptr);
 
 	for (;;)
 	{

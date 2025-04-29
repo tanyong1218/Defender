@@ -1,4 +1,10 @@
 #include "Service.h"
+#include <string>
+#include <vector>
+#include <zlib.h>
+#include <windows.h>
+#include <CommCtrl.h>
+
 CMessageHelper::CMessageHelper()
 {
 	m_pCWLMetaDataQueue = new CWLMetaDataQueue();
@@ -12,7 +18,6 @@ CMessageHelper::~CMessageHelper()
 	}
 
 }
-
 BOOL CMessageHelper::InitMessageHelper()
 {
 	HANDLE hGetMessageThread = (HANDLE)_beginthreadex(NULL, 0, GetMessageThread, this, 0, NULL);
@@ -122,16 +127,21 @@ BOOL CMessageHelper::DispatchMessageFun(IPC_MSG_DATA* MessageData)
         Component = *g_IComponentVector[FIREWALLCONTROL];
 		Component->DispatchMessages(MessageData);
 		break;
+	case CLIENT_MSG_CODE_CLIPBOARD_CONTROL:
+        Component = *g_IComponentVector[CLIPBOARDCONTROL];
+		Component->DispatchMessages(MessageData);
+		break;
 	default:
 		break;
 	}
 	return 0;
 }
 
+
+
 int main(int argc, char** argv)
 {
 	WriteInfo("===================Service Begin=====================");
-
 	//防止多个服务同时运行
 	HANDLE hEvent_WLService = CreateEvent(NULL, FALSE, FALSE, WL_SERVICE_SINGTON_EVENT_NAME);
 	if (!hEvent_WLService)

@@ -96,6 +96,8 @@ public:
 	static BOOL StartProcess(LPCTSTR pszProcessName);
 	static BOOL GetPIDByProcessName(const wstring processName, DWORD& dwPid);
 	static BOOL GetMacByIp(__in const wstring wsIp, __out wstring& wstrMacAddress);
+
+	static BOOL QueryServiceInfoByName(const tstring &strSrvName, DWORD &dwCurrentState, DWORD &dwStartType, tstring *pStrErr,DWORD *pLastErrCode = NULL, tstring * pStrServiceDisplayName = NULL);
 };
 
 //32bit 程序访问64bit系统目录需要使用这个，否则会被重定向到wow中

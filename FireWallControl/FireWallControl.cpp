@@ -49,7 +49,11 @@ BOOL CFireWallControl::EnableFunction()
 	}
 
 	m_pFirewallBase->InitCom();
-	m_pFirewallBase->ConfigFirewallEnable(TRUE);
+
+	m_pFirewallBase->StartMonitoring();
+
+
+	//m_pFirewallBase->ConfigFirewallEnable(TRUE);
 	
 	return 0;
 }

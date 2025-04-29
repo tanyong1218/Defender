@@ -14,7 +14,8 @@ public:
 			});
 
 		return *instance;
-	}*/
+	}
+	*/
 
 	//C++11 局部静态变量的初始化被保证为线程安全,一般采用的是双重检查锁定
 	/*
@@ -29,6 +30,6 @@ public:
 	}
 	Singleton(const Singleton&) = delete;
 	Singleton& operator=(const Singleton&) = delete;    //阻止用户错用拷贝构造函数
-	Singleton() = default;                              //显示指定编译器生成该函数的默认版本
+	Singleton()  = default;                              //显示指定编译器生成该函数的默认版本
 	~Singleton() = default;
 };

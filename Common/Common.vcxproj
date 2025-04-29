@@ -160,6 +160,7 @@
     <ClInclude Include="pch.h" />
     <ClInclude Include="peimage2.h" />
     <ClInclude Include="PETools.h" />
+    <ClInclude Include="SafeQueue.h" />
     <ClInclude Include="scheme.h" />
     <ClInclude Include="sha1.h" />
     <ClInclude Include="sha256.h" />
@@ -167,7 +168,8 @@
     <ClInclude Include="sm4.h" />
     <ClInclude Include="SM4Crypto.h" />
     <ClInclude Include="StringHelper.h" />
-    <ClInclude Include="ThreadPoolHelper.h" />
+    <ClInclude Include="ThreadPool.h" />
+    <ClInclude Include="ThreadPoolHelperOrigin.h" />
     <ClInclude Include="TimerHelper.h" />
     <ClInclude Include="WarnLogSender.h" />
     <ClInclude Include="WindowsHelper.h" />

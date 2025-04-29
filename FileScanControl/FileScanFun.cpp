@@ -24,9 +24,16 @@ CFileScanFun::~CFileScanFun()
 	}
 }
 
+int multiply_return(const int a, const int b) {
+  const int res = a * b;
+  std::cout << a << " * " << b << " = " << res << std::endl;
+  return res;
+}
+
+
 BOOL CFileScanFun::EnableScanFileFunction()
 {
-	ThreadPool FileScanThreadPool(5);
+	ThreadPool Pool(5);
 	//获取所有逻辑驱动器
 	DWORD drives = GetLogicalDrives();
 	DWORD count = 0;
@@ -35,6 +42,15 @@ BOOL CFileScanFun::EnableScanFileFunction()
 	{
 		m_PeCacheHelper = new PECacheHelper();
 	}
+
+	Pool.init();
+
+	wchar_t FileName[MAX_PATH] = { 0 };
+	Pool.submit(multiply_return,2,7);
+
+
+	Pool.shutdown();
+
 	
 	FileEAHelper::WriteFileExAttr("md5.exe", "WLHASH", "1234");
 

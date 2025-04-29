@@ -757,6 +757,108 @@ DONE:
 	return TRUE;
 }
 
+BOOL CWindowsHelper::QueryServiceInfoByName(const tstring& strSrvName, DWORD& dwCurrentState, DWORD& dwStartType, tstring* pStrErr, DWORD* pLastErrCode, tstring* pStrServiceDisplayName)
+{
+	BOOL bRes = FALSE;
+	wostringstream  strTemp;
+
+	SERVICE_STATUS ssStatus;
+	SC_LOCK sclLockA = NULL;
+	SC_HANDLE shDefineService = NULL;
+
+	DWORD dwBytesNeeded = 0;
+	DWORD cbBufSize = 0;
+	DWORD dwError = 0;
+	LPQUERY_SERVICE_CONFIG lpqsConfig = NULL;
+
+	SC_HANDLE shServiceManager = OpenSCManager(NULL,SERVICES_ACTIVE_DATABASE,SC_MANAGER_ALL_ACCESS);
+	if (shServiceManager == NULL)
+	{
+		dwError = GetLastError();
+		strTemp<<_T("OSUtils::QueryServiceInfoByName: OpenSCManager fail, err= ")<<GetLastError()<<_T(",");
+		goto END;
+	}
+
+	shDefineService = OpenService(shServiceManager, strSrvName.c_str(), SERVICE_QUERY_STATUS|SERVICE_QUERY_CONFIG);
+	if (shDefineService == NULL)
+	{
+
+		dwError = GetLastError();
+		strTemp<<_T("OSUtils::QueryServiceInfoByName: OpenService fail, err= ")<<GetLastError()<<_T(",");
+		goto END;
+	}
+
+	if((QueryServiceStatus(shDefineService,&ssStatus))==0)
+	{
+		dwError = GetLastError();
+		strTemp<<_T("OSUtils::StartService: QueryServiceStatus fail, err=")<<GetLastError()<<_T(",");
+		goto END;
+	}
+
+	dwCurrentState = ssStatus.dwCurrentState;
+
+	if(!QueryServiceConfig(shDefineService, NULL, 0, &dwBytesNeeded))
+	{
+		dwError = GetLastError();
+		
+		if(ERROR_INSUFFICIENT_BUFFER != dwError)
+		{
+			strTemp<<_T("OSUtils::QueryServiceConfig: QueryServiceConfig error, err=")<<dwError<<_T("\r\n");
+			goto END;
+		}
+
+		cbBufSize = dwBytesNeeded;
+		lpqsConfig = (LPQUERY_SERVICE_CONFIG) LocalAlloc(LMEM_FIXED, cbBufSize);
+
+		if(lpqsConfig)
+		{
+			if(!QueryServiceConfig(shDefineService, lpqsConfig, dwBytesNeeded, &dwBytesNeeded))
+			{
+				strTemp << _T("OSUtils::QueryServiceConfig: QueryServiceConfig failed, err=")<<GetLastError()<<_T("\r\n");
+				goto END;
+			}
+			if(pStrServiceDisplayName)
+			{
+				*pStrServiceDisplayName = lpqsConfig->lpDisplayName;
+			}
+			dwStartType = lpqsConfig->dwStartType;
+			
+		}
+	}
+
+
+	bRes = TRUE;
+
+END:
+	if(pLastErrCode)
+	{
+		*pLastErrCode = dwError;
+	}
+
+	if (shDefineService)
+	{
+		CloseServiceHandle(shDefineService);
+	}
+
+	if (shServiceManager)
+	{
+		CloseServiceHandle(shServiceManager);
+	}
+
+
+	if (pStrErr)
+	{
+		*pStrErr = strTemp.str();
+	}
+
+    if ( lpqsConfig)
+    {
+        LocalFree(lpqsConfig);
+    }
+
+	return bRes;
+}
+
 BOOL Wow64RedirectOff::m_bCheckVersion = FALSE;
 BOOL Wow64RedirectOff::m_bWin64 = FALSE;
 Wow64RedirectOff::Wow64RedirectOff() {

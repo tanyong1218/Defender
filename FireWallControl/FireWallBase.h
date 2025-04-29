@@ -1,5 +1,9 @@
 #pragma once
 #include "BaseThread.h"
+#include <netfw.h>
+#define STATUS_DISABLE				0
+#define STATUS_ENABLE				1
+#define STATUS_NOCONFIG				2
 
 //³éÏó¹¤³§
 class CFirewallBase : public CWLBaseThread
@@ -17,5 +21,10 @@ public:
 
 
 	virtual BOOL ConfigFirewallEnable(BOOL bEnable) {return TRUE;}
+	
+	virtual BOOL StartMonitoring() = 0;
 
+	virtual HRESULT WFCOMInitialize(INetFwPolicy2** ppNetFwPolicy2) = 0;
+
+	virtual BOOL QueryFwService(DWORD &dwCurrentState, DWORD &dwStartType) = 0;
 };

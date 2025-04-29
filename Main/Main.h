@@ -11,7 +11,6 @@
 #include <future>
 #include <TimerHelper.h>
 #include <chrono>
-#include <ThreadPoolHelper.h>
 #include <FileOperationHelper.h>
 #include <IPCMmf.h>
 #include <MessageSender.h>

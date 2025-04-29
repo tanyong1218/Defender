@@ -7,7 +7,7 @@
 #include <StringHelper.h>
 #include <mutex>
 #include <LogHelper.h>
-#include <ThreadPoolHelper.h>
+#include <ThreadPool.h>
 #include <FileVaildate.h>
 #include <JsonParse.h>
 #include "PECache.h"

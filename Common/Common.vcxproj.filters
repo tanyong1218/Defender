@@ -36,7 +36,7 @@
     <ClInclude Include="StringHelper.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="ThreadPoolHelper.h">
+    <ClInclude Include="ThreadPoolHelperOrigin.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="FileOperationHelper.h">
@@ -83,6 +83,12 @@
     </ClInclude>
     <ClInclude Include="md5.h">
       <Filter>ImageDigest</Filter>
+    </ClInclude>
+    <ClInclude Include="ThreadPool.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="SafeQueue.h">
+      <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

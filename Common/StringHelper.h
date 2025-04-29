@@ -8,6 +8,20 @@
 using std::string;
 using std::wstring;
 
+#ifndef tstring
+	#ifdef _UNICODE
+
+		#define tstring wstring
+		#define tostringstream  wostringstream  
+	#else
+		
+
+		#define tstring string
+		#define tostringstream  ostringstream  
+	#endif
+#endif
+
+
 class CStrUtil
 {
 public:

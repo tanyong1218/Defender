@@ -16,23 +16,24 @@
 #include <IPCMmf.h>
 #include <queue>
 #include <MessageQueue.h>
-#include <ThreadPoolHelper.h>
 #include <MessageSender.h>
 #include <HardDiskHelper.h>
 #include <FileOperationHelper.h>
 #include <JsonParse.h>
 #include <PETools.h>
-
+#include <png.h>
 #define DEVICECONTROL		_T("DeviceControl.dll")
 #define SYSTEMLOGCONTROL	_T("SystemLogControl.dll")
 #define	FILESCANCONTROL		_T("FileScanControl.dll")
 #define	FIREWALLCONTROL		_T("FireWallControl.dll")
+#define	CLIPBOARDCONTROL	_T("ClipboardControl.dll")
 vector<wstring> g_LoadMoudleVector
 {
 	DEVICECONTROL,
 	SYSTEMLOGCONTROL,
 	FILESCANCONTROL,
-	FIREWALLCONTROL
+	FIREWALLCONTROL,
+	CLIPBOARDCONTROL
 };
 
 class CMessageHelper : public Singleton<CMessageHelper>

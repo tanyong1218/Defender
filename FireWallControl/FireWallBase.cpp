@@ -26,3 +26,5 @@ DWORD CFirewallBase::MainThread(LPVOID pParam)
 {
 	return 0;
 }
+
+

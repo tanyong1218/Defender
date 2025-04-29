@@ -14,6 +14,11 @@ public:
     BOOL UnInitCom() override;
     BOOL getFirewallPly(DWORD *dwFirewall) override;
 
+	HRESULT WFCOMInitialize(INetFwPolicy2** ppNetFwPolicy2) override;
+
+    BOOL StartMonitoring() override;
+
+    BOOL QueryFwService(DWORD& dwCurrentState, DWORD& dwStartType) override;
 protected:
     BOOL ConfigFirewallEnable(BOOL bEnable) override;
 };
